@@ -26,6 +26,13 @@ function initializeGame() {
     summoningPoints = new Array(numPlayers).fill(1000); // Each player starts with 1000 summoning points
     lifePoints = new Array(numPlayers).fill(8000); // Each player starts with 8000 life points
 
+    // Hide the game setup section, show the status bar and life/summoning points
+    document.getElementById('gameSetup').classList.add('hidden');
+    document.getElementById('statusBar').classList.remove('hidden');
+
+    updateLifePointsOverview();
+    updateSummoningPointsOverview();
+
     // Start with the trick-taking phase if only 2 players or Yu-Gi-Oh! variant; otherwise, go through bidding phase first
     if (numPlayers === 2 || gameVariant === 'yugioh') {
         document.getElementById('biddingPhase').classList.add('hidden');
@@ -34,10 +41,23 @@ function initializeGame() {
         document.getElementById('biddingPhase').classList.remove('hidden');
         generateBiddingOptions();
     }
+}
 
-    document.getElementById('gameSetup').classList.add('hidden');
-    updateLifePointsOverview();
-    updateSummoningPointsOverview();
+// Life Points and Summoning Points Overview
+function updateLifePointsOverview() {
+    const lifePointsDiv = document.getElementById('lifePointsOverview');
+    lifePointsDiv.innerHTML = '<h3>Life Points Overview:</h3>';
+    for (let i = 0; i < numPlayers; i++) {
+        lifePointsDiv.innerHTML += `Player ${i + 1}: ${lifePoints[i]} life points<br>`;
+    }
+}
+
+function updateSummoningPointsOverview() {
+    const summoningPointsDiv = document.getElementById('summoningPointsOverview');
+    summoningPointsDiv.innerHTML = '<h3>Summoning Points Overview:</h3>';
+    for (let i = 0; i < numPlayers; i++) {
+        summoningPointsDiv.innerHTML += `Player ${i + 1}: ${summoningPoints[i]} points<br>`;
+    }
 }
 
 // Bidding Phase
@@ -117,4 +137,76 @@ function generateTrickTakingInputs() {
     }
 }
 
-// Additional functions for calculating summoning points, updating points, and handling phases follow...
+// Trick and Summoning Phase Calculations
+function calculateTrickResults() {
+    let results = [];
+    let highestStrength = -1;
+    trickWinner = -1;
+
+    // Calculate trick results based on card strengths
+    for (let i = 0; i < numPlayers; i++) {
+        // Assume that inputs for each player's card choice are stored properly
+        let card = trickResults[i].card; // Replace this with actual input handling
+        let cardStrength = cardStrengths[card] || 0;
+        if (cardStrength > highestStrength) {
+            highestStrength = cardStrength;
+            trickWinner = i + 1;
+        }
+    }
+
+    document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
+    updateSummoningPointsFromTricks();
+}
+
+function updateSummoningPointsFromTricks() {
+    let trickPoints = 0;
+    trickResults.forEach(result => {
+        let pointsEarned = gameVariant === 'yugioh' ? result.level : cardPoints[result.card[0]] || 0;
+        trickPoints += parseInt(pointsEarned) * 100; // Multiply by 100 to get summoning points
+    });
+
+    if (trickWinner !== -1) {
+        summoningPoints[trickWinner - 1] += trickPoints; // Award points to the trick winner
+    }
+    updateSummoningPointsOverview(); // Update summoning points display
+}
+
+// Phase Transition Functions
+function endTrickTakingPhase() {
+    document.getElementById('trickTakingPhase').classList.add('hidden');
+    document.getElementById('summoningPhase').classList.remove('hidden');
+    generateSummoningInputs();
+}
+
+function generateSummoningInputs() {
+    const summoningDiv = document.getElementById('summoningInputs');
+    summoningDiv.innerHTML = "";
+    for (let i = 1; i <= numPlayers; i++) {
+        summoningDiv.innerHTML += `
+            <div class="player-section">
+                Player ${i}
+                Card Level:
+                <input type="number" min="1" max="12">
+                ATK:
+                <input type="number" min="0">
+                DEF:
+                <input type="number" min="0">
+            </div>
+        `;
+    }
+}
+
+function endSummoningPhase() {
+    document.getElementById('summoningPhase').classList.add('hidden');
+    document.getElementById('battlePhase').classList.remove('hidden');
+}
+
+function endBattlePhase() {
+    document.getElementById('battlePhase').classList.add('hidden');
+    document.getElementById('endPhase').classList.remove('hidden');
+}
+
+function nextRound() {
+    document.getElementById('endPhase').classList.add('hidden');
+    initializeGame(); // Restart the game for the next round
+}
