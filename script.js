@@ -1,3 +1,4 @@
+// Variables
 let numPlayers = 2;
 let gameVariant = 'base';
 let summoningPoints = [];
@@ -5,37 +6,39 @@ let lifePoints = [];
 let trickResults = [];
 let trickWinner = -1;
 
-// Card properties
+// Card properties and strength settings
 let trumpCards = ['Q♣', 'Q♠', 'Q♥', 'Q♦', 'J♣', 'J♠', 'J♥', 'J♦', 'A♦', '10♦', 'K♦', '9♦', '8♦', '7♦'];
 let failCards = ['A', '10', 'K', '9', '8', '7'];
 let cardStrengths = {};
 let cardPoints = { 'A': 11, '10': 10, 'K': 4, 'Q': 3, 'J': 2, '9': 0, '8': 0, '7': 0 };
 
-// Define card strengths based on the order in Sheepshead
-trumpCards.forEach((card, index) => cardStrengths[card] = 14 - index); // 14 down to 1
+// Initialize card strengths based on Sheepshead rules
+trumpCards.forEach((card, index) => cardStrengths[card] = 14 - index);
 failCards.forEach(card => {
-    ['♣', '♠', '♥'].forEach(suit => cardStrengths[card + suit] = 6 - failCards.indexOf(card)); // 6 down to 1
+    ['♣', '♠', '♥'].forEach(suit => cardStrengths[card + suit] = 6 - failCards.indexOf(card));
 });
 
-// Game Initialization
+// Initialize Game
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
+    
+    // Initialize player stats
+    summoningPoints = new Array(numPlayers).fill(1000); // Initial summoning points
+    lifePoints = new Array(numPlayers).fill(8000); // Initial life points for each player
+    
+    // Display player stats
+    updatePlayerStats();
 
-    // Initialize summoning points and life points for each player
-    summoningPoints = new Array(numPlayers).fill(1000); // Each player starts with 1000 summoning points
-    lifePoints = new Array(numPlayers).fill(8000); // Each player starts with 8000 life points
-
-    // Hide the game setup section, show the status bar and life/summoning points
+    // Set up phase visibility
+    document.getElementById('biddingPhase').classList.add('hidden');
+    document.getElementById('trickTakingPhase').classList.add('hidden');
+    document.getElementById('summoningPhase').classList.add('hidden');
+    document.getElementById('battlePhase').classList.add('hidden');
+    document.getElementById('endPhase').classList.add('hidden');
     document.getElementById('gameSetup').classList.add('hidden');
-    document.getElementById('statusBar').classList.remove('hidden');
 
-    updateLifePointsOverview();
-    updateSummoningPointsOverview();
-
-    // Start with the trick-taking phase if only 2 players or Yu-Gi-Oh! variant; otherwise, go through bidding phase first
     if (numPlayers === 2 || gameVariant === 'yugioh') {
-        document.getElementById('biddingPhase').classList.add('hidden');
         startTrickTakingPhase();
     } else {
         document.getElementById('biddingPhase').classList.remove('hidden');
@@ -43,60 +46,55 @@ function initializeGame() {
     }
 }
 
-// Life Points and Summoning Points Overview
-function updateLifePointsOverview() {
-    const lifePointsDiv = document.getElementById('lifePointsOverview');
-    lifePointsDiv.innerHTML = '<h3>Life Points Overview:</h3>';
+// Update Player Stats Display
+function updatePlayerStats() {
+    const statsDiv = document.getElementById('playerStats');
+    statsDiv.innerHTML = '<h2>Player Stats</h2>';
     for (let i = 0; i < numPlayers; i++) {
-        lifePointsDiv.innerHTML += `Player ${i + 1}: ${lifePoints[i]} life points<br>`;
-    }
-}
-
-function updateSummoningPointsOverview() {
-    const summoningPointsDiv = document.getElementById('summoningPointsOverview');
-    summoningPointsDiv.innerHTML = '<h3>Summoning Points Overview:</h3>';
-    for (let i = 0; i < numPlayers; i++) {
-        summoningPointsDiv.innerHTML += `Player ${i + 1}: ${summoningPoints[i]} points<br>`;
+        statsDiv.innerHTML += `Player ${i + 1} - Life Points: ${lifePoints[i]}, Summoning Points: ${summoningPoints[i]}<br>`;
     }
 }
 
 // Bidding Phase
 function generateBiddingOptions() {
     const biddingDiv = document.getElementById('biddingOptions');
-    biddingDiv.innerHTML = "";
+    biddingDiv.innerHTML = '';
     for (let i = 1; i <= numPlayers; i++) {
         biddingDiv.innerHTML += `
             <div class="player-section">
                 Player ${i}
-                <select>
-                    <option value="pass">Pass</option>
-                    <option value="pick">Pick Up</option>
-                </select>
+                <button onclick="passBid(${i})">Pass</button>
+                <button onclick="pickUpBid(${i})">Pick Up</button>
             </div>
         `;
     }
 }
 
-function endBiddingPhase() {
-    document.getElementById('biddingPhase').classList.add('hidden');
-    startTrickTakingPhase();
+function passBid(player) {
+    alert(`Player ${player} passes`);
+}
+
+function pickUpBid(player) {
+    alert(`Player ${player} picks up the bid`);
+    endBiddingPhase();
 }
 
 // Trick Taking Phase
 function startTrickTakingPhase() {
+    document.getElementById('biddingPhase').classList.add('hidden');
     document.getElementById('trickTakingPhase').classList.remove('hidden');
     generateTrickTakingInputs();
 }
 
 function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
-    trickTakingDiv.innerHTML = "";
+    trickTakingDiv.innerHTML = '';
     for (let i = 1; i <= numPlayers; i++) {
         if (gameVariant === 'yugioh') {
             trickTakingDiv.innerHTML += `
                 <div class="player-section">
                     Player ${i}
-                    <label>Card Attribute:</label>
+                    Card Attribute:
                     <select>
                         <option value="FIRE">FIRE</option>
                         <option value="WATER">WATER</option>
@@ -105,7 +103,7 @@ function generateTrickTakingInputs() {
                         <option value="LIGHT">LIGHT</option>
                         <option value="DARK">DARK</option>
                     </select>
-                    <label>Card Level:</label>
+                    Card Level:
                     <input type="number" min="1" max="12">
                 </div>
             `;
@@ -113,18 +111,18 @@ function generateTrickTakingInputs() {
             trickTakingDiv.innerHTML += `
                 <div class="player-section">
                     Player ${i}
-                    <label>Card Rank:</label>
+                    Card Rank:
                     <select>
-                        <option value="A">Ace</option>
-                        <option value="10">Ten</option>
-                        <option value="K">King</option>
-                        <option value="Q">Queen</option>
-                        <option value="J">Jack</option>
-                        <option value="9">Nine</option>
-                        <option value="8">Eight</option>
-                        <option value="7">Seven</option>
+                        <option value="Ace">Ace</option>
+                        <option value="Ten">Ten</option>
+                        <option value="King">King</option>
+                        <option value="Queen">Queen</option>
+                        <option value="Jack">Jack</option>
+                        <option value="Nine">Nine</option>
+                        <option value="Eight">Eight</option>
+                        <option value="Seven">Seven</option>
                     </select>
-                    <label>Suit:</label>
+                    Suit:
                     <select>
                         <option value="Clubs">Clubs</option>
                         <option value="Spades">Spades</option>
@@ -137,7 +135,7 @@ function generateTrickTakingInputs() {
     }
 }
 
-// Trick and Summoning Phase Calculations
+// Summoning Points Calculation and Update
 function calculateTrickResults() {
     let results = [];
     let highestStrength = -1;
@@ -168,7 +166,7 @@ function updateSummoningPointsFromTricks() {
     if (trickWinner !== -1) {
         summoningPoints[trickWinner - 1] += trickPoints; // Award points to the trick winner
     }
-    updateSummoningPointsOverview(); // Update summoning points display
+    updatePlayerStats(); // Update player stats to reflect summoning points
 }
 
 // Phase Transition Functions
@@ -176,24 +174,6 @@ function endTrickTakingPhase() {
     document.getElementById('trickTakingPhase').classList.add('hidden');
     document.getElementById('summoningPhase').classList.remove('hidden');
     generateSummoningInputs();
-}
-
-function generateSummoningInputs() {
-    const summoningDiv = document.getElementById('summoningInputs');
-    summoningDiv.innerHTML = "";
-    for (let i = 1; i <= numPlayers; i++) {
-        summoningDiv.innerHTML += `
-            <div class="player-section">
-                Player ${i}
-                Card Level:
-                <input type="number" min="1" max="12">
-                ATK:
-                <input type="number" min="0">
-                DEF:
-                <input type="number" min="0">
-            </div>
-        `;
-    }
 }
 
 function endSummoningPhase() {
