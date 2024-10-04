@@ -24,6 +24,13 @@
         <button onclick="initializeGame()">Start Game</button>
     </div>
 
+    <!-- Player Stats Display -->
+    <div id="statusBar" class="hidden">
+        <h2>Player Stats</h2>
+        <div id="lifePointsOverview"></div>
+        <div id="summoningPointsOverview"></div>
+    </div>
+
     <!-- Bidding Phase -->
     <div id="biddingPhase" class="phase hidden">
         <h2>Bidding Phase</h2>
@@ -44,7 +51,6 @@
     <div id="summoningPhase" class="phase hidden">
         <h2>Summoning Phase</h2>
         <div id="summoningInputs"></div>
-        <div id="summoningPointsOverview"></div>
         <button onclick="endSummoningPhase()">End Summoning Phase</button>
     </div>
 
@@ -61,14 +67,6 @@
         <button onclick="nextRound()">Start Next Round</button>
     </div>
 
-    <!-- Life Points and Summoning Points Display -->
-    <div id="statusBar">
-        <h2>Player Status</h2>
-        <div id="lifePointsOverview"></div>
-        <div id="summoningPointsOverview"></div>
-    </div>
-
-    <!-- Script Section -->
     <script src="script.js"></script>
 </body>
 </html>
