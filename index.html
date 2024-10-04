@@ -3,16 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sheepshead Trickster Variant Companion</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Sheepshead: Trickster Variant Companion</title>
+    <style>
+        .hidden { display: none; }
+        .phase { margin-bottom: 20px; }
+        .player-section { margin-bottom: 10px; }
+    </style>
 </head>
 <body>
+    <!-- Game Setup Section -->
     <div id="gameSetup">
         <h1>Sheepshead: Trickster Variant Companion</h1>
-        <label for="numPlayers">Number of Players:</label>
-        <input type="number" id="numPlayers" value="2" min="2" max="8">
+        Number of Players:
+        <select id="numPlayers">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+        </select>
         <br><br>
-        <label for="gameVariant">Select Game Variant:</label>
+        Select Game Variant:
         <select id="gameVariant" onchange="changeGameVariant()">
             <option value="base">Base Game</option>
             <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
@@ -22,22 +35,22 @@
     </div>
 
     <!-- Bidding Phase -->
-    <div id="biddingPhase" class="hidden">
+    <div id="biddingPhase" class="phase hidden">
         <h2>Bidding Phase</h2>
         <div id="biddingOptions"></div>
         <button onclick="endBiddingPhase()">End Bidding Phase</button>
     </div>
 
     <!-- Trick Taking Phase -->
-    <div id="trickTakingPhase" class="hidden">
+    <div id="trickTakingPhase" class="phase hidden">
         <h2>Trick Taking Phase</h2>
         <div id="trickTakingInputs"></div>
-        <button onclick="calculateTrickResults()">End Trick Taking Phase</button>
+        <button onclick="endTrickTakingPhase()">End Trick Taking Phase</button>
         <div id="trickResult"></div>
     </div>
 
     <!-- Summoning Phase -->
-    <div id="summoningPhase" class="hidden">
+    <div id="summoningPhase" class="phase hidden">
         <h2>Summoning Phase</h2>
         <div id="summoningInputs"></div>
         <div id="summoningPointsOverview"></div>
@@ -45,19 +58,19 @@
     </div>
 
     <!-- Battle Phase -->
-    <div id="battlePhase" class="hidden">
+    <div id="battlePhase" class="phase hidden">
         <h2>Battle Phase</h2>
         <!-- Battle inputs would go here -->
         <button onclick="endBattlePhase()">End Battle Phase</button>
     </div>
 
     <!-- End Phase -->
-    <div id="endPhase" class="hidden">
+    <div id="endPhase" class="phase hidden">
         <h2>End Phase</h2>
         <button onclick="nextRound()">Start Next Round</button>
     </div>
 
-    <!-- JavaScript for Game Logic -->
+    <!-- Script Section -->
     <script src="script.js"></script>
 </body>
 </html>
