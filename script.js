@@ -173,80 +173,20 @@ function updateSummoningPointsFromTricks(winner) {
     let trickPoints = 0;
 
     for (let i = 1; i <= numPlayers; i++) {
-        let pointsEarned;
+        let pointsEarned = 0;
         if (gameVariant === 'yugioh') {
-            pointsEarned = parseInt(document.getElementById(`level-${i}`).value);
+            const level = parseInt(document.getElementById(`level-${i}`).value);
+            pointsEarned = level * 100; // Convert level to summoning points in Yu-Gi-Oh
         } else {
             const rank = document.getElementById(`rank-${i}`).value;
             pointsEarned = cardPoints[rank] || 0;
+            trickPoints += pointsEarned * 100;
         }
-        trickPoints += pointsEarned * 100;
+
+        // Update summoning points of the winner
+        summoningPoints[winner - 1] += trickPoints;
     }
 
-    summoningPoints[winner - 1] += trickPoints;
     updatePlayerStats();
-}
-
-// Phase Transitions
-function endTrickTakingPhase() {
-    hideAllPhases();
-    document.getElementById('summoningPhase').classList.remove('hidden');
-    generateSummoningInputs();
-    updatePlayerStats();
-}
-
-function endSummoningPhase() {
-    hideAllPhases();
-    document.getElementById('battlePhase').classList.remove('hidden');
-    generateBattleInputs();
-}
-
-function endBattlePhase() {
-    hideAllPhases();
-    document.getElementById('endPhase').classList.remove('hidden');
-}
-
-function nextRound() {
-    hideAllPhases();
-    initializeGame();
-}
-
-// Generate Summoning Phase Inputs
-function generateSummoningInputs() {
-    const summoningDiv = document.getElementById('summoningInputs');
-    summoningDiv.innerHTML = '';
-    for (let i = 1; i <= numPlayers; i++) {
-        summoningDiv.innerHTML += `
-            <div class="player-section">
-                Player ${i}
-                Card Level:
-                <input type="number" id="summon-level-${i}" min="1" max="12">
-                ATK:
-                <input type="number" id="atk-${i}" min="0">
-                DEF:
-                <input type="number" id="def-${i}" min="0">
-            </div>
-        `;
-    }
-}
-
-// Battle Phase Inputs
-function generateBattleInputs() {
-    const battleDiv = document.getElementById('battleInputs');
-    battleDiv.innerHTML = '';
-    for (let i = 0; i < numPlayers; i++) {
-        battleDiv.innerHTML += `
-            <div class="player-section">
-                Player ${i + 1} Life Points: ${lifePoints[i]}
-                <button onclick="adjustLifePoints(${i}, -500)">-500</button>
-                <button onclick="adjustLifePoints(${i}, 500)">+500</button>
-            </div>
-        `;
-    }
-}
-
-function adjustLifePoints(playerIndex, amount) {
-    lifePoints[playerIndex] += amount;
-    if (lifePoints[playerIndex] < 0) lifePoints[playerIndex] = 0;
-    updatePlayerStats();
+    endTrickTakingPhase();
 }
