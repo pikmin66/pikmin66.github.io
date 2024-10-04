@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f8f8;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+.hidden {
+    display: none;
+}
+
+.player-section {
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
