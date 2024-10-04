@@ -83,6 +83,11 @@ function pickUpBid(player) {
     endBiddingPhase();
 }
 
+function endBiddingPhase() {
+    hideAllPhases();
+    startTrickTakingPhase();
+}
+
 // Trick Taking Phase
 function startTrickTakingPhase() {
     hideAllPhases();
@@ -139,6 +144,7 @@ function generateTrickTakingInputs() {
     }
 }
 
+// Calculate Trick Results and Update Summoning Points
 function calculateTrickResults() {
     let highestStrength = -1;
     trickWinner = -1;
@@ -188,5 +194,13 @@ function updateSummoningPointsFromTricks(winner) {
     }
 
     updatePlayerStats();
-    endTrickTakingPhase();
 }
+
+// End Trick Taking Phase and Move to Summoning Phase
+function endTrickTakingPhase() {
+    hideAllPhases();
+    document.getElementById('summoningPhase').classList.remove('hidden');
+    generateSummoningInputs();
+}
+
+// Summoning Phase and Further Adjustments...
