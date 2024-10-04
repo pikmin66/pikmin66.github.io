@@ -22,28 +22,32 @@ failCards.forEach(card => {
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
-    
+
     // Initialize player stats
     summoningPoints = new Array(numPlayers).fill(1000); // Initial summoning points
     lifePoints = new Array(numPlayers).fill(8000); // Initial life points for each player
-    
+
     // Display player stats
     updatePlayerStats();
 
     // Set up phase visibility
-    document.getElementById('biddingPhase').classList.add('hidden');
-    document.getElementById('trickTakingPhase').classList.add('hidden');
-    document.getElementById('summoningPhase').classList.add('hidden');
-    document.getElementById('battlePhase').classList.add('hidden');
-    document.getElementById('endPhase').classList.add('hidden');
-    document.getElementById('gameSetup').classList.add('hidden');
-
+    hideAllPhases();
     if (numPlayers === 2 || gameVariant === 'yugioh') {
         startTrickTakingPhase();
     } else {
         document.getElementById('biddingPhase').classList.remove('hidden');
         generateBiddingOptions();
     }
+}
+
+// Hide all phases
+function hideAllPhases() {
+    document.getElementById('biddingPhase').classList.add('hidden');
+    document.getElementById('trickTakingPhase').classList.add('hidden');
+    document.getElementById('summoningPhase').classList.add('hidden');
+    document.getElementById('battlePhase').classList.add('hidden');
+    document.getElementById('endPhase').classList.add('hidden');
+    document.getElementById('gameSetup').classList.add('hidden');
 }
 
 // Update Player Stats Display
@@ -81,7 +85,7 @@ function pickUpBid(player) {
 
 // Trick Taking Phase
 function startTrickTakingPhase() {
-    document.getElementById('biddingPhase').classList.add('hidden');
+    hideAllPhases();
     document.getElementById('trickTakingPhase').classList.remove('hidden');
     generateTrickTakingInputs();
 }
@@ -143,7 +147,6 @@ function calculateTrickResults() {
 
     // Calculate trick results based on card strengths
     for (let i = 0; i < numPlayers; i++) {
-        // Assume that inputs for each player's card choice are stored properly
         let card = trickResults[i].card; // Replace this with actual input handling
         let cardStrength = cardStrengths[card] || 0;
         if (cardStrength > highestStrength) {
@@ -169,24 +172,78 @@ function updateSummoningPointsFromTricks() {
     updatePlayerStats(); // Update player stats to reflect summoning points
 }
 
+// Summoning Phase
+function generateSummoningInputs() {
+    const summoningDiv = document.getElementById('summoningInputs');
+    summoningDiv.innerHTML = '';
+    for (let i = 1; i <= numPlayers; i++) {
+        summoningDiv.innerHTML += `
+            <div class="player-section">
+                Player ${i}
+                Card Level:
+                <input type="number" min="1" max="12" onchange="updateSummoningPoints(${i}, this.value)">
+                ATK:
+                <input type="number" min="0">
+                DEF:
+                <input type="number" min="0">
+            </div>
+        `;
+    }
+}
+
+// Deduct summoning points based on the card level chosen
+function updateSummoningPoints(playerIndex, level) {
+    const cost = parseInt(level) * 200;
+    if (summoningPoints[playerIndex - 1] >= cost) {
+        summoningPoints[playerIndex - 1] -= cost;
+    } else {
+        alert("Not enough summoning points!");
+    }
+    updatePlayerStats();
+}
+
+// Battle Phase with Life Point Adjustments
+function generateBattleInputs() {
+    const battleDiv = document.getElementById('battlePhase');
+    battleDiv.innerHTML = '<h2>Battle Phase</h2>';
+    for (let i = 0; i < numPlayers; i++) {
+        battleDiv.innerHTML += `
+            <div class="player-section">
+                Player ${i + 1} - Life Points: ${lifePoints[i]}
+                <button onclick="adjustLifePoints(${i}, -500)">-500</button>
+                <button onclick="adjustLifePoints(${i}, 500)">+500</button>
+            </div>
+        `;
+    }
+}
+
+// Adjust Life Points
+function adjustLifePoints(playerIndex, amount) {
+    lifePoints[playerIndex] += amount;
+    if (lifePoints[playerIndex] < 0) lifePoints[playerIndex] = 0;
+    updatePlayerStats();
+}
+
 // Phase Transition Functions
 function endTrickTakingPhase() {
-    document.getElementById('trickTakingPhase').classList.add('hidden');
+    hideAllPhases();
+    updateSummoningPointsFromTricks();
     document.getElementById('summoningPhase').classList.remove('hidden');
     generateSummoningInputs();
 }
 
 function endSummoningPhase() {
-    document.getElementById('summoningPhase').classList.add('hidden');
+    hideAllPhases();
     document.getElementById('battlePhase').classList.remove('hidden');
+    generateBattleInputs();
 }
 
 function endBattlePhase() {
-    document.getElementById('battlePhase').classList.add('hidden');
+    hideAllPhases();
     document.getElementById('endPhase').classList.remove('hidden');
 }
 
 function nextRound() {
-    document.getElementById('endPhase').classList.add('hidden');
+    hideAllPhases();
     initializeGame(); // Restart the game for the next round
 }
