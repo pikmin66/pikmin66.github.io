@@ -4,32 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sheepshead: Trickster Variant Companion</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        .hidden { display: none; }
+        .phase { margin-bottom: 20px; }
+        .player-section { margin-bottom: 10px; }
+    </style>
 </head>
 <body>
     <!-- Game Setup Section -->
     <div id="gameSetup">
         <h1>Sheepshead: Trickster Variant Companion</h1>
-        <div>
-            Number of Players:
-            <input type="number" id="numPlayers" value="2" min="2" max="8">
-        </div>
-        <div>
-            Select Game Variant:
-            <select id="gameVariant" onchange="changeGameVariant()">
-                <option value="base">Base Game</option>
-                <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
-            </select>
-        </div>
+        Number of Players:
+        <input type="number" id="numPlayers" min="2" max="8" value="2">
+        <br><br>
+        Select Game Variant:
+        <select id="gameVariant">
+            <option value="base">Base Game</option>
+            <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
+        </select>
+        <br><br>
         <button onclick="initializeGame()">Start Game</button>
     </div>
 
     <!-- Player Stats Display -->
-    <div id="statusBar" class="hidden">
-        <h2>Player Stats</h2>
-        <div id="lifePointsOverview"></div>
-        <div id="summoningPointsOverview"></div>
-    </div>
+    <div id="playerStats"></div>
 
     <!-- Bidding Phase -->
     <div id="biddingPhase" class="phase hidden">
@@ -51,13 +49,14 @@
     <div id="summoningPhase" class="phase hidden">
         <h2>Summoning Phase</h2>
         <div id="summoningInputs"></div>
+        <div id="summoningPointsOverview"></div>
         <button onclick="endSummoningPhase()">End Summoning Phase</button>
     </div>
 
     <!-- Battle Phase -->
     <div id="battlePhase" class="phase hidden">
         <h2>Battle Phase</h2>
-        <!-- Battle inputs would go here -->
+        <div id="battleInputs"></div>
         <button onclick="endBattlePhase()">End Battle Phase</button>
     </div>
 
@@ -67,6 +66,7 @@
         <button onclick="nextRound()">Start Next Round</button>
     </div>
 
+    <!-- Link to external JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
