@@ -1,6 +1,7 @@
 let numPlayers = 2;
 let gameVariant = 'base';
 let summoningPoints = [];
+let lifePoints = [];
 let trickResults = [];
 let trickWinner = -1;
 
@@ -21,8 +22,9 @@ function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
 
-    // Initialize summoning points for each player
+    // Initialize summoning points and life points for each player
     summoningPoints = new Array(numPlayers).fill(1000); // Each player starts with 1000 summoning points
+    lifePoints = new Array(numPlayers).fill(8000); // Each player starts with 8000 life points
 
     // Start with the trick-taking phase if only 2 players or Yu-Gi-Oh! variant; otherwise, go through bidding phase first
     if (numPlayers === 2 || gameVariant === 'yugioh') {
@@ -182,7 +184,16 @@ function updateSummoningPointsOverview() {
     }
 }
 
+function generateLifePointsOverview() {
+    const overviewDiv = document.getElementById('lifePointsOverview');
+    overviewDiv.innerHTML = '<h3>Life Points Overview:</h3>';
+    for (let i = 0; i < numPlayers; i++) {
+        overviewDiv.innerHTML += `Player ${i + 1}: ${lifePoints[i]} Life Points<br>`;
+    }
+}
+
 function endTrickTakingPhase() {
+    calculateTrickResults();  // Ensure trick results are calculated
     updateSummoningPointsFromTricks();
     document.getElementById('trickTakingPhase').classList.add('hidden');
     document.getElementById('summoningPhase').classList.remove('hidden');
@@ -193,6 +204,7 @@ function endTrickTakingPhase() {
 function endSummoningPhase() {
     document.getElementById('summoningPhase').classList.add('hidden');
     document.getElementById('battlePhase').classList.remove('hidden');
+    generateLifePointsOverview();  // Show life points
 }
 
 function endBattlePhase() {
