@@ -1,31 +1,143 @@
+/* General Page Styling */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
     background-color: #f8f8f8;
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
 h1, h2 {
-    color: #333;
+    font-family: 'Verdana', sans-serif;
+    font-weight: bold;
+    color: #0055a5;
+    text-align: center;
+    padding-top: 20px;
 }
 
-.hidden {
-    display: none;
+h1 {
+    border-bottom: 2px solid #0055a5;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+h2 {
+    border-bottom: 1px solid #0055a5;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+/* Containers and Layout */
+#gameSetup, .phase, #playerStats {
+    margin: 20px auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .player-section {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
+.phase {
+    display: none;
+}
+
+/* Buttons */
 button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
+    display: inline-block;
     padding: 10px 20px;
-    margin-top: 20px;
+    margin: 10px;
+    background-color: #0055a5;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #003f7f;
+}
+
+button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+/* Inputs and Selects */
+input[type="number"], select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 5px 0;
+}
+
+select {
+    cursor: pointer;
+}
+
+/* Player Stats Styling */
+#playerStats {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#playerStats div {
+    padding: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #0055a5;
+    border-radius: 5px;
+}
+
+/* Trick Taking Phase */
+#trickTakingPhase {
+    background-color: #f9f9f9;
+    border: 2px solid #0055a5;
+    padding: 15px;
+}
+
+#trickTakingInputs .player-section {
+    background-color: #eaf3ff;
+    border: 1px solid #0055a5;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+/* Summoning Phase */
+#summoningPhase {
+    background-color: #fffbf2;
+    border: 2px solid #e6a800;
+}
+
+#summoningInputs .player-section {
+    background-color: #fff3e0;
+    border: 1px solid #e6a800;
+}
+
+/* Battle Phase */
+#battlePhase {
+    background-color: #fff0f0;
+    border: 2px solid #ff5c5c;
+}
+
+/* End Phase */
+#endPhase {
+    background-color: #f0fff4;
+    border: 2px solid #28a745;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    #gameSetup, .phase, #playerStats {
+        width: 95%;
+    }
 }
