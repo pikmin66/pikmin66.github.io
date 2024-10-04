@@ -147,7 +147,7 @@ function calculateTrickResults() {
 
     // Calculate trick results based on card strengths
     for (let i = 0; i < numPlayers; i++) {
-        let card = trickResults[i].card; // Replace this with actual input handling
+        let card = trickResults[i]?.card || ''; // Replace this with actual input handling
         let cardStrength = cardStrengths[card] || 0;
         if (cardStrength > highestStrength) {
             highestStrength = cardStrength;
@@ -162,74 +162,20 @@ function calculateTrickResults() {
 function updateSummoningPointsFromTricks() {
     let trickPoints = 0;
     trickResults.forEach(result => {
-        let pointsEarned = gameVariant === 'yugioh' ? result.level : cardPoints[result.card[0]] || 0;
-        trickPoints += parseInt(pointsEarned) * 100; // Multiply by 100 to get summoning points
+        let pointsEarned = cardPoints[result.card[0]] || 0;
+        trickPoints += parseInt(pointsEarned) * 100;
     });
-
-    if (trickWinner !== -1) {
-        summoningPoints[trickWinner - 1] += trickPoints; // Award points to the trick winner
-    }
-    updatePlayerStats(); // Update player stats to reflect summoning points
-}
-
-// Summoning Phase
-function generateSummoningInputs() {
-    const summoningDiv = document.getElementById('summoningInputs');
-    summoningDiv.innerHTML = '';
-    for (let i = 1; i <= numPlayers; i++) {
-        summoningDiv.innerHTML += `
-            <div class="player-section">
-                Player ${i}
-                Card Level:
-                <input type="number" min="1" max="12" onchange="updateSummoningPoints(${i}, this.value)">
-                ATK:
-                <input type="number" min="0">
-                DEF:
-                <input type="number" min="0">
-            </div>
-        `;
-    }
-}
-
-// Deduct summoning points based on the card level chosen
-function updateSummoningPoints(playerIndex, level) {
-    const cost = parseInt(level) * 200;
-    if (summoningPoints[playerIndex - 1] >= cost) {
-        summoningPoints[playerIndex - 1] -= cost;
-    } else {
-        alert("Not enough summoning points!");
-    }
+    summoningPoints[trickWinner - 1] += trickPoints;
     updatePlayerStats();
 }
 
-// Battle Phase with Life Point Adjustments
-function generateBattleInputs() {
-    const battleDiv = document.getElementById('battlePhase');
-    battleDiv.innerHTML = '<h2>Battle Phase</h2>';
-    for (let i = 0; i < numPlayers; i++) {
-        battleDiv.innerHTML += `
-            <div class="player-section">
-                Player ${i + 1} - Life Points: ${lifePoints[i]}
-                <button onclick="adjustLifePoints(${i}, -500)">-500</button>
-                <button onclick="adjustLifePoints(${i}, 500)">+500</button>
-            </div>
-        `;
-    }
-}
-
-// Adjust Life Points
-function adjustLifePoints(playerIndex, amount) {
-    lifePoints[playerIndex] += amount;
-    if (lifePoints[playerIndex] < 0) lifePoints[playerIndex] = 0;
-    updatePlayerStats();
-}
-
-// Phase Transition Functions
+// Phase Transitions
 function endTrickTakingPhase() {
-    hideAllPhases();
     updateSummoningPointsFromTricks();
+    hideAllPhases();
     document.getElementById('summoningPhase').classList.remove('hidden');
     generateSummoningInputs();
+    updatePlayerStats();
 }
 
 function endSummoningPhase() {
@@ -245,5 +191,25 @@ function endBattlePhase() {
 
 function nextRound() {
     hideAllPhases();
-    initializeGame(); // Restart the game for the next round
+    initializeGame();
+}
+
+function generateBattleInputs() {
+    const battleDiv = document.getElementById('battleInputs');
+    battleDiv.innerHTML = '';
+    for (let i = 0; i < numPlayers; i++) {
+        battleDiv.innerHTML += `
+            <div class="player-section">
+                Player ${i + 1} Life Points: ${lifePoints[i]}
+                <button onclick="adjustLifePoints(${i}, -500)">-500</button>
+                <button onclick="adjustLifePoints(${i}, 500)">+500</button>
+            </div>
+        `;
+    }
+}
+
+function adjustLifePoints(playerIndex, amount) {
+    lifePoints[playerIndex] += amount;
+    if (lifePoints[playerIndex] < 0) lifePoints[playerIndex] = 0;
+    updatePlayerStats();
 }
