@@ -11,23 +11,20 @@
     </style>
 </head>
 <body>
+    <h1>Sheepshead: Trickster Variant Companion</h1>
     <!-- Game Setup Section -->
     <div id="gameSetup">
-        <h1>Sheepshead: Trickster Variant Companion</h1>
-        Number of Players:
-        <input type="number" id="numPlayers" min="2" max="8" value="2">
-        <br><br>
+        Number of Players: <input type="number" id="numPlayers" value="2" min="2" max="8"><br><br>
         Select Game Variant:
-        <select id="gameVariant">
+        <select id="gameVariant" onchange="changeGameVariant()">
             <option value="base">Base Game</option>
             <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
-        </select>
-        <br><br>
+        </select><br><br>
         <button onclick="initializeGame()">Start Game</button>
     </div>
 
-    <!-- Player Stats Display -->
-    <div id="playerStats"></div>
+    <!-- Player Stats -->
+    <div id="playerStats" class="phase"></div>
 
     <!-- Bidding Phase -->
     <div id="biddingPhase" class="phase hidden">
@@ -66,7 +63,7 @@
         <button onclick="nextRound()">Start Next Round</button>
     </div>
 
-    <!-- Link to external JavaScript -->
+    <!-- Script Section -->
     <script src="script.js"></script>
 </body>
 </html>
