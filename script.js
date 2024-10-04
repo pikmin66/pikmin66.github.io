@@ -144,63 +144,89 @@ function generateTrickTakingInputs() {
     }
 }
 
-// Calculate Trick Results and Update Summoning Points
+// Calculate Trick Results
 function calculateTrickResults() {
+    let results = [];
     let highestStrength = -1;
     trickWinner = -1;
 
-    // Calculate trick results based on card strengths
+    // Calculate trick results based on card strength
     for (let i = 1; i <= numPlayers; i++) {
-        let card;
+        let cardStrength;
         if (gameVariant === 'yugioh') {
-            const level = parseInt(document.getElementById(`level-${i}`).value);
-            card = level; // Use level for card strength in Yu-Gi-Oh
+            const level = parseInt(document.getElementById(`level-${i}`).value) || 0;
+            cardStrength = level; // Yu-Gi-Oh variant uses level as card strength
         } else {
             const rank = document.getElementById(`rank-${i}`).value;
             const suit = document.getElementById(`suit-${i}`).value;
-            card = `${rank}${suit}`;
+            cardStrength = cardStrengths[rank + suit] || 0;
         }
 
-        const cardStrength = cardStrengths[card] || 0;
+        results.push({ player: i, cardStrength });
         if (cardStrength > highestStrength) {
             highestStrength = cardStrength;
             trickWinner = i;
         }
     }
 
-    if (trickWinner !== -1) {
-        document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
-        updateSummoningPointsFromTricks(trickWinner);
-    }
+    // Update trick results and display
+    document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
+    trickResults = results;
 }
 
-// Update Summoning Points dynamically after trick-taking phase
-function updateSummoningPointsFromTricks(winner) {
+// Update Summoning Points Based on Trick Results
+function updateSummoningPointsFromTricks() {
     let trickPoints = 0;
-
-    for (let i = 1; i <= numPlayers; i++) {
-        let pointsEarned = 0;
+    trickResults.forEach(result => {
+        let pointsEarned;
         if (gameVariant === 'yugioh') {
-            const level = parseInt(document.getElementById(`level-${i}`).value);
-            pointsEarned = level * 100; // Convert level to summoning points in Yu-Gi-Oh
+            pointsEarned = result.cardStrength; // Use card level as summoning points in Yu-Gi-Oh!
         } else {
-            const rank = document.getElementById(`rank-${i}`).value;
-            pointsEarned = cardPoints[rank] || 0;
-            trickPoints += pointsEarned * 100;
+            pointsEarned = cardPoints[result.cardStrength] || 0;
         }
+        trickPoints += parseInt(pointsEarned) * 100;
+    });
 
-        // Update summoning points of the winner
-        summoningPoints[winner - 1] += trickPoints;
-    }
-
-    updatePlayerStats();
+    // Add calculated points to the trick winner's summoning points
+    summoningPoints[trickWinner - 1] += trickPoints;
+    updatePlayerStats(); // Refresh player stats with updated summoning points
 }
 
-// End Trick Taking Phase and Move to Summoning Phase
 function endTrickTakingPhase() {
+    updateSummoningPointsFromTricks();
     hideAllPhases();
     document.getElementById('summoningPhase').classList.remove('hidden');
     generateSummoningInputs();
 }
 
-// Summoning Phase and Further Adjustments...
+// Generate Inputs for Summoning Phase
+function generateSummoningInputs() {
+    const summoningDiv = document.getElementById('summoningInputs');
+    summoningDiv.innerHTML = '';
+    for (let i = 1; i <= numPlayers; i++) {
+        summoningDiv.innerHTML += `
+            <div class="player-section">
+                Player ${i}
+                Card Level: <input type="number" id="summon-level-${i}" min="1" max="12"><br>
+                ATK: <input type="number" id="atk-${i}"><br>
+                DEF: <input type="number" id="def-${i}"><br>
+            </div>
+        `;
+    }
+}
+
+// End Summoning Phase and Transition to Battle Phase
+function endSummoningPhase() {
+    hideAllPhases();
+    document.getElementById('battlePhase').classList.remove('hidden');
+}
+
+// Battle Phase and End Phase functions
+function endBattlePhase() {
+    hideAllPhases();
+    document.getElementById('endPhase').classList.remove('hidden');
+}
+
+function nextRound() {
+    initializeGame(); // Reset and start the game again
+}
