@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Sheepshead: Trickster Variant Companion</title>
     <link rel="stylesheet" href="styles.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile-Friendly Meta Tag -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <!-- Navigation Button -->
@@ -28,7 +28,7 @@
                     <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
                 </select>
             </div>
-            <button id="startGame" onclick="initializeGame()">Start Game</button>
+            <button id="startGame">Start Game</button>
         </div>
 
         <!-- Player Stats Overview -->
@@ -43,7 +43,7 @@
         <div id="biddingPhase" class="phase hidden">
             <h2>Bidding Phase</h2>
             <div id="biddingOptions"></div>
-            <button id="endBiddingPhase" onclick="endBiddingPhase()">End Bidding Phase</button>
+            <button id="endBiddingPhase">End Bidding Phase</button>
         </div>
 
         <!-- Trick Taking Phase -->
@@ -74,7 +74,7 @@
         <!-- End Phase -->
         <div id="endPhase" class="phase hidden">
             <h2>End Phase</h2>
-            <button id="nextRound" onclick="startNextRound()">Start Next Round</button>
+            <button id="nextRound">Start Next Round</button>
         </div>
 
         <!-- Modal for Rules and Game Points -->
