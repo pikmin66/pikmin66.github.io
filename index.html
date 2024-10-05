@@ -7,74 +7,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile-Friendly Meta Tag -->
 </head>
 <body>
-    <!-- Game Setup Section -->
-    <div id="gameSetup">
-        <h1>Sheepshead: Trickster Variant Companion</h1>
-        <div class="form-group">
-            <label for="numPlayers">Number of Players:</label>
-            <input type="number" id="numPlayers" min="2" max="8" value="2">
+    <!-- Navigation Button -->
+    <div id="navigation">
+        <button id="toggleView">Switch to Play Zone</button>
+    </div>
+
+    <!-- Game Companion Section -->
+    <div id="gameCompanion">
+        <!-- Game Setup Section -->
+        <div id="gameSetup">
+            <h1>Sheepshead: Trickster Variant Companion</h1>
+            <div class="form-group">
+                <label for="numPlayers">Number of Players:</label>
+                <input type="number" id="numPlayers" min="2" max="8" value="2">
+            </div>
+            <div class="form-group">
+                <label for="gameVariant">Select Game Variant:</label>
+                <select id="gameVariant" onchange="changeGameVariant()">
+                    <option value="base">Base Game</option>
+                    <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
+                </select>
+            </div>
+            <button id="startGame" onclick="initializeGame()">Start Game</button>
         </div>
-        <div class="form-group">
-            <label for="gameVariant">Select Game Variant:</label>
-            <select id="gameVariant" onchange="changeGameVariant()">
-                <option value="base">Base Game</option>
-                <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
-            </select>
+
+        <!-- Player Stats Overview -->
+        <div id="playerStatsOverview" class="hidden">
+            <h3>Player Stats Overview:</h3>
+            <div id="playerStats"></div>
+            <button onclick="showGamePoints()">Show Game Points</button>
+            <button onclick="showRules()">Show Rules</button>
         </div>
-        <button id="startGame" onclick="initializeGame()">Start Game</button>
+
+        <!-- Bidding Phase -->
+        <div id="biddingPhase" class="phase hidden">
+            <h2>Bidding Phase</h2>
+            <div id="biddingOptions"></div>
+            <button id="endBiddingPhase" onclick="endBiddingPhase()">End Bidding Phase</button>
+        </div>
+
+        <!-- Trick Taking Phase -->
+        <div id="trickTakingPhase" class="phase hidden">
+            <h2>Trick Taking Phase</h2>
+            <div id="trickTakingInputs"></div>
+            <button id="calculateTrickResults">Calculate Trick</button>
+            <div id="trickResult"></div>
+            <button id="endTrickTakingPhase">End Trick Taking Phase</button>
+        </div>
+
+        <!-- Summoning Phase -->
+        <div id="summoningPhase" class="phase hidden">
+            <h2>Summoning Phase</h2>
+            <div id="summoningInputs"></div>
+            <div id="summoningPointsOverview"></div>
+            <button id="endSummoningPhase">End Summoning Phase</button>
+        </div>
+
+        <!-- Battle Phase -->
+        <div id="battlePhase" class="phase hidden">
+            <h2>Battle Phase</h2>
+            <div id="battleInputs"></div>
+            <div id="battleResults"></div>
+            <button id="endBattlePhase">End Battle Phase</button>
+        </div>
+
+        <!-- End Phase -->
+        <div id="endPhase" class="phase hidden">
+            <h2>End Phase</h2>
+            <button id="nextRound" onclick="startNextRound()">Start Next Round</button>
+        </div>
+
+        <!-- Modal for Rules and Game Points -->
+        <div id="modal" class="modal hidden">
+            <div class="modal-content">
+                <span id="closeModal" class="close">&times;</span>
+                <div id="modalBody"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Player Stats Overview -->
-    <div id="playerStatsOverview" class="hidden">
-        <h3>Player Stats Overview:</h3>
-        <div id="playerStats"></div>
-        <button onclick="showGamePoints()">Show Game Points</button>
-        <button onclick="showRules()">Show Rules</button>
-    </div>
-
-    <!-- Bidding Phase -->
-    <div id="biddingPhase" class="phase hidden">
-        <h2>Bidding Phase</h2>
-        <div id="biddingOptions"></div>
-        <button id="endBiddingPhase" onclick="endBiddingPhase()">End Bidding Phase</button>
-    </div>
-
-    <!-- Trick Taking Phase -->
-    <div id="trickTakingPhase" class="phase hidden">
-        <h2>Trick Taking Phase</h2>
-        <div id="trickTakingInputs"></div>
-        <button id="calculateTrickResults">Calculate Trick</button>
-        <div id="trickResult"></div>
-        <button id="endTrickTakingPhase">End Trick Taking Phase</button>
-    </div>
-
-    <!-- Summoning Phase -->
-    <div id="summoningPhase" class="phase hidden">
-        <h2>Summoning Phase</h2>
-        <div id="summoningInputs"></div>
-        <div id="summoningPointsOverview"></div>
-        <button id="endSummoningPhase">End Summoning Phase</button>
-    </div>
-
-    <!-- Battle Phase -->
-    <div id="battlePhase" class="phase hidden">
-        <h2>Battle Phase</h2>
-        <div id="battleInputs"></div>
-        <div id="battleResults"></div>
-        <button id="endBattlePhase">End Battle Phase</button>
-    </div>
-
-    <!-- End Phase -->
-    <div id="endPhase" class="phase hidden">
-        <h2>End Phase</h2>
-        <button id="nextRound" onclick="startNextRound()">Start Next Round</button>
-    </div>
-
-    <!-- Modal for Rules and Game Points -->
-    <div id="modal" class="modal hidden">
-        <div class="modal-content">
-            <span id="closeModal" class="close">&times;</span>
-            <div id="modalBody"></div>
+    <!-- Play Zone Section -->
+    <div id="playZone" class="hidden">
+        <h1>Sheepshead: Trickster Variant - Play Zone</h1>
+        <div id="game-container">
+            <div id="hand" class="card-zone">
+                <h2>Your Hand</h2>
+                <div id="hand-cards" class="card-container"></div>
+            </div>
+            <div id="play-area" class="card-zone">
+                <h2>Play Area</h2>
+                <div id="play-area-cards" class="card-container"></div>
+            </div>
         </div>
     </div>
 
