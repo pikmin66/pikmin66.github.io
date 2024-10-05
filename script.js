@@ -6,7 +6,7 @@ let trickResults = [];
 let trickWinner = -1;
 let currentPhase = 'biddingPhase'; // Track the current phase
 
-// Card properties
+// Card properties for trick-taking phase (Sheepshead)
 let trumpCards = ['Q♣', 'Q♠', 'Q♥', 'Q♦', 'J♣', 'J♠', 'J♥', 'J♦', 'A♦', '10♦', 'K♦', '9♦', '8♦', '7♦'];
 let failCards = ['A', '10', 'K', '9', '8', '7'];
 let cardStrengths = {};
@@ -18,12 +18,13 @@ failCards.forEach(card => {
     ['♣', '♠', '♥'].forEach(suit => cardStrengths[card + suit] = 6 - failCards.indexOf(card)); // 6 down to 1
 });
 
-// Game Initialization
+// Initialize game settings
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
 
-    summoningPoints = new Array(numPlayers).fill(gameVariant === 'yugioh' ? 4000 : 1000); // Different summoning points for Yu-Gi-Oh! variant
+    // Set initial points for Yu-Gi-Oh! and Base game variants
+    summoningPoints = new Array(numPlayers).fill(gameVariant === 'yugioh' ? 5000 : 1000);
     lifePoints = new Array(numPlayers).fill(8000);
 
     updatePlayerStats();
@@ -138,7 +139,7 @@ function generateSummoningInputs() {
             <div class="player-section">
                 Player ${i}
                 Card Level:
-                <select>
+                <select class="card-level">
                     <option>1</option>
                     <option>2</option>
                     <option>3</option>
@@ -147,25 +148,41 @@ function generateSummoningInputs() {
                     <option>6</option>
                     <option>7</option>
                 </select>
-                ${gameVariant === 'yugioh' ? 'Monster Type:<input type="text"><br>' : ''}
                 ATK:
-                <input type="number" min="0">
+                <input type="number" class="card-atk" min="0">
                 DEF:
-                <input type="number" min="0">
+                <input type="number" class="card-def" min="0">
             </div>
         `;
     }
 }
 
 function endSummoningPhase() {
+    calculateSummoningCosts();
     moveToNextPhase('summoningPhase', 'battlePhase');
+}
+
+// Calculate summoning costs based on card attributes
+function calculateSummoningCosts() {
+    const players = document.getElementsByClassName('player-section');
+    for (let i = 0; i < players.length; i++) {
+        let cardLevel = parseInt(players[i].querySelector('.card-level').value);
+        let cardATK = parseInt(players[i].querySelector('.card-atk').value) || 0;
+        let cardDEF = parseInt(players[i].querySelector('.card-def').value) || 0;
+
+        // Example summoning cost formula: (Level * 100) + (ATK / 10) + (DEF / 10)
+        let summoningCost = (cardLevel * 100) + Math.floor(cardATK / 10) + Math.floor(cardDEF / 10);
+
+        // Deduct summoning points for each player based on summoning cost
+        summoningPoints[i] -= summoningCost;
+    }
+    updatePlayerStats();
 }
 
 // Battle Phase
 function endBattlePhase() {
-    // Implement specific battle mechanics for Yu-Gi-Oh! variant
     if (gameVariant === 'yugioh') {
-        alert('Special Yu-Gi-Oh! Battle Phase mechanics implemented here!');
+        alert('Yu-Gi-Oh! Battle Phase mechanics implemented here.');
     }
     moveToNextPhase('battlePhase', 'endPhase');
 }
