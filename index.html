@@ -12,18 +12,20 @@
         <!-- Game Setup -->
         <div id="gameSetup" class="phase">
             <h2>Game Setup</h2>
-            <label for="numPlayers">Number of Players:</label>
-            <select id="numPlayers">
-                <option value="2">2</option>
-                <!-- Add more options if needed -->
-            </select>
-            <br>
-            <label for="gameVariant">Game Variant:</label>
-            <select id="gameVariant">
-                <option value="base">Base</option>
-                <!-- Add more options if needed -->
-            </select>
-            <br>
+            <div class="form-group">
+                <label for="numPlayers">Number of Players:</label>
+                <select id="numPlayers">
+                    <option value="2">2</option>
+                    <!-- Add more options if needed -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="gameVariant">Game Variant:</label>
+                <select id="gameVariant">
+                    <option value="base">Base</option>
+                    <!-- Add more options if needed -->
+                </select>
+            </div>
             <button id="startGame">Start Game</button>
         </div>
 
@@ -46,7 +48,6 @@
         <div id="battlePhase" class="phase hidden">
             <h2>Battle Phase</h2>
             <div id="battleInputs"></div>
-            <button id="endBattlePhase">End Battle Phase</button>
             <div id="battleResults"></div>
         </div>
 
@@ -71,15 +72,27 @@
         </div>
 
         <!-- Toggle View Button -->
-        <button id="toggleView">Switch to Play Zone</button>
+        <div id="navigation">
+            <button id="toggleView">Switch to Play Zone</button>
+        </div>
     </div>
 
     <!-- Play Zone -->
     <div id="playZone" class="hidden">
-        <h2>Your Hand</h2>
-        <div id="hand-cards" class="card-container"></div>
-        <h2>Play Area</h2>
-        <div id="play-area-cards" class="card-container"></div>
+        <h1>Your Hand</h1>
+        <div id="game-container">
+            <div class="card-zone">
+                <h2>Hand Cards</h2>
+                <div id="hand-cards" class="card-container"></div>
+            </div>
+            <div class="card-zone">
+                <h2>Play Area</h2>
+                <div id="play-area-cards" class="card-container"></div>
+            </div>
+        </div>
+        <div id="navigation">
+            <button id="toggleView">Switch to Game Companion</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
