@@ -12,17 +12,17 @@
     <div id="gameSetup">
         <h1>Sheepshead: Trickster Variant Companion</h1>
         <div>
-            Number of Players: 
+            <label for="numPlayers">Number of Players:</label>
             <input type="number" id="numPlayers" min="2" max="8" value="2">
         </div>
         <div>
-            Select Game Variant: 
+            <label for="gameVariant">Select Game Variant:</label>
             <select id="gameVariant" onchange="changeGameVariant()">
                 <option value="base">Base Game</option>
                 <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
             </select>
         </div>
-        <button onclick="initializeGame()">Start Game</button>
+        <button id="startGame" onclick="initializeGame()">Start Game</button>
     </div>
 
     <!-- Player Stats Overview -->
@@ -35,16 +35,16 @@
     <div id="biddingPhase" class="phase hidden">
         <h2>Bidding Phase</h2>
         <div id="biddingOptions"></div>
-        <button onclick="endBiddingPhase()">End Bidding Phase</button>
+        <button id="endBiddingPhase">End Bidding Phase</button>
     </div>
 
     <!-- Trick Taking Phase -->
     <div id="trickTakingPhase" class="phase hidden">
         <h2>Trick Taking Phase</h2>
         <div id="trickTakingInputs"></div>
-        <button onclick="calculateTrickResults()">Calculate Trick</button>
+        <button id="calculateTrickResults">Calculate Trick</button>
         <div id="trickResult"></div>
-        <button onclick="endTrickTakingPhase()">End Trick Taking Phase</button>
+        <button id="endTrickTakingPhase">End Trick Taking Phase</button>
     </div>
 
     <!-- Summoning Phase -->
@@ -52,20 +52,30 @@
         <h2>Summoning Phase</h2>
         <div id="summoningInputs"></div>
         <div id="summoningPointsOverview"></div>
-        <button onclick="endSummoningPhase()">End Summoning Phase</button>
+        <button id="endSummoningPhase">End Summoning Phase</button>
     </div>
 
     <!-- Battle Phase -->
     <div id="battlePhase" class="phase hidden">
         <h2>Battle Phase</h2>
         <div id="battleInputs"></div>
-        <button onclick="endBattlePhase()">End Battle Phase</button>
+        <button id="endBattlePhase">End Battle Phase</button>
     </div>
 
     <!-- End Phase -->
     <div id="endPhase" class="phase hidden">
         <h2>End Phase</h2>
-        <button onclick="nextRound()">Start Next Round</button>
+        <button id="nextRound">Start Next Round</button>
     </div>
+
+    <script>
+        document.getElementById('startGame').addEventListener('click', initializeGame);
+        document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
+        document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
+        document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
+        document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
+        document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
+        document.getElementById('nextRound').addEventListener('click', nextRound);
+    </script>
 </body>
 </html>
