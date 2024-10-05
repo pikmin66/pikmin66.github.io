@@ -1,13 +1,17 @@
+/* Responsive Design */
 body {
     font-family: Helvetica, Arial, sans-serif;
     background-color: #f7f9fc;
     color: #333;
+    margin: 0;
+    padding: 0;
 }
 
 h1 {
     color: #005f8c;
     text-align: center;
-    margin-top: 30px;
+    margin-top: 20px;
+    font-size: 2em;
 }
 
 #gameSetup, .phase, #playerStatsOverview {
@@ -15,19 +19,36 @@ h1 {
     border: 1px solid #dce1e8;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 80%;
+    max-width: 800px;
     margin: 20px auto;
     padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="number"], select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
 }
 
 button {
     background-color: #0073aa;
     color: #fff;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 16px;
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    width: 100%;
 }
 
 button:hover {
@@ -38,11 +59,7 @@ button:hover {
     display: none;
 }
 
-.phase.visible {
-    display: block;
-}
-
-#playerStats h2, .phase h2 {
+#playerStatsOverview h3, .phase h2 {
     border-bottom: 2px solid #0073aa;
     margin-bottom: 10px;
 }
@@ -54,11 +71,53 @@ button:hover {
     margin: 20px 0;
 }
 
-#trickResult {
+#trickResult, #battleResults {
     color: #0073aa;
     font-weight: bold;
+    margin-top: 10px;
 }
 
 .player-section {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dce1e8;
+    padding-bottom: 10px;
+}
+
+.player-section:last-child {
+    border-bottom: none;
+}
+
+.player-stats {
+    margin-bottom: 10px;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Mobile Styles */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5em;
+        margin-top: 10px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+
+    label, input[type="number"], select {
+        font-size: 14px;
+    }
+
+    .player-section {
+        padding-bottom: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
 }
