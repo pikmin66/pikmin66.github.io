@@ -183,3 +183,277 @@ button:hover {
         margin-bottom: 10px;
     }
 }
+
+/* Existing styles for the game companion */
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #f7f9fc;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #005f8c;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 2em;
+}
+
+#gameSetup, .phase, #playerStatsOverview {
+    background: #fff;
+    border: 1px solid #dce1e8;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="number"], select, input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #0073aa;
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #005f8c;
+}
+
+.phase.hidden {
+    display: none;
+}
+
+#playerStatsOverview h3, .phase h2 {
+    border-bottom: 2px solid #0073aa;
+    margin-bottom: 10px;
+}
+
+#summoningPointsOverview {
+    background-color: #e3e8ee;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+#trickResult, #battleResults {
+    color: #0073aa;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.player-section {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dce1e8;
+    padding-bottom: 10px;
+}
+
+.player-section:last-child {
+    border-bottom: none;
+}
+
+.player-stats {
+    margin-bottom: 10px;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.summon-entry {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f0f5fa;
+    border-radius: 5px;
+}
+
+.summon-entry label {
+    font-weight: normal;
+}
+
+.summon-entry hr {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.summon-entry button {
+    background-color: #d9534f;
+}
+
+.summon-entry button:hover {
+    background-color: #c9302c;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 100; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto; /* 10% from the top and centered */
+    padding: 20px;
+    border: 1px solid #dce1e8;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+}
+
+/* Styles for the Play Zone */
+
+#playZone h1 {
+    color: #005f8c;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 2em;
+}
+
+#game-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card-zone {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+    flex: 1 1 300px;
+    background-color: #fff;
+    position: relative;
+}
+
+.card-zone h2 {
+    text-align: center;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+}
+
+.card {
+    width: 100px;
+    height: 140px;
+    border: 1px solid #999;
+    border-radius: 5px;
+    margin: 5px;
+    background-color: #fff;
+    position: relative;
+    cursor: move;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.drag-over {
+    background-color: #e0e0e0;
+}
+
+.card-details {
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Navigation Button */
+#navigation {
+    text-align: center;
+    margin: 10px;
+}
+
+#toggleView {
+    background-color: #0073aa;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#toggleView:hover {
+    background-color: #005f8c;
+}
+
+/* Media Queries */
+
+@media (max-width: 800px) {
+    #game-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .card {
+        width: 80px;
+        height: 112px;
+    }
+}
+
+/* Hide the Play Zone by default */
+#playZone.hidden {
+    display: none;
+}
+
+/* Hide the Game Companion by default */
+#gameCompanion.hidden {
+    display: none;
+}
+
