@@ -15,6 +15,8 @@ let playerDeck = [];
 let playerHand = [];
 let discardPile = [];
 let cardsData = [];
+let trickCount = 0;
+let maxTricks = 3; // Number of tricks to play in the Trick-Taking Phase
 
 // Load card data from JSON (load this at the beginning)
 fetch('cards.json')
@@ -54,19 +56,8 @@ function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
 
-    if (gameVariant === 'yugioh') {
-        if (numPlayers === 2) {
-            summoningPoints = new Array(numPlayers).fill(5000);
-        } else {
-            summoningPoints = new Array(numPlayers).fill(1000);
-        }
-    } else {
-        if (numPlayers === 2) {
-            summoningPoints = new Array(numPlayers).fill(5000);
-        } else {
-            summoningPoints = new Array(numPlayers).fill(1000);
-        }
-    }
+    // Set initial summoning points
+    summoningPoints = new Array(numPlayers).fill(1000);
 
     lifePoints = new Array(numPlayers).fill(8000);
     gamePoints = new Array(numPlayers).fill(0);
@@ -82,10 +73,10 @@ function initializeGame() {
     updatePlayerStats();
 
     if (numPlayers === 2) {
-        // Skip Bidding and Trick-Taking Phases in two-player game
-        alert('Two-player game detected. Skipping Bidding and Trick-Taking Phases.');
-        moveToNextPhase('gameSetup', 'summoningPhase');
-        generateSummoningInputs();
+        // Skip Bidding Phase in two-player game
+        alert('Two-player game detected. Skipping Bidding Phase.');
+        moveToNextPhase('gameSetup', 'trickTakingPhase');
+        generateTrickTakingInputs();
     } else {
         document.getElementById('biddingPhase').classList.remove('hidden');
         generateBiddingOptions();
@@ -387,42 +378,108 @@ function endBiddingPhase() {
 // Trick Taking Phase
 function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
-    trickTakingDiv.innerHTML = "";
+    trickTakingDiv.innerHTML = `<h3>Trick ${trickCount + 1}</h3>`;
 
-    // Player selects a card from their hand
-    trickTakingDiv.innerHTML += `
-        <div class="player-section">
-            Your Hand:
-            <select id="player-card-select">
-                ${playerHand.map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
-            </select>
-        </div>
-    `;
+    for (let i = 0; i < numPlayers; i++) {
+        trickTakingDiv.innerHTML += `
+            <div class="player-section">
+                <h3>Player ${i + 1}</h3>
+                Select a card to play:
+                <select id="player${i}-card-select">
+                    ${playerHand.map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
+                </select>
+            </div>
+        `;
+    }
+
+    // Enable the calculate button and disable the end phase button
+    document.getElementById('calculateTrickResults').disabled = false;
+    document.getElementById('endTrickTakingPhase').disabled = true;
 }
 
 function calculateTrickResults() {
-    const selectedCardId = document.getElementById('player-card-select').value;
-    const selectedCard = playerHand.find(card => card.id === selectedCardId);
+    let playedCards = [];
+    for (let i = 0; i < numPlayers; i++) {
+        const selectedCardId = document.getElementById(`player${i}-card-select`).value;
+        const selectedCard = playerHand.find(card => card.id === selectedCardId);
+        if (selectedCard) {
+            playedCards.push({ playerIndex: i, card: selectedCard });
+            // Remove the card from hand and add to discard pile
+            playCard(selectedCardId);
+        } else {
+            document.getElementById('trickResult').innerHTML = `Player ${i + 1} did not select a valid card.`;
+            return;
+        }
+    }
 
-    if (selectedCard) {
-        // For simplicity, we'll assume the player wins the trick
-        const pointsEarned = selectedCard.stars || 0;
+    // Determine the winner of the trick
+    let winningPlayerIndex = determineTrickWinner(playedCards);
 
-        // Remove the card from hand and add to discard pile
-        playCard(selectedCardId);
+    // Calculate points earned
+    let totalPoints = playedCards.reduce((sum, play) => sum + (play.card.stars || 0), 0);
 
-        // Update summoning points
-        summoningPoints[0] += pointsEarned * 100; // Assuming single-player for simplicity
+    // Add summoning points to the winning player
+    summoningPoints[winningPlayerIndex] += totalPoints * 100;
 
-        document.getElementById('trickResult').innerHTML = `You played ${selectedCard.name} and earned ${pointsEarned} points!`;
+    document.getElementById('trickResult').innerHTML = `Player ${winningPlayerIndex + 1} wins the trick and earns ${totalPoints} points!`;
 
-        updatePlayerStats();
+    updatePlayerStats();
+
+    trickCount++;
+    if (trickCount >= maxTricks) {
+        document.getElementById('calculateTrickResults').disabled = true;
+        document.getElementById('endTrickTakingPhase').disabled = false;
     } else {
-        document.getElementById('trickResult').innerHTML = `Please select a card to play.`;
+        // Generate inputs for the next trick
+        generateTrickTakingInputs();
     }
 }
 
+// Function to determine the winner of the trick
+function determineTrickWinner(playedCards) {
+    // For simplicity, let's assume that higher level cards win
+    // You can implement more complex rules based on suits and ranks
+
+    // Example logic: Taker cards beat Trickster cards, else higher level wins
+    let winningCard = playedCards[0].card;
+    let winningPlayerIndex = playedCards[0].playerIndex;
+
+    for (let i = 1; i < playedCards.length; i++) {
+        const currentCard = playedCards[i].card;
+
+        // Check if one card is a Taker and the other is not
+        const isCurrentCardTaker = isTaker(currentCard);
+        const isWinningCardTaker = isTaker(winningCard);
+
+        if (isCurrentCardTaker && !isWinningCardTaker) {
+            // Current card is a Taker, it wins
+            winningCard = currentCard;
+            winningPlayerIndex = playedCards[i].playerIndex;
+        } else if (!isCurrentCardTaker && isWinningCardTaker) {
+            // Winning card is a Taker, it remains
+        } else {
+            // Both are Takers or both are not, compare levels
+            if ((currentCard.level || 0) > (winningCard.level || 0)) {
+                winningCard = currentCard;
+                winningPlayerIndex = playedCards[i].playerIndex;
+            }
+        }
+    }
+
+    return winningPlayerIndex;
+}
+
+// Helper function to determine if a card is a Taker
+function isTaker(card) {
+    // In Sheepshead, Takers are Queens, Jacks, and all Diamonds
+    if (card.rank === 'Queen' || card.rank === 'Jack' || card.suit === 'Diamonds') {
+        return true;
+    }
+    return false;
+}
+
 function endTrickTakingPhase() {
+    trickCount = 0; // Reset the trick count for the next round
     moveToNextPhase('trickTakingPhase', 'summoningPhase');
     generateSummoningInputs();
 }
@@ -545,15 +602,6 @@ function endBattlePhase() {
     // For simplicity, we'll just display a message
     document.getElementById('battleResults').innerHTML = 'Battle Phase ended. Proceeding to End Phase.';
 
-    // Replenish summoning points in two-player game
-    if (numPlayers === 2) {
-        if (gameVariant === 'yugioh') {
-            summoningPoints = new Array(numPlayers).fill(5000);
-        } else {
-            summoningPoints = new Array(numPlayers).fill(1000);
-        }
-    }
-
     updatePlayerStats();
     moveToNextPhase('battlePhase', 'endPhase');
 }
@@ -563,8 +611,8 @@ function startNextRound() {
     playersMonsters = new Array(numPlayers).fill(null).map(() => []);
 
     if (numPlayers === 2) {
-        moveToNextPhase('endPhase', 'summoningPhase');
-        generateSummoningInputs();
+        moveToNextPhase('endPhase', 'trickTakingPhase');
+        generateTrickTakingInputs();
     } else {
         moveToNextPhase('endPhase', 'biddingPhase');
         generateBiddingOptions();
@@ -581,25 +629,19 @@ function moveToNextPhase(currentPhase, nextPhase) {
             if (numPlayers === 2) {
                 // Skip Bidding Phase in two-player game
                 alert('Skipping Bidding Phase in two-player game.');
-                moveToNextPhase('biddingPhase', 'summoningPhase');
+                moveToNextPhase('biddingPhase', 'trickTakingPhase');
             } else {
                 generateBiddingOptions();
             }
+            break;
+        case 'trickTakingPhase':
+            generateTrickTakingInputs();
             break;
         case 'summoningPhase':
             generateSummoningInputs();
             break;
         case 'battlePhase':
             generateBattleInputs();
-            break;
-        case 'trickTakingPhase':
-            if (numPlayers === 2) {
-                // Skip Trick-Taking Phase in two-player game
-                alert('Skipping Trick-Taking Phase in two-player game.');
-                moveToNextPhase('trickTakingPhase', 'summoningPhase');
-            } else {
-                generateTrickTakingInputs();
-            }
             break;
         default:
             break;
