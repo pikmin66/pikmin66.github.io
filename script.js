@@ -41,7 +41,7 @@ function init() {
     document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
     document.getElementById('nextRound').addEventListener('click', startNextRound);
 
-    // Add the missing event listener
+    // Event listener for the bidding phase
     document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
 
     // Add event listener to the toggle button
@@ -96,7 +96,7 @@ function initializePlayerDeck() {
 
     // Draw initial hand
     playerHand = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) { // Start with 10 cards
         drawCard();
     }
 
@@ -380,12 +380,22 @@ function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
     trickTakingDiv.innerHTML = `<h3>Trick ${trickCount + 1}</h3>`;
 
+    // Draw two cards for each player at the start of the Trick-Taking Phase
+    for (let i = 0; i < numPlayers; i++) {
+        drawCard();
+        drawCard();
+    }
+    updatePlayZone();
+
     for (let i = 0; i < numPlayers; i++) {
         trickTakingDiv.innerHTML += `
             <div class="player-section">
                 <h3>Player ${i + 1}</h3>
-                Select a card to play:
-                <select id="player${i}-card-select">
+                Select two cards to play:
+                <select id="player${i}-card-select1">
+                    ${playerHand.map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
+                </select>
+                <select id="player${i}-card-select2">
                     ${playerHand.map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
                 </select>
             </div>
@@ -400,14 +410,24 @@ function generateTrickTakingInputs() {
 function calculateTrickResults() {
     let playedCards = [];
     for (let i = 0; i < numPlayers; i++) {
-        const selectedCardId = document.getElementById(`player${i}-card-select`).value;
-        const selectedCard = playerHand.find(card => card.id === selectedCardId);
-        if (selectedCard) {
-            playedCards.push({ playerIndex: i, card: selectedCard });
-            // Remove the card from hand and add to discard pile
-            playCard(selectedCardId);
+        const selectedCardId1 = document.getElementById(`player${i}-card-select1`).value;
+        const selectedCardId2 = document.getElementById(`player${i}-card-select2`).value;
+
+        if (selectedCardId1 === selectedCardId2) {
+            document.getElementById('trickResult').innerHTML = `Player ${i + 1} selected the same card twice. Please select two different cards.`;
+            return;
+        }
+
+        const selectedCard1 = playerHand.find(card => card.id === selectedCardId1);
+        const selectedCard2 = playerHand.find(card => card.id === selectedCardId2);
+
+        if (selectedCard1 && selectedCard2) {
+            playedCards.push({ playerIndex: i, cards: [selectedCard1, selectedCard2] });
+            // Remove the cards from hand and add to discard pile
+            playCard(selectedCardId1);
+            playCard(selectedCardId2);
         } else {
-            document.getElementById('trickResult').innerHTML = `Player ${i + 1} did not select a valid card.`;
+            document.getElementById('trickResult').innerHTML = `Player ${i + 1} did not select two valid cards.`;
             return;
         }
     }
@@ -416,12 +436,14 @@ function calculateTrickResults() {
     let winningPlayerIndex = determineTrickWinner(playedCards);
 
     // Calculate points earned
-    let totalPoints = playedCards.reduce((sum, play) => sum + (play.card.stars || 0), 0);
+    let totalPoints = playedCards.reduce((sum, play) => {
+        return sum + play.cards.reduce((cardSum, card) => cardSum + (card.stars || 0), 0);
+    }, 0);
 
     // Add summoning points to the winning player
     summoningPoints[winningPlayerIndex] += totalPoints * 100;
 
-    document.getElementById('trickResult').innerHTML = `Player ${winningPlayerIndex + 1} wins the trick and earns ${totalPoints} points!`;
+    document.getElementById('trickResult').innerHTML = `Player ${winningPlayerIndex + 1} wins the trick and earns ${totalPoints} points (${totalPoints * 100} summoning points)!`;
 
     updatePlayerStats();
 
@@ -437,49 +459,32 @@ function calculateTrickResults() {
 
 // Function to determine the winner of the trick
 function determineTrickWinner(playedCards) {
-    // For simplicity, let's assume that higher level cards win
-    // You can implement more complex rules based on suits and ranks
-
-    // Example logic: Taker cards beat Trickster cards, else higher level wins
-    let winningCard = playedCards[0].card;
+    // For simplicity, sum the levels of both cards per player
     let winningPlayerIndex = playedCards[0].playerIndex;
+    let highestTotalLevel = playedCards[0].cards.reduce((sum, card) => sum + (card.level || 0), 0);
 
     for (let i = 1; i < playedCards.length; i++) {
-        const currentCard = playedCards[i].card;
+        const currentTotalLevel = playedCards[i].cards.reduce((sum, card) => sum + (card.level || 0), 0);
 
-        // Check if one card is a Taker and the other is not
-        const isCurrentCardTaker = isTaker(currentCard);
-        const isWinningCardTaker = isTaker(winningCard);
-
-        if (isCurrentCardTaker && !isWinningCardTaker) {
-            // Current card is a Taker, it wins
-            winningCard = currentCard;
+        if (currentTotalLevel > highestTotalLevel) {
+            highestTotalLevel = currentTotalLevel;
             winningPlayerIndex = playedCards[i].playerIndex;
-        } else if (!isCurrentCardTaker && isWinningCardTaker) {
-            // Winning card is a Taker, it remains
-        } else {
-            // Both are Takers or both are not, compare levels
-            if ((currentCard.level || 0) > (winningCard.level || 0)) {
-                winningCard = currentCard;
-                winningPlayerIndex = playedCards[i].playerIndex;
-            }
         }
     }
 
     return winningPlayerIndex;
 }
 
-// Helper function to determine if a card is a Taker
-function isTaker(card) {
-    // In Sheepshead, Takers are Queens, Jacks, and all Diamonds
-    if (card.rank === 'Queen' || card.rank === 'Jack' || card.suit === 'Diamonds') {
-        return true;
-    }
-    return false;
-}
-
 function endTrickTakingPhase() {
-    trickCount = 0; // Reset the trick count for the next round
+    trickCount = 0; // Reset for next round
+
+    // Display total summoning points for each player
+    let summary = '<h3>Trick-Taking Phase Summary:</h3>';
+    for (let i = 0; i < numPlayers; i++) {
+        summary += `<p>Player ${i + 1} has ${summoningPoints[i]} summoning points.</p>`;
+    }
+    document.getElementById('trickResult').innerHTML = summary;
+
     moveToNextPhase('trickTakingPhase', 'summoningPhase');
     generateSummoningInputs();
 }
