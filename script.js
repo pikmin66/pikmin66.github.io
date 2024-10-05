@@ -23,9 +23,13 @@ function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
 
-    summoningPoints = new Array(numPlayers).fill(1000);
-    lifePoints = new Array(numPlayers).fill(8000);
+    if (gameVariant === 'yugioh') {
+        summoningPoints = new Array(numPlayers).fill(5000); // Start with 5000 summoning points
+    } else {
+        summoningPoints = new Array(numPlayers).fill(1000);
+    }
 
+    lifePoints = new Array(numPlayers).fill(8000);
     updatePlayerStats();
 
     if (numPlayers === 2 || gameVariant === 'yugioh') {
@@ -88,7 +92,7 @@ function generateTrickTakingInputs() {
             <div class="player-section">
                 Player ${i}
                 Card Rank:
-                <select>
+                <select id="rankPlayer${i}">
                     <option>Ace</option>
                     <option>Ten</option>
                     <option>King</option>
@@ -99,7 +103,7 @@ function generateTrickTakingInputs() {
                     <option>Seven</option>
                 </select>
                 Suit:
-                <select>
+                <select id="suitPlayer${i}">
                     <option>Clubs</option>
                     <option>Spades</option>
                     <option>Hearts</option>
@@ -111,21 +115,35 @@ function generateTrickTakingInputs() {
 }
 
 function calculateTrickResults() {
-    // Placeholder logic to determine winner (needs real implementation)
-    trickWinner = Math.floor(Math.random() * numPlayers) + 1;
+    let highestCardStrength = 0;
+    let trickWinnerIndex = 0;
+
+    for (let i = 0; i < numPlayers; i++) {
+        const rank = document.getElementById(`rankPlayer${i + 1}`).value;
+        const suit = document.getElementById(`suitPlayer${i + 1}`).value;
+        const card = rank + (suit[0] === 'D' ? '♦' : suit[0]); // Simplified suit check for trump
+        const strength = cardStrengths[card] || 0;
+
+        if (strength > highestCardStrength) {
+            highestCardStrength = strength;
+            trickWinnerIndex = i;
+        }
+    }
+
+    trickWinner = trickWinnerIndex + 1;
     document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
+
+    updateSummoningPointsFromTricks();
 }
 
 function updateSummoningPointsFromTricks() {
-    let trickPoints = 0;
-    // Placeholder logic to award points
+    let trickPoints = 10; // Placeholder points for now, update this based on trick logic
     summoningPoints[trickWinner - 1] += trickPoints; 
     updatePlayerStats();
 }
 
 function endTrickTakingPhase() {
     calculateTrickResults();
-    updateSummoningPointsFromTricks();
     moveToNextPhase('trickTakingPhase', 'summoningPhase');
 }
 
@@ -157,6 +175,11 @@ function generateSummoningInputs() {
 }
 
 function endSummoningPhase() {
+    if (gameVariant === 'yugioh') {
+        // Replenish summoning points back to 5,000 for Yu-Gi-Oh! variant
+        summoningPoints = summoningPoints.map(() => 5000);
+        updatePlayerStats();
+    }
     moveToNextPhase('summoningPhase', 'battlePhase');
 }
 
@@ -175,5 +198,7 @@ function moveToNextPhase(currentPhase, nextPhase) {
 document.getElementById('startGame').addEventListener('click', initializeGame);
 document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
 document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
+document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
 document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
 document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
+document.getElementById('nextRound').addEventListener('click', initializeGame);
