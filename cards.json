@@ -34,6 +34,18 @@
         "def": 1300,
         "effect": "When this card is summoned, you can gain 500 Life Points.",
         "image": "images/ten_of_clubs.png"
+    },
+    {
+        "id": "card4",
+        "name": "Placeholder Card",
+        "suit": "Unknown",
+        "rank": "Unknown",
+        "stars": 0,
+        "level": 1,
+        "atk": 0,
+        "def": 0,
+        "effect": "This is a placeholder card.",
+        "image": ""
     }
     // Add more cards as needed
 ]
