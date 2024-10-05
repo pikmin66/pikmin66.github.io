@@ -1,138 +1,108 @@
-body, html {
+body {
     font-family: Helvetica, Arial, sans-serif;
-    background-color: #222;
-    color: #fff;
-    margin: 0;
-    padding: 0;
+    background-color: #f7f9fc;
+    color: #333;
+}
+
+h1 {
+    color: #005f8c;
     text-align: center;
+    margin-top: 30px;
 }
 
-h1, h2, h3 {
-    color: #f7f7f7;
+#gameSetup {
+    width: 60%;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #dce1e8;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-button, select, input {
-    font-size: 16px;
-    padding: 10px;
-    margin: 10px;
-    border: none;
-    border-radius: 4px;
+#gameSetup h1 {
+    margin-bottom: 10px;
+}
+
+#playerStats {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f4f4f4;
+    border: 1px solid #dce1e8;
+    border-radius: 10px;
+}
+
+.phase {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #dce1e8;
+    border-radius: 10px;
+    display: none; /* Phases are hidden by default */
+}
+
+.phase.visible {
+    display: block; /* Visible class makes the phase visible */
 }
 
 button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
     background-color: #0073aa;
     color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    margin: 10px;
+}
+
+button.hidden {
+    display: none;
 }
 
 button:hover {
     background-color: #005f8c;
 }
 
-.container {
-    width: 90%;
-    max-width: 800px;
+#playerStatsOverview {
+    width: 80%;
     margin: 20px auto;
     padding: 20px;
-    background-color: #333;
-    border-radius: 8px;
-    box-shadow: 0px 0px 20px 2px rgba(0, 0, 0, 0.5);
+    background: #f4f4f4;
+    border: 1px solid #dce1e8;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#playerStats h2,
+.phase h2 {
+    border-bottom: 2px solid #0073aa;
+    margin-bottom: 10px;
+}
+
+#summoningPointsOverview {
+    background-color: #e3e8ee;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+#trickResult {
+    color: #0073aa;
+    font-weight: bold;
+}
+
+input, select {
+    padding: 8px 10px;
+    border: 1px solid #d1d9e0;
+    border-radius: 5px;
+    margin: 10px;
+    width: calc(100% - 40px);
 }
 
 .hidden {
     display: none;
-}
-
-.phase {
-    margin-bottom: 30px;
-}
-
-.player-section {
-    display: inline-block;
-    width: 45%;
-    margin: 10px;
-    padding: 10px;
-    border: 1px solid #444;
-    border-radius: 8px;
-    background-color: #444;
-}
-
-.player-section select, .player-section input {
-    width: 100%;
-    padding: 5px;
-    margin: 5px 0;
-    background-color: #555;
-    color: #fff;
-    border: 1px solid #666;
-}
-
-.mejs-controls, .mejs-button {
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.35));
-}
-
-.mejs-button button {
-    background: transparent url(mejs-controls.svg) no-repeat;
-    background-size: 100% 100%;
-    height: 30px;
-    width: 30px;
-    border: none;
-    cursor: pointer;
-}
-
-.mejs-time, .mejs-time-rail {
-    color: #fff;
-}
-
-#gameSetup, #biddingPhase, #trickTakingPhase, #summoningPhase, #battlePhase, #endPhase {
-    padding: 20px;
-    margin-bottom: 30px;
-}
-
-h1 {
-    font-size: 2em;
-    color: #21f8f8;
-}
-
-h2 {
-    font-size: 1.5em;
-    color: #f7f7f7;
-}
-
-#trickResult, #summoningPointsOverview, #playerStats {
-    padding: 15px;
-    background-color: #444;
-    margin: 10px 0;
-    border-radius: 8px;
-}
-
-.phase h2 {
-    color: #f7f7f7;
-    margin-bottom: 20px;
-}
-
-.phase select, .phase input {
-    background-color: #555;
-    color: #fff;
-    border: 1px solid #666;
-    padding: 10px;
-}
-
-.player-section button {
-    width: 100%;
-    margin-top: 10px;
-}
-
-.phase button {
-    background-color: #0073aa;
-    color: #fff;
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.phase button:hover {
-    background-color: #005f8c;
 }
