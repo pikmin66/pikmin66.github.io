@@ -22,7 +22,7 @@
                 <option value="yugioh">Accessible Variant with Yu-Gi-Oh! Cards</option>
             </select>
         </div>
-        <button id="startGame" onclick="initializeGame()">Start Game</button>
+        <button id="startGame">Start Game</button>
     </div>
 
     <!-- Player Stats Overview -->
@@ -67,15 +67,5 @@
         <h2>End Phase</h2>
         <button id="nextRound">Start Next Round</button>
     </div>
-
-    <script>
-        document.getElementById('startGame').addEventListener('click', initializeGame);
-        document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
-        document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
-        document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
-        document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
-        document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
-        document.getElementById('nextRound').addEventListener('click', nextRound);
-    </script>
 </body>
 </html>
