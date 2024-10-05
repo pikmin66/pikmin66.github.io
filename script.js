@@ -30,6 +30,9 @@ const yugiohCardPoints = {
     1: 0
 };
 
+// Array to store each player's monster details
+let playersMonsters = [];
+
 // Game Initialization
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
@@ -42,6 +45,7 @@ function initializeGame() {
     }
     
     lifePoints = new Array(numPlayers).fill(8000); // 8000 life points for all players
+    playersMonsters = new Array(numPlayers).fill(null); // Initialize monsters
 
     updatePlayerStats();
 
@@ -65,7 +69,7 @@ function changeGameVariant() {
 function updatePlayerStats() {
     let stats = '';
     for (let i = 0; i < numPlayers; i++) {
-        stats += `Player ${i + 1} - Life Points: ${lifePoints[i]}, Summoning Points: ${summoningPoints[i]}<br>`;
+        stats += `<div class="player-stats">Player ${i + 1} - Life Points: ${lifePoints[i]}, Summoning Points: ${summoningPoints[i]}</div>`;
     }
     document.getElementById('playerStats').innerHTML = stats;
 }
@@ -215,14 +219,15 @@ function generateSummoningInputs() {
     for (let i = 1; i <= numPlayers; i++) {
         summoningDiv.innerHTML += `
             <div class="player-section">
-                Player ${i}<br>
-                Monster Level to Summon:
+                <h3>Player ${i}</h3>
+                <label for="player${i}-summon-level">Monster Level to Summon:</label>
                 <input type="number" id="player${i}-summon-level" min="1" max="12" value="1">
-                Summoning Cost: <span id="player${i}-summon-cost">200</span><br>
-                ATK Points:
+                <div>Summoning Cost: <span id="player${i}-summon-cost">200</span></div>
+                <label for="player${i}-summon-atk">ATK Points:</label>
                 <input type="number" id="player${i}-summon-atk" min="0" value="0">
-                DEF Points:
+                <label for="player${i}-summon-def">DEF Points:</label>
                 <input type="number" id="player${i}-summon-def" min="0" value="0">
+                <div class="error-message" id="player${i}-error"></div>
             </div>
         `;
     }
@@ -234,59 +239,86 @@ function updateSummoningCosts() {
     for (let i = 1; i <= numPlayers; i++) {
         const levelInput = document.getElementById(`player${i}-summon-level`);
         const costSpan = document.getElementById(`player${i}-summon-cost`);
-        levelInput.addEventListener('input', () => {
-            const level = parseInt(levelInput.value) || 0;
-            const cost = level * 200;
-            costSpan.innerText = cost;
-        });
+
+        if (levelInput && costSpan) {
+            const updateCost = () => {
+                const level = parseInt(levelInput.value) || 0;
+                const cost = level * 200;
+                costSpan.innerText = cost;
+            };
+
+            // Initialize cost display
+            updateCost();
+
+            // Add event listener
+            levelInput.addEventListener('input', updateCost);
+        }
     }
 }
 
 function endSummoningPhase() {
+    let allValid = true;
+
     for (let i = 1; i <= numPlayers; i++) {
         const level = parseInt(document.getElementById(`player${i}-summon-level`).value) || 0;
         const summoningCost = level * 200;
+        const errorDiv = document.getElementById(`player${i}-error`);
 
-        // Deduct summoning points
+        // Check if player has enough summoning points
         if (summoningPoints[i - 1] >= summoningCost) {
             summoningPoints[i - 1] -= summoningCost;
-        } else {
-            alert(`Player ${i} does not have enough summoning points!`);
-            continue; // Skip to next player
-        }
+            errorDiv.textContent = ''; // Clear any previous error message
 
-        // Store the summoned monster's details for the Battle Phase
-        const atk = parseInt(document.getElementById(`player${i}-summon-atk`).value) || 0;
-        const def = parseInt(document.getElementById(`player${i}-summon-def`).value) || 0;
-        // You can store these details in an array or object for later use
-        // For simplicity, we'll assume each player has one monster on the field
-        playersMonsters[i - 1] = { level, atk, def };
+            // Store the summoned monster's details for the Battle Phase
+            const atk = parseInt(document.getElementById(`player${i}-summon-atk`).value) || 0;
+            const def = parseInt(document.getElementById(`player${i}-summon-def`).value) || 0;
+
+            playersMonsters[i - 1] = { level, atk, def, playerNum: i };
+        } else {
+            // Display error message and prevent proceeding
+            errorDiv.textContent = 'Not enough summoning points!';
+            allValid = false;
+        }
     }
 
     updatePlayerStats();
-    moveToNextPhase('summoningPhase', 'battlePhase');
+
+    if (allValid) {
+        moveToNextPhase('summoningPhase', 'battlePhase');
+    } else {
+        alert('Please adjust your summoning to be within your available summoning points.');
+    }
 }
 
 // Battle Phase
-let playersMonsters = []; // Array to store each player's monster details
-
 function generateBattleInputs() {
     const battleDiv = document.getElementById('battleInputs');
     battleDiv.innerHTML = "";
 
     for (let i = 1; i <= numPlayers; i++) {
-        battleDiv.innerHTML += `
-            <div class="player-section">
-                Player ${i}<br>
-                Attack Target (Player Number):
-                <input type="number" id="player${i}-attack-target" min="1" max="${numPlayers}" value="${(i % numPlayers) + 1}">
-                Attack Position:
-                <select id="player${i}-attack-position">
-                    <option value="attack">Attack</option>
-                    <option value="defense">Defense</option>
-                </select>
-            </div>
-        `;
+        const monster = playersMonsters[i - 1];
+        if (monster) {
+            battleDiv.innerHTML += `
+                <div class="player-section">
+                    <h3>Player ${i}</h3>
+                    <div>Your Monster: Level ${monster.level}, ATK ${monster.atk}, DEF ${monster.def}</div>
+                    <label for="player${i}-attack-target">Attack Target (Player Number):</label>
+                    <input type="number" id="player${i}-attack-target" min="1" max="${numPlayers}" value="${(i % numPlayers) + 1}">
+                    <label for="player${i}-attack-position">Attack Position:</label>
+                    <select id="player${i}-attack-position">
+                        <option value="attack">Attack</option>
+                        <option value="defense">Defense</option>
+                    </select>
+                </div>
+            `;
+        } else {
+            battleDiv.innerHTML += `
+                <div class="player-section">
+                    <h3>Player ${i}</h3>
+                    <div>You have no monster to attack with.</div>
+                </div>
+            `;
+        }
     }
 }
 
@@ -351,7 +383,6 @@ function startNextRound() {
     generateTrickTakingInputs();
 }
 
-// Move to next phase utility function
 function moveToNextPhase(currentPhase, nextPhase) {
     document.getElementById(currentPhase).classList.add('hidden');
     document.getElementById(nextPhase).classList.remove('hidden');
