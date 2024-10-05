@@ -1,3 +1,4 @@
+// Variables for the Game Companion
 let numPlayers = 2;
 let gameVariant = 'base';
 let summoningPoints = [];
@@ -151,7 +152,7 @@ function endBiddingPhase() {
         picker = highestBidder;
         // Picker selects a partner by calling a card
         let calledCard = prompt(`Player ${picker + 1}, call a card to choose your Partner (e.g., "Queen of Hearts"):`);
-
+    
         // For simplicity, we'll assign the partner randomly among alive players (excluding picker)
         let potentialPartners = [];
         for (let i = 0; i < numPlayers; i++) {
@@ -176,11 +177,6 @@ function endBiddingPhase() {
 }
 
 // Trick Taking Phase
-function startTrickTakingPhase() {
-    document.getElementById('trickTakingPhase').classList.remove('hidden');
-    generateTrickTakingInputs();
-}
-
 function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
     trickTakingDiv.innerHTML = "";
@@ -515,9 +511,163 @@ function moveToNextPhase(currentPhase, nextPhase) {
     }
 }
 
-// Attach event listeners to the buttons
+// Attach event listeners to the buttons in the Game Companion
 document.getElementById('startGame').addEventListener('click', initializeGame);
 document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
 document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
 document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
 document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
+
+// Code for the Play Zone
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize the play zone only when the play zone is visible
+    initPlayZone();
+
+    // Add event listener to the toggle button
+    document.getElementById('toggleView').addEventListener('click', toggleView);
+});
+
+function toggleView() {
+    const gameCompanion = document.getElementById('gameCompanion');
+    const playZone = document.getElementById('playZone');
+    const toggleButton = document.getElementById('toggleView');
+
+    if (gameCompanion.classList.contains('hidden')) {
+        gameCompanion.classList.remove('hidden');
+        playZone.classList.add('hidden');
+        toggleButton.textContent = 'Switch to Play Zone';
+    } else {
+        gameCompanion.classList.add('hidden');
+        playZone.classList.remove('hidden');
+        toggleButton.textContent = 'Switch to Game Companion';
+    }
+}
+
+// Function to initialize the Play Zone
+function initPlayZone() {
+    let handCardsContainer = document.getElementById('hand-cards');
+    let playAreaContainer = document.getElementById('play-area-cards');
+
+    // Load card data from JSON
+    fetch('cards.json')
+        .then(response => response.json())
+        .then(cardsData => {
+            // For demo purposes, let's assume the player has all the cards in hand
+            let playerHand = cardsData;
+
+            // Display cards in the player's hand
+            playerHand.forEach(card => {
+                let cardElement = createCardElement(card);
+                handCardsContainer.appendChild(cardElement);
+            });
+
+            // Set up drag-and-drop events
+            setupDragAndDrop();
+        })
+        .catch(error => console.error('Error loading card data:', error));
+
+    function createCardElement(cardData) {
+        let cardDiv = document.createElement('div');
+        cardDiv.classList.add('card');
+        cardDiv.draggable = true;
+        cardDiv.id = cardData.id;
+
+        // Store card data in a dataset
+        cardDiv.dataset.card = JSON.stringify(cardData);
+
+        let img = document.createElement('img');
+        img.src = cardData.image;
+        img.alt = cardData.name;
+
+        cardDiv.appendChild(img);
+
+        // Show card details on hover
+        cardDiv.addEventListener('mouseenter', showCardDetails);
+        cardDiv.addEventListener('mouseleave', hideCardDetails);
+
+        return cardDiv;
+    }
+
+    function setupDragAndDrop() {
+        let cards = document.querySelectorAll('.card');
+        let dropZones = [handCardsContainer, playAreaContainer];
+
+        cards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+            card.addEventListener('dragend', dragEnd);
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', dragOver);
+            zone.addEventListener('dragenter', dragEnter);
+            zone.addEventListener('dragleave', dragLeave);
+            zone.addEventListener('drop', drop);
+        });
+    }
+
+    function dragStart(e) {
+        this.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', this.id);
+    }
+
+    function dragEnd() {
+        this.classList.remove('dragging');
+    }
+
+    function dragOver(e) {
+        e.preventDefault();
+    }
+
+    function dragEnter(e) {
+        e.preventDefault();
+        this.classList.add('drag-over');
+    }
+
+    function dragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function drop(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+
+        let cardId = e.dataTransfer.getData('text/plain');
+        let card = document.getElementById(cardId);
+        this.appendChild(card);
+    }
+
+    function showCardDetails(e) {
+        let cardData = JSON.parse(this.dataset.card);
+
+        let detailsDiv = document.createElement('div');
+        detailsDiv.classList.add('card-details');
+        detailsDiv.innerHTML = `
+            <h3>${cardData.name}</h3>
+            <p><strong>Suit:</strong> ${cardData.suit}</p>
+            <p><strong>Rank:</strong> ${cardData.rank}</p>
+            <p><strong>Stars:</strong> ${'★'.repeat(cardData.stars)}</p>
+            <p><strong>Level:</strong> ${cardData.level}</p>
+            <p><strong>ATK:</strong> ${cardData.atk}</p>
+            <p><strong>DEF:</strong> ${cardData.def}</p>
+            <p><strong>Effect:</strong> ${cardData.effect}</p>
+        `;
+
+        detailsDiv.style.position = 'absolute';
+        detailsDiv.style.top = '0';
+        detailsDiv.style.left = '110%';
+        detailsDiv.style.backgroundColor = '#fff';
+        detailsDiv.style.border = '1px solid #ccc';
+        detailsDiv.style.padding = '10px';
+        detailsDiv.style.zIndex = '10';
+        detailsDiv.style.width = '200px';
+
+        this.appendChild(detailsDiv);
+    }
+
+    function hideCardDetails(e) {
+        let detailsDiv = this.querySelector('.card-details');
+        if (detailsDiv) {
+            this.removeChild(detailsDiv);
+        }
+    }
+}
