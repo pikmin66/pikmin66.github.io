@@ -293,18 +293,6 @@ function showModal(content) {
     };
 }
 
-// Bidding Phase
-function generateBiddingOptions() {
-    // Since AI players are involved, we can simulate the bidding phase or skip it
-    moveToNextPhase('biddingPhase', 'trickTakingPhase');
-    generateTrickTakingInputs();
-}
-
-function endBiddingPhase() {
-    // For AI, we'll skip the bidding phase
-    moveToNextPhase('biddingPhase', 'trickTakingPhase');
-}
-
 // Trick Taking Phase
 function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
@@ -313,10 +301,11 @@ function generateTrickTakingInputs() {
     // Draw two cards at the start of the Trick-Taking Phase
     if (trickCount === 0) {
         for (let i = 0; i < numPlayers; i++) {
-            let card1 = drawCardFromDeck(i);
-            let card2 = drawCardFromDeck(i);
-            if (card1) playerHands[i].push(card1);
-            if (card2) playerHands[i].push(card2);
+            // Each player draws 2 cards at the start of the Trick-Taking Phase
+            for (let j = 0; j < 2; j++) {
+                let card = drawCardFromDeck(i);
+                if (card) playerHands[i].push(card);
+            }
         }
     }
 
@@ -440,6 +429,7 @@ function generateSummoningInputs() {
             <button onclick="addSummon()">Add Summon</button>
             <div id="player-summon-container"></div>
             <div class="error-message" id="player-error"></div>
+            <button id="endSummoningPhase">End Summoning Phase</button>
         </div>
     `;
 
@@ -516,7 +506,7 @@ function endSummoningPhase() {
     const summonEntries = summonContainer.getElementsByClassName('summon-entry');
 
     for (let j = 0; j < summonEntries.length; j++) {
-        const cardSelect = document.getElementById(`summon${j}-card-select`);
+        const cardSelect = summonEntries[j].querySelector(`select`);
         const selectedCard = playerHands[userPlayerIndex].find(card => card.id === cardSelect.value);
         const cost = (selectedCard.level || 0) * 200;
         totalCost += cost;
