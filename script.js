@@ -1,4 +1,3 @@
-// Variables for the Game Companion
 let numPlayers = 2;
 let gameVariant = 'base';
 let summoningPoints = [];
@@ -11,12 +10,13 @@ let playersMonsters = [];
 let playersAlive = [];
 let picker = null;
 let partner = null;
-let playerDeck = [];
-let playerHand = [];
+let playerDecks = [];
+let playerHands = [];
 let discardPile = [];
 let cardsData = [];
 let trickCount = 0;
 let maxTricks = 3; // Number of tricks to play in the Trick-Taking Phase
+
 
 // Load card data from JSON (load this at the beginning)
 fetch('cards.json')
@@ -51,7 +51,6 @@ function init() {
     initPlayZone();
 }
 
-// Game Initialization
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
@@ -67,8 +66,8 @@ function initializeGame() {
     picker = null;
     partner = null;
 
-    // Initialize player's deck
-    initializePlayerDeck();
+    // Initialize player's decks and hands
+    initializePlayerDecks();
 
     updatePlayerStats();
 
@@ -86,46 +85,52 @@ function initializeGame() {
     document.getElementById('playerStatsOverview').classList.remove('hidden');
 }
 
-// Initialize player's deck
-function initializePlayerDeck() {
-    // For simplicity, use all available cards in cardsData
-    playerDeck = [...cardsData];
+function initializePlayerDecks() {
+    playerDecks = [];
+    playerHands = [];
 
-    // Shuffle the deck
-    playerDeck = shuffleArray(playerDeck);
+    for (let i = 0; i < numPlayers; i++) {
+        // Create a deck for each player
+        let deck = [...cardsData];
+        deck = shuffleArray(deck);
+        playerDecks.push(deck);
 
-    // Draw initial hand
-    playerHand = [];
-    for (let i = 0; i < 10; i++) { // Start with 10 cards
-        drawCard();
+        // Initialize each player's hand with 5 cards
+        let hand = [];
+        for (let j = 0; j < 5; j++) {
+            let card = drawCardFromDeck(i);
+            if (card) hand.push(card);
+        }
+        playerHands.push(hand);
     }
 
-    // Update the Play Zone display
-    updatePlayZone();
+    // Update the Play Zone for Player 1
+    updatePlayZone(0);
 }
 
-// Function to draw a card from the deck
-function drawCard() {
-    if (playerDeck.length > 0) {
-        const drawnCard = playerDeck.shift();
-        playerHand.push(drawnCard);
+function drawCardFromDeck(playerIndex) {
+    if (playerDecks[playerIndex].length > 0) {
+        return playerDecks[playerIndex].shift();
     } else {
-        alert('No more cards in the deck!');
+        alert(`No more cards in Player ${playerIndex + 1}'s deck!`);
+        return null;
     }
 }
+
 
 // Update the Play Zone display
-function updatePlayZone() {
+function updatePlayZone(playerIndex = 0) {
     let handCardsContainer = document.getElementById('hand-cards');
     handCardsContainer.innerHTML = '';
 
-    playerHand.forEach(card => {
+    playerHands[playerIndex].forEach(card => {
         let cardElement = createCardElement(card);
         handCardsContainer.appendChild(cardElement);
     });
 
     setupDragAndDrop();
 }
+
 
 // Shuffle an array
 function shuffleArray(array) {
@@ -381,22 +386,22 @@ function generateTrickTakingInputs() {
     trickTakingDiv.innerHTML = `<h3>Trick ${trickCount + 1}</h3>`;
 
     // Draw two cards for each player at the start of the Trick-Taking Phase
-    for (let i = 0; i < numPlayers; i++) {
-        drawCard();
-        drawCard();
+    if (trickCount === 0) {
+        for (let i = 0; i < numPlayers; i++) {
+            let card1 = drawCardFromDeck(i);
+            let card2 = drawCardFromDeck(i);
+            if (card1) playerHands[i].push(card1);
+            if (card2) playerHands[i].push(card2);
+        }
     }
-    updatePlayZone();
 
     for (let i = 0; i < numPlayers; i++) {
         trickTakingDiv.innerHTML += `
             <div class="player-section">
                 <h3>Player ${i + 1}</h3>
-                Select two cards to play:
-                <select id="player${i}-card-select1">
-                    ${playerHand.map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
-                </select>
-                <select id="player${i}-card-select2">
-                    ${playerHand.map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
+                Select a card to play:
+                <select id="player${i}-card-select">
+                    ${playerHands[i].map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
                 </select>
             </div>
         `;
@@ -407,27 +412,20 @@ function generateTrickTakingInputs() {
     document.getElementById('endTrickTakingPhase').disabled = true;
 }
 
+
 function calculateTrickResults() {
     let playedCards = [];
     for (let i = 0; i < numPlayers; i++) {
-        const selectedCardId1 = document.getElementById(`player${i}-card-select1`).value;
-        const selectedCardId2 = document.getElementById(`player${i}-card-select2`).value;
+        const selectedCardId = document.getElementById(`player${i}-card-select`).value;
+        const playerHand = playerHands[i];
+        const cardIndex = playerHand.findIndex(card => card.id === selectedCardId);
 
-        if (selectedCardId1 === selectedCardId2) {
-            document.getElementById('trickResult').innerHTML = `Player ${i + 1} selected the same card twice. Please select two different cards.`;
-            return;
-        }
-
-        const selectedCard1 = playerHand.find(card => card.id === selectedCardId1);
-        const selectedCard2 = playerHand.find(card => card.id === selectedCardId2);
-
-        if (selectedCard1 && selectedCard2) {
-            playedCards.push({ playerIndex: i, cards: [selectedCard1, selectedCard2] });
-            // Remove the cards from hand and add to discard pile
-            playCard(selectedCardId1);
-            playCard(selectedCardId2);
+        if (cardIndex !== -1) {
+            const selectedCard = playerHand.splice(cardIndex, 1)[0];
+            playedCards.push({ playerIndex: i, card: selectedCard });
+            // Optionally, add the card to a discard pile
         } else {
-            document.getElementById('trickResult').innerHTML = `Player ${i + 1} did not select two valid cards.`;
+            document.getElementById('trickResult').innerHTML = `Player ${i + 1} did not select a valid card.`;
             return;
         }
     }
@@ -436,9 +434,7 @@ function calculateTrickResults() {
     let winningPlayerIndex = determineTrickWinner(playedCards);
 
     // Calculate points earned
-    let totalPoints = playedCards.reduce((sum, play) => {
-        return sum + play.cards.reduce((cardSum, card) => cardSum + (card.stars || 0), 0);
-    }, 0);
+    let totalPoints = playedCards.reduce((sum, play) => sum + (play.card.stars || 0), 0);
 
     // Add summoning points to the winning player
     summoningPoints[winningPlayerIndex] += totalPoints * 100;
@@ -456,6 +452,7 @@ function calculateTrickResults() {
         generateTrickTakingInputs();
     }
 }
+
 
 // Function to determine the winner of the trick
 function determineTrickWinner(playedCards) {
