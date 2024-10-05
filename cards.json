@@ -1,0 +1,39 @@
+[
+    {
+        "id": "card1",
+        "name": "Ace of Hearts",
+        "suit": "Hearts",
+        "rank": "Ace",
+        "stars": 11,
+        "level": 2,
+        "atk": 1600,
+        "def": 1200,
+        "effect": "When this card inflicts battle damage to your opponent, draw one card.",
+        "image": "images/ace_of_hearts.png"
+    },
+    {
+        "id": "card2",
+        "name": "Queen of Diamonds",
+        "suit": "Diamonds",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 7,
+        "atk": 2500,
+        "def": 2000,
+        "effect": "Cannot be destroyed by battle with Trickster-type creatures.",
+        "image": "images/queen_of_diamonds.png"
+    },
+    {
+        "id": "card3",
+        "name": "Ten of Clubs",
+        "suit": "Clubs",
+        "rank": "Ten",
+        "stars": 10,
+        "level": 2,
+        "atk": 1500,
+        "def": 1300,
+        "effect": "When this card is summoned, you can gain 500 Life Points.",
+        "image": "images/ten_of_clubs.png"
+    }
+    // Add more cards as needed
+]
