@@ -37,15 +37,16 @@ function init() {
     document.getElementById('startGame').addEventListener('click', initializeGame);
     document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
     document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
-    document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
-    document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
+    // The "End Summoning Phase" button is dynamically added, so we'll attach its event listener within the function that creates it.
+    // The "End Battle Phase" button is also dynamically added.
     document.getElementById('nextRound').addEventListener('click', startNextRound);
 
-    // Event listener for the bidding phase
-    document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
+    // Event listener for the bidding phase (if applicable)
+    // document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
 
-    // Add event listener to the toggle button
-    document.getElementById('toggleView').addEventListener('click', toggleView);
+    // Add event listeners to the toggle buttons
+    document.getElementById('toggleToPlayZone').addEventListener('click', toggleToPlayZone);
+    document.getElementById('toggleToGameCompanion').addEventListener('click', toggleToGameCompanion);
 
     // Initialize the Play Zone
     initPlayZone();
@@ -260,39 +261,6 @@ function updatePlayerStats() {
     document.getElementById('playerStats').innerHTML = stats;
 }
 
-// Show Game Points
-function showGamePoints() {
-    let content = '<h3>Game Points:</h3>';
-    for (let i = 0; i < numPlayers; i++) {
-        content += `<p>Player ${i + 1}: ${gamePoints[i]} points</p>`;
-    }
-    showModal(content);
-}
-
-// Show Rules
-function showRules() {
-    // For brevity, include a simple message
-    let content = '<h3>Rules:</h3><p>Refer to the rulebook for detailed instructions.</p>';
-    showModal(content);
-}
-
-// Show Modal
-function showModal(content) {
-    const modal = document.getElementById('modal');
-    const modalBody = document.getElementById('modalBody');
-    modalBody.innerHTML = content;
-    modal.classList.remove('hidden');
-    const closeModal = document.getElementById('closeModal');
-    closeModal.onclick = function() {
-        modal.classList.add('hidden');
-    };
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.classList.add('hidden');
-        }
-    };
-}
-
 // Trick Taking Phase
 function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
@@ -425,7 +393,7 @@ function moveToNextPhase(currentPhaseId, nextPhaseId) {
     // Initialize the next phase if needed
     switch (nextPhaseId) {
         case 'biddingPhase':
-            generateBiddingOptions();
+            // generateBiddingOptions();
             break;
         case 'trickTakingPhase':
             generateTrickTakingInputs();
@@ -450,12 +418,15 @@ function generateSummoningInputs() {
     summoningDiv.innerHTML += `
         <div class="player-section">
             <h3>Your Summoning Phase</h3>
-            <button onclick="addSummon()">Add Summon</button>
+            <button id="addSummonButton">Add Summon</button>
             <div id="player-summon-container"></div>
             <div class="error-message" id="player-error"></div>
             <button id="endSummoningPhase">End Summoning Phase</button>
         </div>
     `;
+
+    // Add event listener for the Add Summon button
+    document.getElementById('addSummonButton').addEventListener('click', addSummon);
 
     // Add event listener for the End Summoning Phase button
     document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
@@ -682,18 +653,12 @@ function initPlayZone() {
     // Play Zone will be updated when the game starts
 }
 
-function toggleView() {
-    const gameCompanion = document.getElementById('gameCompanion');
-    const playZone = document.getElementById('playZone');
-    const toggleButton = document.getElementById('toggleView');
+function toggleToPlayZone() {
+    document.getElementById('gameCompanion').classList.add('hidden');
+    document.getElementById('playZone').classList.remove('hidden');
+}
 
-    if (gameCompanion.classList.contains('hidden')) {
-        gameCompanion.classList.remove('hidden');
-        playZone.classList.add('hidden');
-        toggleButton.textContent = 'Switch to Play Zone';
-    } else {
-        gameCompanion.classList.add('hidden');
-        playZone.classList.remove('hidden');
-        toggleButton.textContent = 'Switch to Game Companion';
-    }
+function toggleToGameCompanion() {
+    document.getElementById('playZone').classList.add('hidden');
+    document.getElementById('gameCompanion').classList.remove('hidden');
 }
