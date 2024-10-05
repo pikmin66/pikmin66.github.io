@@ -299,7 +299,8 @@ function generateTrickTakingInputs() {
     trickTakingDiv.innerHTML = `<h3>Trick ${trickCount + 1}</h3>`;
 
     // Draw two cards at the start of the Trick-Taking Phase
-    if (trickCount === 0) {
+    if (trickCount === 0 && currentPhase !== 'trickTakingPhaseStarted') {
+        currentPhase = 'trickTakingPhaseStarted';
         for (let i = 0; i < numPlayers; i++) {
             // Each player draws 2 cards at the start of the Trick-Taking Phase
             for (let j = 0; j < 2; j++) {
@@ -313,7 +314,7 @@ function generateTrickTakingInputs() {
     trickTakingDiv.innerHTML += `
         <div class="player-section">
             <h3>Your Turn</h3>
-            Select a card to play:
+            <label for="player${userPlayerIndex}-card-select">Select a card to play:</label>
             <select id="player${userPlayerIndex}-card-select">
                 ${playerHands[userPlayerIndex].map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
             </select>
@@ -405,6 +406,7 @@ function determineTrickWinner(playedCards) {
 
 function endTrickTakingPhase() {
     trickCount = 0; // Reset for next round
+    currentPhase = ''; // Reset currentPhase flag
 
     // Display total summoning points for each player
     let summary = '<h3>Trick-Taking Phase Summary:</h3>';
@@ -414,7 +416,29 @@ function endTrickTakingPhase() {
     document.getElementById('trickResult').innerHTML = summary;
 
     moveToNextPhase('trickTakingPhase', 'summoningPhase');
-    generateSummoningInputs();
+}
+
+function moveToNextPhase(currentPhaseId, nextPhaseId) {
+    document.getElementById(currentPhaseId).classList.add('hidden');
+    document.getElementById(nextPhaseId).classList.remove('hidden');
+
+    // Initialize the next phase if needed
+    switch (nextPhaseId) {
+        case 'biddingPhase':
+            generateBiddingOptions();
+            break;
+        case 'trickTakingPhase':
+            generateTrickTakingInputs();
+            break;
+        case 'summoningPhase':
+            generateSummoningInputs();
+            break;
+        case 'battlePhase':
+            generateBattleInputs();
+            break;
+        default:
+            break;
+    }
 }
 
 // Summoning Phase
@@ -432,6 +456,9 @@ function generateSummoningInputs() {
             <button id="endSummoningPhase">End Summoning Phase</button>
         </div>
     `;
+
+    // Add event listener for the End Summoning Phase button
+    document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
 
     // Simulate AI summoning
     simulateAISummoning();
@@ -532,7 +559,6 @@ function endSummoningPhase() {
 
         updatePlayerStats();
         moveToNextPhase('summoningPhase', 'battlePhase');
-        generateBattleInputs();
     } else {
         errorDiv.textContent = `Not enough summoning points! You need ${totalCost}, but have ${availableSummoningPoints}.`;
         alert('Please adjust your summoning to be within your available summoning points.');
@@ -567,6 +593,12 @@ function generateBattleInputs() {
 
     // Simulate AI battle actions
     simulateAIBattle();
+
+    // Add button to end Battle Phase
+    battleDiv.innerHTML += `<button id="endBattlePhase">End Battle Phase</button>`;
+
+    // Add event listener
+    document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
 }
 
 function simulateAIBattle() {
@@ -617,32 +649,10 @@ function endBattlePhase() {
 function startNextRound() {
     // Reset necessary variables or proceed as per game rules
     playersMonsters = new Array(numPlayers).fill(null).map(() => []);
+    currentPhase = ''; // Reset currentPhase flag
 
     moveToNextPhase('endPhase', 'trickTakingPhase');
     generateTrickTakingInputs();
-}
-
-function moveToNextPhase(currentPhase, nextPhase) {
-    document.getElementById(currentPhase).classList.add('hidden');
-    document.getElementById(nextPhase).classList.remove('hidden');
-
-    // Initialize the next phase if needed
-    switch (nextPhase) {
-        case 'biddingPhase':
-            generateBiddingOptions();
-            break;
-        case 'trickTakingPhase':
-            generateTrickTakingInputs();
-            break;
-        case 'summoningPhase':
-            generateSummoningInputs();
-            break;
-        case 'battlePhase':
-            generateBattleInputs();
-            break;
-        default:
-            break;
-    }
 }
 
 function changeGameVariant() {
