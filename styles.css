@@ -58,3 +58,7 @@ button:hover {
     color: #0073aa;
     font-weight: bold;
 }
+
+.player-section {
+    margin-bottom: 15px;
+}
