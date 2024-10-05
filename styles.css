@@ -10,71 +10,39 @@ h1 {
     margin-top: 30px;
 }
 
-#gameSetup {
-    width: 60%;
-    margin: 0 auto;
-    padding: 20px;
+#gameSetup, .phase, #playerStatsOverview {
     background: #fff;
     border: 1px solid #dce1e8;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-#playerStats {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 80%;
     margin: 20px auto;
     padding: 20px;
-    background: #f4f4f4;
-    border: 1px solid #dce1e8;
-    border-radius: 10px;
-}
-
-.phase {
-    width: 80%;
-    margin: 20px auto;
-    padding: 20px;
-    background: #fff;
-    border: 1px solid #dce1e8;
-    border-radius: 10px;
-    display: none; /* Phases are hidden by default */
-}
-
-.phase.visible {
-    display: block; /* Visible class makes the phase visible */
 }
 
 button {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
     background-color: #0073aa;
     color: #fff;
-    margin: 10px;
-}
-
-button.hidden {
-    display: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
 button:hover {
     background-color: #005f8c;
 }
 
-#playerStatsOverview {
-    width: 80%;
-    margin: 20px auto;
-    padding: 20px;
-    background: #f4f4f4;
-    border: 1px solid #dce1e8;
-    border-radius: 10px;
-    text-align: center;
+.phase.hidden {
+    display: none;
 }
 
-#playerStats h2,
-.phase h2 {
+.phase.visible {
+    display: block;
+}
+
+#playerStats h2, .phase h2 {
     border-bottom: 2px solid #0073aa;
     margin-bottom: 10px;
 }
@@ -89,16 +57,4 @@ button:hover {
 #trickResult {
     color: #0073aa;
     font-weight: bold;
-}
-
-input, select {
-    padding: 8px 10px;
-    border: 1px solid #d1d9e0;
-    border-radius: 5px;
-    margin: 10px;
-    width: calc(100% - 40px);
-}
-
-.hidden {
-    display: none;
 }
