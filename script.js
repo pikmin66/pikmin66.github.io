@@ -1,4 +1,3 @@
-// Variables
 let numPlayers = 2;
 let gameVariant = 'base';
 let summoningPoints = [];
@@ -6,114 +5,90 @@ let lifePoints = [];
 let trickResults = [];
 let trickWinner = -1;
 
-// Card properties and strength settings
+// Card properties
 let trumpCards = ['Q♣', 'Q♠', 'Q♥', 'Q♦', 'J♣', 'J♠', 'J♥', 'J♦', 'A♦', '10♦', 'K♦', '9♦', '8♦', '7♦'];
 let failCards = ['A', '10', 'K', '9', '8', '7'];
 let cardStrengths = {};
 let cardPoints = { 'A': 11, '10': 10, 'K': 4, 'Q': 3, 'J': 2, '9': 0, '8': 0, '7': 0 };
 
-// Initialize card strengths based on Sheepshead rules
-trumpCards.forEach((card, index) => cardStrengths[card] = 14 - index);
+// Define card strengths based on the order in Sheepshead
+trumpCards.forEach((card, index) => cardStrengths[card] = 14 - index); // 14 down to 1
 failCards.forEach(card => {
-    ['♣', '♠', '♥'].forEach(suit => cardStrengths[card + suit] = 6 - failCards.indexOf(card));
+    ['♣', '♠', '♥'].forEach(suit => cardStrengths[card + suit] = 6 - failCards.indexOf(card)); // 6 down to 1
 });
 
-// Initialize Game
+// Game Initialization
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
 
-    // Initialize player stats
-    summoningPoints = new Array(numPlayers).fill(1000); // Initial summoning points
-    lifePoints = new Array(numPlayers).fill(8000); // Initial life points for each player
+    // Initialize summoning points and life points for each player
+    summoningPoints = new Array(numPlayers).fill(1000); // Each player starts with 1000 summoning points
+    lifePoints = new Array(numPlayers).fill(8000); // Each player starts with 8000 life points
 
-    // Display player stats
-    updatePlayerStats();
-
-    // Set up phase visibility
-    hideAllPhases();
+    // Start with the trick-taking phase if only 2 players or Yu-Gi-Oh! variant; otherwise, go through bidding phase first
     if (numPlayers === 2 || gameVariant === 'yugioh') {
+        document.getElementById('biddingPhase').classList.add('hidden');
         startTrickTakingPhase();
     } else {
         document.getElementById('biddingPhase').classList.remove('hidden');
         generateBiddingOptions();
     }
-}
 
-// Hide all phases
-function hideAllPhases() {
-    document.getElementById('biddingPhase').classList.add('hidden');
-    document.getElementById('trickTakingPhase').classList.add('hidden');
-    document.getElementById('summoningPhase').classList.add('hidden');
-    document.getElementById('battlePhase').classList.add('hidden');
-    document.getElementById('endPhase').classList.add('hidden');
     document.getElementById('gameSetup').classList.add('hidden');
+    updatePlayerStatsDisplay();
 }
 
-// Update Player Stats Display
-function updatePlayerStats() {
-    const statsDiv = document.getElementById('playerStats');
-    statsDiv.innerHTML = '<h2>Player Stats</h2>';
-    for (let i = 0; i < numPlayers; i++) {
-        statsDiv.innerHTML += `Player ${i + 1} - Life Points: ${lifePoints[i]}, Summoning Points: ${summoningPoints[i]}<br>`;
-    }
+function changeGameVariant() {
+    gameVariant = document.getElementById('gameVariant').value;
 }
 
 // Bidding Phase
 function generateBiddingOptions() {
     const biddingDiv = document.getElementById('biddingOptions');
-    biddingDiv.innerHTML = '';
+    biddingDiv.innerHTML = "";
     for (let i = 1; i <= numPlayers; i++) {
         biddingDiv.innerHTML += `
             <div class="player-section">
                 Player ${i}
-                <button onclick="passBid(${i})">Pass</button>
-                <button onclick="pickUpBid(${i})">Pick Up</button>
+                <select>
+                    <option>Pass</option>
+                    <option>Pick Up</option>
+                </select>
             </div>
         `;
     }
 }
 
-function passBid(player) {
-    alert(`Player ${player} passes`);
-}
-
-function pickUpBid(player) {
-    alert(`Player ${player} picks up the bid`);
-    endBiddingPhase();
-}
-
 function endBiddingPhase() {
-    hideAllPhases();
+    document.getElementById('biddingPhase').classList.add('hidden');
     startTrickTakingPhase();
 }
 
 // Trick Taking Phase
 function startTrickTakingPhase() {
-    hideAllPhases();
     document.getElementById('trickTakingPhase').classList.remove('hidden');
     generateTrickTakingInputs();
 }
 
 function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
-    trickTakingDiv.innerHTML = '';
+    trickTakingDiv.innerHTML = "";
     for (let i = 1; i <= numPlayers; i++) {
         if (gameVariant === 'yugioh') {
             trickTakingDiv.innerHTML += `
                 <div class="player-section">
                     Player ${i}
                     Card Attribute:
-                    <select id="attribute-${i}">
-                        <option value="FIRE">FIRE</option>
-                        <option value="WATER">WATER</option>
-                        <option value="WIND">WIND</option>
-                        <option value="EARTH">EARTH</option>
-                        <option value="LIGHT">LIGHT</option>
-                        <option value="DARK">DARK</option>
+                    <select>
+                        <option>FIRE</option>
+                        <option>WATER</option>
+                        <option>WIND</option>
+                        <option>EARTH</option>
+                        <option>LIGHT</option>
+                        <option>DARK</option>
                     </select>
-                    Card Level:
-                    <input type="number" id="level-${i}" min="1" max="12">
+                    Card Level: <input type="number" min="1" max="12" value="1">
                 </div>
             `;
         } else {
@@ -121,22 +96,22 @@ function generateTrickTakingInputs() {
                 <div class="player-section">
                     Player ${i}
                     Card Rank:
-                    <select id="rank-${i}">
-                        <option value="Ace">Ace</option>
-                        <option value="Ten">Ten</option>
-                        <option value="King">King</option>
-                        <option value="Queen">Queen</option>
-                        <option value="Jack">Jack</option>
-                        <option value="Nine">Nine</option>
-                        <option value="Eight">Eight</option>
-                        <option value="Seven">Seven</option>
+                    <select>
+                        <option>Ace</option>
+                        <option>Ten</option>
+                        <option>King</option>
+                        <option>Queen</option>
+                        <option>Jack</option>
+                        <option>Nine</option>
+                        <option>Eight</option>
+                        <option>Seven</option>
                     </select>
                     Suit:
-                    <select id="suit-${i}">
-                        <option value="Clubs">Clubs</option>
-                        <option value="Spades">Spades</option>
-                        <option value="Hearts">Hearts</option>
-                        <option value="Diamonds">Diamonds</option>
+                    <select>
+                        <option>Clubs</option>
+                        <option>Spades</option>
+                        <option>Hearts</option>
+                        <option>Diamonds</option>
                     </select>
                 </div>
             `;
@@ -144,89 +119,107 @@ function generateTrickTakingInputs() {
     }
 }
 
-// Calculate Trick Results
 function calculateTrickResults() {
     let results = [];
     let highestStrength = -1;
     trickWinner = -1;
 
-    // Calculate trick results based on card strength
-    for (let i = 1; i <= numPlayers; i++) {
-        let cardStrength;
+    const trickTakingInputs = document.querySelectorAll('#trickTakingInputs .player-section');
+    trickTakingInputs.forEach((input, index) => {
+        let card, suit;
         if (gameVariant === 'yugioh') {
-            const level = parseInt(document.getElementById(`level-${i}`).value) || 0;
-            cardStrength = level; // Yu-Gi-Oh variant uses level as card strength
+            const attribute = input.querySelector('select').value;
+            const level = parseInt(input.querySelector('input').value);
+            card = `Level ${level} ${attribute}`;
+            suit = attribute; // Treat attribute as the suit equivalent
         } else {
-            const rank = document.getElementById(`rank-${i}`).value;
-            const suit = document.getElementById(`suit-${i}`).value;
-            cardStrength = cardStrengths[rank + suit] || 0;
+            const rank = input.querySelectorAll('select')[0].value;
+            suit = input.querySelectorAll('select')[1].value;
+            card = `${rank} of ${suit}`;
         }
 
-        results.push({ player: i, cardStrength });
+        const cardStrength = cardStrengths[card] || 0;
+        results.push({ player: index + 1, card, cardStrength });
+
         if (cardStrength > highestStrength) {
             highestStrength = cardStrength;
-            trickWinner = i;
+            trickWinner = index + 1;
         }
-    }
+    });
 
-    // Update trick results and display
-    document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
+    document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick with the highest strength card!`;
     trickResults = results;
 }
 
-// Update Summoning Points Based on Trick Results
+// Update Summoning Points based on Trick Results
 function updateSummoningPointsFromTricks() {
     let trickPoints = 0;
     trickResults.forEach(result => {
         let pointsEarned;
         if (gameVariant === 'yugioh') {
-            pointsEarned = result.cardStrength; // Use card level as summoning points in Yu-Gi-Oh!
+            const level = parseInt(result.card.split(' ')[1]); // Use the level for summoning points in Yu-Gi-Oh!
+            pointsEarned = level;
         } else {
-            pointsEarned = cardPoints[result.cardStrength] || 0;
+            pointsEarned = cardPoints[result.card.split(' ')[0]] || 0; // First character of card is the rank
         }
-        trickPoints += parseInt(pointsEarned) * 100;
+        trickPoints += parseInt(pointsEarned) * 100; // Multiply by 100 to get summoning points
     });
 
-    // Add calculated points to the trick winner's summoning points
-    summoningPoints[trickWinner - 1] += trickPoints;
-    updatePlayerStats(); // Refresh player stats with updated summoning points
+    summoningPoints[trickWinner - 1] += trickPoints; // Award points to the trick winner
+    updateSummoningPointsOverview(); // Update summoning points display
 }
 
-function endTrickTakingPhase() {
-    updateSummoningPointsFromTricks();
-    hideAllPhases();
-    document.getElementById('summoningPhase').classList.remove('hidden');
-    generateSummoningInputs();
-}
-
-// Generate Inputs for Summoning Phase
 function generateSummoningInputs() {
     const summoningDiv = document.getElementById('summoningInputs');
-    summoningDiv.innerHTML = '';
+    summoningDiv.innerHTML = "";
     for (let i = 1; i <= numPlayers; i++) {
         summoningDiv.innerHTML += `
             <div class="player-section">
                 Player ${i}
-                Card Level: <input type="number" id="summon-level-${i}" min="1" max="12"><br>
-                ATK: <input type="number" id="atk-${i}"><br>
-                DEF: <input type="number" id="def-${i}"><br>
+                Card Level: <input type="number" min="1" max="12" value="1">
+                ATK: <input type="number" min="0" value="0">
+                DEF: <input type="number" min="0" value="0">
             </div>
         `;
     }
 }
 
-// End Summoning Phase and Transition to Battle Phase
+function updateSummoningPointsOverview() {
+    const overviewDiv = document.getElementById('summoningPointsOverview');
+    overviewDiv.innerHTML = '<h3>Summoning Points Overview:</h3>';
+    for (let i = 0; i < numPlayers; i++) {
+        overviewDiv.innerHTML += `Player ${i + 1}: ${summoningPoints[i]} points<br>`;
+    }
+}
+
+function updatePlayerStatsDisplay() {
+    const playerStatsDiv = document.getElementById('playerStats');
+    playerStatsDiv.innerHTML = '<h3>Player Stats</h3>';
+    for (let i = 0; i < numPlayers; i++) {
+        playerStatsDiv.innerHTML += `Player ${i + 1}: Life Points: ${lifePoints[i]}, Summoning Points: ${summoningPoints[i]}<br>`;
+    }
+}
+
+function endTrickTakingPhase() {
+    calculateTrickResults();
+    updateSummoningPointsFromTricks();
+    document.getElementById('trickTakingPhase').classList.add('hidden');
+    document.getElementById('summoningPhase').classList.remove('hidden');
+    generateSummoningInputs();
+    updateSummoningPointsOverview();
+}
+
 function endSummoningPhase() {
-    hideAllPhases();
+    document.getElementById('summoningPhase').classList.add('hidden');
     document.getElementById('battlePhase').classList.remove('hidden');
 }
 
-// Battle Phase and End Phase functions
 function endBattlePhase() {
-    hideAllPhases();
+    document.getElementById('battlePhase').classList.add('hidden');
     document.getElementById('endPhase').classList.remove('hidden');
 }
 
 function nextRound() {
-    initializeGame(); // Reset and start the game again
+    document.getElementById('endPhase').classList.add('hidden');
+    initializeGame(); // Restart the game for the next round
 }
