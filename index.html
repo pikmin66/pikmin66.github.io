@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sheepshead: Trickster Variant Companion</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
 </head>
 <body>
     <!-- Game Setup Section -->
@@ -35,7 +33,7 @@
     <div id="biddingPhase" class="phase hidden">
         <h2>Bidding Phase</h2>
         <div id="biddingOptions"></div>
-        <button id="endBiddingPhase">End Bidding Phase</button>
+        <button id="endBiddingPhase" onclick="endBiddingPhase()">End Bidding Phase</button>
     </div>
 
     <!-- Trick Taking Phase -->
@@ -59,13 +57,14 @@
     <div id="battlePhase" class="phase hidden">
         <h2>Battle Phase</h2>
         <div id="battleInputs"></div>
+        <div id="battleResults"></div>
         <button id="endBattlePhase">End Battle Phase</button>
     </div>
 
     <!-- End Phase -->
     <div id="endPhase" class="phase hidden">
         <h2>End Phase</h2>
-        <button id="nextRound">Start Next Round</button>
+        <button id="nextRound" onclick="startNextRound()">Start Next Round</button>
     </div>
 
     <script src="script.js"></script>
