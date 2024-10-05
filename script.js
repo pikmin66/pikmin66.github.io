@@ -1,3 +1,4 @@
+// Variables for the Game Companion
 let numPlayers = 2;
 let gameVariant = 'base';
 let summoningPoints = [];
@@ -12,11 +13,10 @@ let picker = null;
 let partner = null;
 let playerDecks = [];
 let playerHands = [];
-let discardPile = [];
+let discardPiles = [];
 let cardsData = [];
 let trickCount = 0;
 let maxTricks = 3; // Number of tricks to play in the Trick-Taking Phase
-
 
 // Load card data from JSON (load this at the beginning)
 fetch('cards.json')
@@ -51,6 +51,7 @@ function init() {
     initPlayZone();
 }
 
+// Game Initialization
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
@@ -66,7 +67,7 @@ function initializeGame() {
     picker = null;
     partner = null;
 
-    // Initialize player's decks and hands
+    // Initialize players' decks and hands
     initializePlayerDecks();
 
     updatePlayerStats();
@@ -85,9 +86,11 @@ function initializeGame() {
     document.getElementById('playerStatsOverview').classList.remove('hidden');
 }
 
+// Initialize players' decks and hands
 function initializePlayerDecks() {
     playerDecks = [];
     playerHands = [];
+    discardPiles = [];
 
     for (let i = 0; i < numPlayers; i++) {
         // Create a deck for each player
@@ -102,12 +105,16 @@ function initializePlayerDecks() {
             if (card) hand.push(card);
         }
         playerHands.push(hand);
+
+        // Initialize discard pile for each player
+        discardPiles.push([]);
     }
 
     // Update the Play Zone for Player 1
     updatePlayZone(0);
 }
 
+// Function to draw a card from a player's deck
 function drawCardFromDeck(playerIndex) {
     if (playerDecks[playerIndex].length > 0) {
         return playerDecks[playerIndex].shift();
@@ -117,8 +124,7 @@ function drawCardFromDeck(playerIndex) {
     }
 }
 
-
-// Update the Play Zone display
+// Update the Play Zone display for a specific player
 function updatePlayZone(playerIndex = 0) {
     let handCardsContainer = document.getElementById('hand-cards');
     handCardsContainer.innerHTML = '';
@@ -128,48 +134,9 @@ function updatePlayZone(playerIndex = 0) {
         handCardsContainer.appendChild(cardElement);
     });
 
-    setupDragAndDrop();
-}
-
-
-// Shuffle an array
-function shuffleArray(array) {
-    let currentIndex = array.length, randomIndex;
-
-    // While there remain elements to shuffle
-    while (currentIndex !== 0) {
-
-        // Pick a remaining element
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-
-        // Swap it with the current element
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex], array[currentIndex]];
-    }
-
-    return array;
-}
-
-// Function to initialize the Play Zone
-function initPlayZone() {
-    // Play Zone will be updated when the game starts
-}
-
-function toggleView() {
-    const gameCompanion = document.getElementById('gameCompanion');
-    const playZone = document.getElementById('playZone');
-    const toggleButton = document.getElementById('toggleView');
-
-    if (gameCompanion.classList.contains('hidden')) {
-        gameCompanion.classList.remove('hidden');
-        playZone.classList.add('hidden');
-        toggleButton.textContent = 'Switch to Play Zone';
-    } else {
-        gameCompanion.classList.add('hidden');
-        playZone.classList.remove('hidden');
-        toggleButton.textContent = 'Switch to Game Companion';
-    }
+    // Note: In a multiplayer game, you'd need separate Play Zones for each player
+    // For now, we're displaying only Player 1's hand
+    setupDragAndDrop(playerIndex);
 }
 
 // Create a card element
@@ -230,8 +197,8 @@ function toggleCardDetails(e) {
     }
 }
 
-// Set up drag-and-drop functionality
-function setupDragAndDrop() {
+// Set up drag-and-drop functionality (for single-player Play Zone)
+function setupDragAndDrop(playerIndex = 0) {
     let cards = document.querySelectorAll('.card');
     let handCardsContainer = document.getElementById('hand-cards');
     let playAreaContainer = document.getElementById('play-area-cards');
@@ -243,7 +210,7 @@ function setupDragAndDrop() {
 
     [handCardsContainer, playAreaContainer].forEach(zone => {
         zone.addEventListener('dragover', dragOver);
-        zone.addEventListener('drop', drop);
+        zone.addEventListener('drop', (e) => drop(e, playerIndex));
     });
 }
 
@@ -260,38 +227,40 @@ function dragOver(e) {
     e.preventDefault();
 }
 
-function drop(e) {
+function drop(e, playerIndex) {
     e.preventDefault();
     let cardId = e.dataTransfer.getData('text/plain');
     let card = document.getElementById(cardId);
 
     if (this.id === 'play-area-cards') {
         // Move card from hand to play area
-        playCard(cardId);
+        playCard(cardId, playerIndex);
     } else if (this.id === 'hand-cards') {
         // Move card back to hand
-        returnCardToHand(cardId);
+        returnCardToHand(cardId, playerIndex);
     }
 }
 
-// Play a card from hand
-function playCard(cardId) {
+// Play a card from a player's hand
+function playCard(cardId, playerIndex) {
+    let playerHand = playerHands[playerIndex];
     let cardIndex = playerHand.findIndex(card => card.id === cardId);
     if (cardIndex !== -1) {
         let playedCard = playerHand.splice(cardIndex, 1)[0];
-        discardPile.push(playedCard);
-        updatePlayZone();
+        discardPiles[playerIndex].push(playedCard);
+        updatePlayZone(playerIndex);
         document.getElementById('play-area-cards').appendChild(createCardElement(playedCard));
     }
 }
 
-// Return a card to hand
-function returnCardToHand(cardId) {
+// Return a card to a player's hand
+function returnCardToHand(cardId, playerIndex) {
+    let discardPile = discardPiles[playerIndex];
     let cardIndex = discardPile.findIndex(card => card.id === cardId);
     if (cardIndex !== -1) {
         let returnedCard = discardPile.splice(cardIndex, 1)[0];
-        playerHand.push(returnedCard);
-        updatePlayZone();
+        playerHands[playerIndex].push(returnedCard);
+        updatePlayZone(playerIndex);
     }
 }
 
@@ -410,8 +379,10 @@ function generateTrickTakingInputs() {
     // Enable the calculate button and disable the end phase button
     document.getElementById('calculateTrickResults').disabled = false;
     document.getElementById('endTrickTakingPhase').disabled = true;
-}
 
+    // Update Play Zone for Player 1 (assuming single-player view)
+    updatePlayZone(0);
+}
 
 function calculateTrickResults() {
     let playedCards = [];
@@ -424,6 +395,7 @@ function calculateTrickResults() {
             const selectedCard = playerHand.splice(cardIndex, 1)[0];
             playedCards.push({ playerIndex: i, card: selectedCard });
             // Optionally, add the card to a discard pile
+            discardPiles[i].push(selectedCard);
         } else {
             document.getElementById('trickResult').innerHTML = `Player ${i + 1} did not select a valid card.`;
             return;
@@ -453,18 +425,16 @@ function calculateTrickResults() {
     }
 }
 
-
-// Function to determine the winner of the trick
 function determineTrickWinner(playedCards) {
-    // For simplicity, sum the levels of both cards per player
+    // For simplicity, let's assume higher-level cards win
     let winningPlayerIndex = playedCards[0].playerIndex;
-    let highestTotalLevel = playedCards[0].cards.reduce((sum, card) => sum + (card.level || 0), 0);
+    let highestLevel = playedCards[0].card.level || 0;
 
     for (let i = 1; i < playedCards.length; i++) {
-        const currentTotalLevel = playedCards[i].cards.reduce((sum, card) => sum + (card.level || 0), 0);
+        const currentLevel = playedCards[i].card.level || 0;
 
-        if (currentTotalLevel > highestTotalLevel) {
-            highestTotalLevel = currentTotalLevel;
+        if (currentLevel > highestLevel) {
+            highestLevel = currentLevel;
             winningPlayerIndex = playedCards[i].playerIndex;
         }
     }
@@ -491,6 +461,7 @@ function generateSummoningInputs() {
     const summoningDiv = document.getElementById('summoningInputs');
     summoningDiv.innerHTML = "";
 
+    // For simplicity, we'll only handle summoning for Player 1
     summoningDiv.innerHTML += `
         <div class="player-section">
             <h3>Your Summoning Phase</h3>
@@ -499,6 +470,8 @@ function generateSummoningInputs() {
             <div class="error-message" id="player-error"></div>
         </div>
     `;
+
+    updatePlayZone(0);
 }
 
 function addSummon() {
@@ -509,7 +482,7 @@ function addSummon() {
     summonDiv.innerHTML = `
         <label>Select Card to Summon:
             <select id="summon${summonIndex}-card-select">
-                ${playerHand.map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
+                ${playerHands[0].map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
             </select>
         </label>
         Summoning Cost: <span id="summon${summonIndex}-cost">0</span><br>
@@ -521,7 +494,7 @@ function addSummon() {
     const cardSelect = document.getElementById(`summon${summonIndex}-card-select`);
     const costSpan = document.getElementById(`summon${summonIndex}-cost`);
     cardSelect.addEventListener('change', () => {
-        const selectedCard = playerHand.find(card => card.id === cardSelect.value);
+        const selectedCard = playerHands[0].find(card => card.id === cardSelect.value);
         const cost = (selectedCard.level || 0) * 200;
         costSpan.innerText = cost;
     });
@@ -546,14 +519,14 @@ function endSummoningPhase() {
 
     for (let j = 0; j < summonEntries.length; j++) {
         const cardSelect = document.getElementById(`summon${j}-card-select`);
-        const selectedCard = playerHand.find(card => card.id === cardSelect.value);
+        const selectedCard = playerHands[0].find(card => card.id === cardSelect.value);
         const cost = (selectedCard.level || 0) * 200;
         totalCost += cost;
 
         summons.push(selectedCard);
     }
 
-    let availableSummoningPoints = summoningPoints[0]; // Assuming single-player
+    let availableSummoningPoints = summoningPoints[0];
 
     if (availableSummoningPoints >= totalCost) {
         // Deduct summoning points
@@ -561,8 +534,12 @@ function endSummoningPhase() {
 
         // Remove summoned cards from hand and add to player's monsters
         summons.forEach(card => {
-            playCard(card.id);
-            playersMonsters[0].push(card);
+            let cardIndex = playerHands[0].findIndex(c => c.id === card.id);
+            if (cardIndex !== -1) {
+                playerHands[0].splice(cardIndex, 1);
+                playersMonsters[0].push(card);
+                updatePlayZone(0);
+            }
         });
 
         updatePlayerStats();
@@ -652,4 +629,43 @@ function moveToNextPhase(currentPhase, nextPhase) {
 
 function changeGameVariant() {
     gameVariant = document.getElementById('gameVariant').value;
+}
+
+// Shuffle an array
+function shuffleArray(array) {
+    let currentIndex = array.length, randomIndex;
+
+    // While there remain elements to shuffle
+    while (currentIndex !== 0) {
+
+        // Pick a remaining element
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // Swap it with the current element
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+    }
+
+    return array;
+}
+
+function initPlayZone() {
+    // Play Zone will be updated when the game starts
+}
+
+function toggleView() {
+    const gameCompanion = document.getElementById('gameCompanion');
+    const playZone = document.getElementById('playZone');
+    const toggleButton = document.getElementById('toggleView');
+
+    if (gameCompanion.classList.contains('hidden')) {
+        gameCompanion.classList.remove('hidden');
+        playZone.classList.add('hidden');
+        toggleButton.textContent = 'Switch to Play Zone';
+    } else {
+        gameCompanion.classList.add('hidden');
+        playZone.classList.remove('hidden');
+        toggleButton.textContent = 'Switch to Game Companion';
+    }
 }
