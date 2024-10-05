@@ -23,13 +23,9 @@ function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
 
-    if (gameVariant === 'yugioh') {
-        summoningPoints = new Array(numPlayers).fill(5000); // Start with 5000 summoning points
-    } else {
-        summoningPoints = new Array(numPlayers).fill(1000);
-    }
-
+    summoningPoints = new Array(numPlayers).fill(gameVariant === 'yugioh' ? 4000 : 1000); // Different summoning points for Yu-Gi-Oh! variant
     lifePoints = new Array(numPlayers).fill(8000);
+
     updatePlayerStats();
 
     if (numPlayers === 2 || gameVariant === 'yugioh') {
@@ -44,6 +40,7 @@ function initializeGame() {
     document.getElementById('playerStatsOverview').classList.remove('hidden');
 }
 
+// Change game variant handler
 function changeGameVariant() {
     gameVariant = document.getElementById('gameVariant').value;
 }
@@ -92,7 +89,7 @@ function generateTrickTakingInputs() {
             <div class="player-section">
                 Player ${i}
                 Card Rank:
-                <select id="rankPlayer${i}">
+                <select>
                     <option>Ace</option>
                     <option>Ten</option>
                     <option>King</option>
@@ -103,7 +100,7 @@ function generateTrickTakingInputs() {
                     <option>Seven</option>
                 </select>
                 Suit:
-                <select id="suitPlayer${i}">
+                <select>
                     <option>Clubs</option>
                     <option>Spades</option>
                     <option>Hearts</option>
@@ -115,35 +112,20 @@ function generateTrickTakingInputs() {
 }
 
 function calculateTrickResults() {
-    let highestCardStrength = 0;
-    let trickWinnerIndex = 0;
-
-    for (let i = 0; i < numPlayers; i++) {
-        const rank = document.getElementById(`rankPlayer${i + 1}`).value;
-        const suit = document.getElementById(`suitPlayer${i + 1}`).value;
-        const card = rank + (suit[0] === 'D' ? '♦' : suit[0]); // Simplified suit check for trump
-        const strength = cardStrengths[card] || 0;
-
-        if (strength > highestCardStrength) {
-            highestCardStrength = strength;
-            trickWinnerIndex = i;
-        }
-    }
-
-    trickWinner = trickWinnerIndex + 1;
+    // Placeholder logic to determine winner (needs real implementation)
+    trickWinner = Math.floor(Math.random() * numPlayers) + 1;
     document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
-
-    updateSummoningPointsFromTricks();
 }
 
 function updateSummoningPointsFromTricks() {
-    let trickPoints = 10; // Placeholder points for now, update this based on trick logic
-    summoningPoints[trickWinner - 1] += trickPoints; 
+    let trickPoints = gameVariant === 'yugioh' ? 500 : 100; // Award more points for Yu-Gi-Oh! variant
+    summoningPoints[trickWinner - 1] += trickPoints;
     updatePlayerStats();
 }
 
 function endTrickTakingPhase() {
     calculateTrickResults();
+    updateSummoningPointsFromTricks();
     moveToNextPhase('trickTakingPhase', 'summoningPhase');
 }
 
@@ -165,6 +147,7 @@ function generateSummoningInputs() {
                     <option>6</option>
                     <option>7</option>
                 </select>
+                ${gameVariant === 'yugioh' ? 'Monster Type:<input type="text"><br>' : ''}
                 ATK:
                 <input type="number" min="0">
                 DEF:
@@ -175,16 +158,15 @@ function generateSummoningInputs() {
 }
 
 function endSummoningPhase() {
-    if (gameVariant === 'yugioh') {
-        // Replenish summoning points back to 5,000 for Yu-Gi-Oh! variant
-        summoningPoints = summoningPoints.map(() => 5000);
-        updatePlayerStats();
-    }
     moveToNextPhase('summoningPhase', 'battlePhase');
 }
 
 // Battle Phase
 function endBattlePhase() {
+    // Implement specific battle mechanics for Yu-Gi-Oh! variant
+    if (gameVariant === 'yugioh') {
+        alert('Special Yu-Gi-Oh! Battle Phase mechanics implemented here!');
+    }
     moveToNextPhase('battlePhase', 'endPhase');
 }
 
@@ -194,6 +176,11 @@ function moveToNextPhase(currentPhase, nextPhase) {
     document.getElementById(nextPhase).classList.remove('hidden');
 }
 
+// Next Round handler
+function nextRound() {
+    moveToNextPhase('endPhase', 'biddingPhase');
+}
+
 // Attach event listeners to the buttons
 document.getElementById('startGame').addEventListener('click', initializeGame);
 document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
@@ -201,4 +188,4 @@ document.getElementById('endTrickTakingPhase').addEventListener('click', endTric
 document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
 document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
 document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
-document.getElementById('nextRound').addEventListener('click', initializeGame);
+document.getElementById('nextRound').addEventListener('click', nextRound);
