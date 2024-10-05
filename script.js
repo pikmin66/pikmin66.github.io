@@ -111,14 +111,14 @@ function generateTrickTakingInputs() {
                     Player ${i}
                     Card Level:
                     <select id="player${i}-card-level">
-                        <option value="1">Level 1</option>
-                        <option value="2">Level 2</option>
-                        <option value="3">Level 3</option>
-                        <option value="4">Level 4</option>
-                        <option value="5">Level 5</option>
-                        <option value="6">Level 6</option>
-                        <option value="7">Level 7</option>
                         <option value="8">Level 8</option>
+                        <option value="7">Level 7</option>
+                        <option value="6">Level 6</option>
+                        <option value="5">Level 5</option>
+                        <option value="4">Level 4</option>
+                        <option value="3">Level 3</option>
+                        <option value="2">Level 2</option>
+                        <option value="1">Level 1</option>
                     </select>
                     Attribute:
                     <select id="player${i}-attribute">
@@ -176,7 +176,8 @@ function calculateTrickResults() {
             }
         }
         document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick with a Level ${highestValue} card!`;
-        updateSummoningPointsFromTricks(highestValue);
+        const pointsEarned = yugiohCardPoints[highestValue] || 0;
+        updateSummoningPointsFromTricks(pointsEarned);
     } else {
         // Base game logic for determining the trick winner
         for (let i = 1; i <= numPlayers; i++) {
@@ -189,8 +190,9 @@ function calculateTrickResults() {
                 trickWinner = i;
             }
         }
-        document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick with a ${document.getElementById(`player${trickWinner}-card-rank`).value} of ${document.getElementById(`player${trickWinner}-card-suit`).value}!`;
         const winnerRank = document.getElementById(`player${trickWinner}-card-rank`).value;
+        const winnerSuit = document.getElementById(`player${trickWinner}-card-suit`).value;
+        document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick with a ${winnerRank} of ${winnerSuit}!`;
         const pointsEarned = cardPoints[winnerRank] || 0;
         updateSummoningPointsFromTricks(pointsEarned);
     }
@@ -213,10 +215,14 @@ function generateSummoningInputs() {
     for (let i = 1; i <= numPlayers; i++) {
         summoningDiv.innerHTML += `
             <div class="player-section">
-                Player ${i}
+                Player ${i}<br>
                 Monster Level to Summon:
-                <input type="number" id="player${i}-summon-level" min="1" max="8" value="1">
-                Summoning Cost: <span id="player${i}-summon-cost">200</span>
+                <input type="number" id="player${i}-summon-level" min="1" max="12" value="1">
+                Summoning Cost: <span id="player${i}-summon-cost">200</span><br>
+                ATK Points:
+                <input type="number" id="player${i}-summon-atk" min="0" value="0">
+                DEF Points:
+                <input type="number" id="player${i}-summon-def" min="0" value="0">
             </div>
         `;
     }
@@ -229,7 +235,7 @@ function updateSummoningCosts() {
         const levelInput = document.getElementById(`player${i}-summon-level`);
         const costSpan = document.getElementById(`player${i}-summon-cost`);
         levelInput.addEventListener('input', () => {
-            const level = parseInt(levelInput.value);
+            const level = parseInt(levelInput.value) || 0;
             const cost = level * 200;
             costSpan.innerText = cost;
         });
@@ -238,7 +244,7 @@ function updateSummoningCosts() {
 
 function endSummoningPhase() {
     for (let i = 1; i <= numPlayers; i++) {
-        const level = parseInt(document.getElementById(`player${i}-summon-level`).value);
+        const level = parseInt(document.getElementById(`player${i}-summon-level`).value) || 0;
         const summoningCost = level * 200;
 
         // Deduct summoning points
@@ -246,7 +252,15 @@ function endSummoningPhase() {
             summoningPoints[i - 1] -= summoningCost;
         } else {
             alert(`Player ${i} does not have enough summoning points!`);
+            continue; // Skip to next player
         }
+
+        // Store the summoned monster's details for the Battle Phase
+        const atk = parseInt(document.getElementById(`player${i}-summon-atk`).value) || 0;
+        const def = parseInt(document.getElementById(`player${i}-summon-def`).value) || 0;
+        // You can store these details in an array or object for later use
+        // For simplicity, we'll assume each player has one monster on the field
+        playersMonsters[i - 1] = { level, atk, def };
     }
 
     updatePlayerStats();
@@ -254,6 +268,8 @@ function endSummoningPhase() {
 }
 
 // Battle Phase
+let playersMonsters = []; // Array to store each player's monster details
+
 function generateBattleInputs() {
     const battleDiv = document.getElementById('battleInputs');
     battleDiv.innerHTML = "";
@@ -261,27 +277,61 @@ function generateBattleInputs() {
     for (let i = 1; i <= numPlayers; i++) {
         battleDiv.innerHTML += `
             <div class="player-section">
-                Player ${i}
+                Player ${i}<br>
                 Attack Target (Player Number):
                 <input type="number" id="player${i}-attack-target" min="1" max="${numPlayers}" value="${(i % numPlayers) + 1}">
-                Attack Points:
-                <input type="number" id="player${i}-attack-points" min="0" value="0">
+                Attack Position:
+                <select id="player${i}-attack-position">
+                    <option value="attack">Attack</option>
+                    <option value="defense">Defense</option>
+                </select>
             </div>
         `;
     }
 }
 
 function endBattlePhase() {
-    // Simple battle resolution for demonstration purposes
+    const battleLog = [];
     for (let i = 1; i <= numPlayers; i++) {
-        const targetPlayer = parseInt(document.getElementById(`player${i}-attack-target`).value);
-        const attackPoints = parseInt(document.getElementById(`player${i}-attack-points`).value);
+        const attacker = playersMonsters[i - 1];
+        if (!attacker) continue; // No monster summoned
 
-        if (targetPlayer >= 1 && targetPlayer <= numPlayers && targetPlayer !== i) {
-            lifePoints[targetPlayer - 1] -= attackPoints;
+        const targetPlayerNum = parseInt(document.getElementById(`player${i}-attack-target`).value);
+        if (targetPlayerNum < 1 || targetPlayerNum > numPlayers || targetPlayerNum === i) continue;
+
+        const defender = playersMonsters[targetPlayerNum - 1];
+        if (!defender) {
+            // Direct attack
+            lifePoints[targetPlayerNum - 1] -= attacker.atk;
+            battleLog.push(`Player ${i} attacked Player ${targetPlayerNum} directly for ${attacker.atk} damage.`);
+        } else {
+            // Monster battle
+            const attackerPosition = document.getElementById(`player${i}-attack-position`).value;
+            let damage = 0;
+            if (attackerPosition === 'attack') {
+                damage = attacker.atk - defender.atk;
+            } else {
+                damage = attacker.def - defender.atk;
+            }
+
+            if (damage > 0) {
+                // Defender's monster destroyed
+                playersMonsters[targetPlayerNum - 1] = null;
+                lifePoints[targetPlayerNum - 1] -= damage;
+                battleLog.push(`Player ${i}'s monster defeated Player ${targetPlayerNum}'s monster. Player ${targetPlayerNum} takes ${damage} damage.`);
+            } else if (damage < 0) {
+                // Attacker's monster destroyed
+                playersMonsters[i - 1] = null;
+                lifePoints[i - 1] += damage; // damage is negative
+                battleLog.push(`Player ${i}'s monster was destroyed by Player ${targetPlayerNum}'s monster. Player ${i} takes ${-damage} damage.`);
+            } else {
+                // Both monsters remain
+                battleLog.push(`Player ${i}'s monster and Player ${targetPlayerNum}'s monster are equally matched. No damage.`);
+            }
         }
     }
 
+    document.getElementById('battleResults').innerHTML = battleLog.join('<br>');
     updatePlayerStats();
     checkForWinner();
     moveToNextPhase('battlePhase', 'endPhase');
