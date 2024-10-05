@@ -4,28 +4,43 @@ let summoningPoints = [];
 let lifePoints = [];
 let trickResults = [];
 let trickWinner = -1;
-let currentPhase = 'biddingPhase'; // Track the current phase
+let currentPhase = 'biddingPhase';
 
-// Card properties for trick-taking phase (Sheepshead)
+// Base Game Card properties
 let trumpCards = ['Q♣', 'Q♠', 'Q♥', 'Q♦', 'J♣', 'J♠', 'J♥', 'J♦', 'A♦', '10♦', 'K♦', '9♦', '8♦', '7♦'];
 let failCards = ['A', '10', 'K', '9', '8', '7'];
 let cardStrengths = {};
 let cardPoints = { 'A': 11, '10': 10, 'K': 4, 'Q': 3, 'J': 2, '9': 0, '8': 0, '7': 0 };
 
-// Define card strengths based on the order in Sheepshead
+// Define card strengths for the base game
 trumpCards.forEach((card, index) => cardStrengths[card] = 14 - index); // 14 down to 1
 failCards.forEach(card => {
     ['♣', '♠', '♥'].forEach(suit => cardStrengths[card + suit] = 6 - failCards.indexOf(card)); // 6 down to 1
 });
 
-// Initialize game settings
+// Yu-Gi-Oh! Card Point Values based on Levels
+const yugiohCardPoints = {
+    7: 3, // Level 7 or higher = 3 points
+    6: 2, // Level 5-6 = 2 points
+    5: 2,
+    4: 1, // Level 3-4 = 1 point
+    3: 1,
+    2: 0, // Level 1-2 = 0 points
+    1: 0
+};
+
+// Game Initialization
 function initializeGame() {
     numPlayers = parseInt(document.getElementById('numPlayers').value);
     gameVariant = document.getElementById('gameVariant').value;
 
-    // Set initial points for Yu-Gi-Oh! and Base game variants
-    summoningPoints = new Array(numPlayers).fill(gameVariant === 'yugioh' ? 5000 : 1000);
-    lifePoints = new Array(numPlayers).fill(8000);
+    if (gameVariant === 'yugioh') {
+        summoningPoints = new Array(numPlayers).fill(5000); // In Yu-Gi-Oh! variant, start with 5000 summoning points
+    } else {
+        summoningPoints = new Array(numPlayers).fill(1000); // Default summoning points for base game
+    }
+    
+    lifePoints = new Array(numPlayers).fill(8000); // 8000 life points for all players
 
     updatePlayerStats();
 
@@ -41,7 +56,6 @@ function initializeGame() {
     document.getElementById('playerStatsOverview').classList.remove('hidden');
 }
 
-// Change game variant handler
 function changeGameVariant() {
     gameVariant = document.getElementById('gameVariant').value;
 }
@@ -85,48 +99,100 @@ function startTrickTakingPhase() {
 function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
     trickTakingDiv.innerHTML = "";
-    for (let i = 1; i <= numPlayers; i++) {
-        trickTakingDiv.innerHTML += `
-            <div class="player-section">
-                Player ${i}
-                Card Rank:
-                <select>
-                    <option>Ace</option>
-                    <option>Ten</option>
-                    <option>King</option>
-                    <option>Queen</option>
-                    <option>Jack</option>
-                    <option>Nine</option>
-                    <option>Eight</option>
-                    <option>Seven</option>
-                </select>
-                Suit:
-                <select>
-                    <option>Clubs</option>
-                    <option>Spades</option>
-                    <option>Hearts</option>
-                    <option>Diamonds</option>
-                </select>
-            </div>
-        `;
+
+    if (gameVariant === 'yugioh') {
+        // Use Yu-Gi-Oh! card levels and attributes for trick-taking inputs
+        for (let i = 1; i <= numPlayers; i++) {
+            trickTakingDiv.innerHTML += `
+                <div class="player-section">
+                    Player ${i}
+                    Card Level:
+                    <select id="player${i}-card-level">
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5</option>
+                        <option value="6">Level 6</option>
+                        <option value="7">Level 7</option>
+                        <option value="8">Level 8</option>
+                    </select>
+                    Attribute:
+                    <select id="player${i}-attribute">
+                        <option value="FIRE">FIRE</option>
+                        <option value="WATER">WATER</option>
+                        <option value="EARTH">EARTH</option>
+                        <option value="WIND">WIND</option>
+                        <option value="LIGHT">LIGHT</option>
+                        <option value="DARK">DARK</option>
+                    </select>
+                </div>
+            `;
+        }
+    } else {
+        // Use traditional base game trick-taking inputs
+        for (let i = 1; i <= numPlayers; i++) {
+            trickTakingDiv.innerHTML += `
+                <div class="player-section">
+                    Player ${i}
+                    Card Rank:
+                    <select>
+                        <option>Ace</option>
+                        <option>Ten</option>
+                        <option>King</option>
+                        <option>Queen</option>
+                        <option>Jack</option>
+                        <option>Nine</option>
+                        <option>Eight</option>
+                        <option>Seven</option>
+                    </select>
+                    Suit:
+                    <select>
+                        <option>Clubs</option>
+                        <option>Spades</option>
+                        <option>Hearts</option>
+                        <option>Diamonds</option>
+                    </select>
+                </div>
+            `;
+        }
     }
 }
 
 function calculateTrickResults() {
-    // Placeholder logic to determine winner (needs real implementation)
-    trickWinner = Math.floor(Math.random() * numPlayers) + 1;
-    document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
+    let highestValue = 0;
+    trickWinner = -1;
+
+    if (gameVariant === 'yugioh') {
+        // Determine winner based on the highest-level card in Yu-Gi-Oh! variant
+        for (let i = 1; i <= numPlayers; i++) {
+            const level = parseInt(document.getElementById(`player${i}-card-level`).value);
+            if (level > highestValue) {
+                highestValue = level;
+                trickWinner = i;
+            }
+        }
+        document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick with a Level ${highestValue} card!`;
+        updateSummoningPointsFromTricks(highestValue);
+    } else {
+        // Base game logic for determining the trick winner
+        // Placeholder logic for base game (to be replaced with actual trick-taking logic)
+        trickWinner = Math.floor(Math.random() * numPlayers) + 1;
+        document.getElementById('trickResult').innerHTML = `Player ${trickWinner} wins the trick!`;
+    }
 }
 
-function updateSummoningPointsFromTricks() {
-    let trickPoints = gameVariant === 'yugioh' ? 500 : 100; // Award more points for Yu-Gi-Oh! variant
-    summoningPoints[trickWinner - 1] += trickPoints;
-    updatePlayerStats();
+function updateSummoningPointsFromTricks(highestValue) {
+    if (gameVariant === 'yugioh') {
+        // Award summoning points based on Yu-Gi-Oh! level
+        const pointsEarned = yugiohCardPoints[highestValue] * 100;
+        summoningPoints[trickWinner - 1] += pointsEarned;
+        updatePlayerStats();
+    }
+    // Base game logic can be added here if needed
 }
 
 function endTrickTakingPhase() {
-    calculateTrickResults();
-    updateSummoningPointsFromTricks();
     moveToNextPhase('trickTakingPhase', 'summoningPhase');
 }
 
@@ -138,52 +204,45 @@ function generateSummoningInputs() {
         summoningDiv.innerHTML += `
             <div class="player-section">
                 Player ${i}
-                Card Level:
-                <select class="card-level">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
+                Monster Level:
+                <select id="player${i}-monster-level">
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="5">Level 5</option>
+                    <option value="6">Level 6</option>
+                    <option value="7">Level 7</option>
+                    <option value="8">Level 8</option>
                 </select>
-                ATK:
-                <input type="number" class="card-atk" min="0">
-                DEF:
-                <input type="number" class="card-def" min="0">
+                ATK Points:
+                <input type="number" id="player${i}-atk" min="0" value="0">
+                DEF Points:
+                <input type="number" id="player${i}-def" min="0" value="0">
             </div>
         `;
     }
 }
 
 function endSummoningPhase() {
-    calculateSummoningCosts();
-    moveToNextPhase('summoningPhase', 'battlePhase');
-}
+    for (let i = 1; i <= numPlayers; i++) {
+        const level = parseInt(document.getElementById(`player${i}-monster-level`).value);
+        const summoningCost = level * 200;
 
-// Calculate summoning costs based on card attributes
-function calculateSummoningCosts() {
-    const players = document.getElementsByClassName('player-section');
-    for (let i = 0; i < players.length; i++) {
-        let cardLevel = parseInt(players[i].querySelector('.card-level').value);
-        let cardATK = parseInt(players[i].querySelector('.card-atk').value) || 0;
-        let cardDEF = parseInt(players[i].querySelector('.card-def').value) || 0;
-
-        // Example summoning cost formula: (Level * 100) + (ATK / 10) + (DEF / 10)
-        let summoningCost = (cardLevel * 100) + Math.floor(cardATK / 10) + Math.floor(cardDEF / 10);
-
-        // Deduct summoning points for each player based on summoning cost
-        summoningPoints[i] -= summoningCost;
+        // Deduct summoning points
+        if (summoningPoints[i - 1] >= summoningCost) {
+            summoningPoints[i - 1] -= summoningCost;
+        } else {
+            alert(`Player ${i} does not have enough summoning points!`);
+        }
     }
+
     updatePlayerStats();
+    moveToNextPhase('summoningPhase', 'battlePhase');
 }
 
 // Battle Phase
 function endBattlePhase() {
-    if (gameVariant === 'yugioh') {
-        alert('Yu-Gi-Oh! Battle Phase mechanics implemented here.');
-    }
     moveToNextPhase('battlePhase', 'endPhase');
 }
 
@@ -193,16 +252,9 @@ function moveToNextPhase(currentPhase, nextPhase) {
     document.getElementById(nextPhase).classList.remove('hidden');
 }
 
-// Next Round handler
-function nextRound() {
-    moveToNextPhase('endPhase', 'biddingPhase');
-}
-
 // Attach event listeners to the buttons
 document.getElementById('startGame').addEventListener('click', initializeGame);
-document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
-document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
 document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
+document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
 document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
 document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
-document.getElementById('nextRound').addEventListener('click', nextRound);
