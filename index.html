@@ -28,6 +28,8 @@
     <div id="playerStatsOverview" class="hidden">
         <h3>Player Stats Overview:</h3>
         <div id="playerStats"></div>
+        <button onclick="showGamePoints()">Show Game Points</button>
+        <button onclick="showRules()">Show Rules</button>
     </div>
 
     <!-- Bidding Phase -->
@@ -66,6 +68,14 @@
     <div id="endPhase" class="phase hidden">
         <h2>End Phase</h2>
         <button id="nextRound" onclick="startNextRound()">Start Next Round</button>
+    </div>
+
+    <!-- Modal for Rules and Game Points -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <div id="modalBody"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>
