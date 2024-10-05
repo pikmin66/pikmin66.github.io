@@ -18,7 +18,12 @@ let cardsData = [];
 
 // Load card data from JSON (load this at the beginning)
 fetch('cards.json')
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
     .then(data => {
         cardsData = data;
         init();
@@ -34,6 +39,9 @@ function init() {
     document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
     document.getElementById('nextRound').addEventListener('click', startNextRound);
 
+    // Add the missing event listener
+    document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
+
     // Add event listener to the toggle button
     document.getElementById('toggleView').addEventListener('click', toggleView);
 
@@ -47,9 +55,17 @@ function initializeGame() {
     gameVariant = document.getElementById('gameVariant').value;
 
     if (gameVariant === 'yugioh') {
-        summoningPoints = new Array(numPlayers).fill(5000);
+        if (numPlayers === 2) {
+            summoningPoints = new Array(numPlayers).fill(5000);
+        } else {
+            summoningPoints = new Array(numPlayers).fill(1000);
+        }
     } else {
-        summoningPoints = new Array(numPlayers).fill(1000);
+        if (numPlayers === 2) {
+            summoningPoints = new Array(numPlayers).fill(5000);
+        } else {
+            summoningPoints = new Array(numPlayers).fill(1000);
+        }
     }
 
     lifePoints = new Array(numPlayers).fill(8000);
@@ -65,10 +81,17 @@ function initializeGame() {
 
     updatePlayerStats();
 
-    document.getElementById('biddingPhase').classList.remove('hidden');
-    generateBiddingOptions();
+    if (numPlayers === 2) {
+        // Skip Bidding and Trick-Taking Phases in two-player game
+        alert('Two-player game detected. Skipping Bidding and Trick-Taking Phases.');
+        moveToNextPhase('gameSetup', 'summoningPhase');
+        generateSummoningInputs();
+    } else {
+        document.getElementById('biddingPhase').classList.remove('hidden');
+        generateBiddingOptions();
+        document.getElementById('gameSetup').classList.add('hidden');
+    }
 
-    document.getElementById('gameSetup').classList.add('hidden');
     document.getElementById('playerStatsOverview').classList.remove('hidden');
 }
 
@@ -189,13 +212,13 @@ function toggleCardDetails(e) {
         detailsDiv.classList.add('card-details');
         detailsDiv.innerHTML = `
             <h3>${cardData.name}</h3>
-            <p><strong>Suit:</strong> ${cardData.suit}</p>
-            <p><strong>Rank:</strong> ${cardData.rank}</p>
-            <p><strong>Stars:</strong> ${'★'.repeat(cardData.stars)}</p>
-            <p><strong>Level:</strong> ${cardData.level}</p>
-            <p><strong>ATK:</strong> ${cardData.atk}</p>
-            <p><strong>DEF:</strong> ${cardData.def}</p>
-            <p><strong>Effect:</strong> ${cardData.effect}</p>
+            <p><strong>Suit:</strong> ${cardData.suit || 'N/A'}</p>
+            <p><strong>Rank:</strong> ${cardData.rank || 'N/A'}</p>
+            <p><strong>Stars:</strong> ${'★'.repeat(cardData.stars || 0)}</p>
+            <p><strong>Level:</strong> ${cardData.level || 'N/A'}</p>
+            <p><strong>ATK:</strong> ${cardData.atk || 'N/A'}</p>
+            <p><strong>DEF:</strong> ${cardData.def || 'N/A'}</p>
+            <p><strong>Effect:</strong> ${cardData.effect || 'N/A'}</p>
         `;
 
         detailsDiv.style.position = 'absolute';
@@ -323,27 +346,41 @@ function showModal(content) {
 function generateBiddingOptions() {
     const biddingDiv = document.getElementById('biddingOptions');
     biddingDiv.innerHTML = "";
-    biddingDiv.innerHTML += `
-        <div class="player-section">
-            Do you want to pick up the Blind?
-            <select id="player-bid">
-                <option value="pass">Pass</option>
-                <option value="pick">Pick Up Blind</option>
-            </select>
-        </div>
-    `;
+
+    // For each player, generate bidding options
+    for (let i = 0; i < numPlayers; i++) {
+        biddingDiv.innerHTML += `
+            <div class="player-section">
+                <h3>Player ${i + 1}</h3>
+                Do you want to pick up the Blind?
+                <select id="player${i}-bid">
+                    <option value="pass">Pass</option>
+                    <option value="pick">Pick Up Blind</option>
+                </select>
+            </div>
+        `;
+    }
 }
 
 function endBiddingPhase() {
-    const bidChoice = document.getElementById('player-bid').value;
-    if (bidChoice === 'pick') {
-        picker = 0; // Player is the Picker
-        alert('You picked up the Blind.');
-        // For simplicity, we'll assume the Blind is empty
-    } else {
+    let pickerFound = false;
+    // Loop through players to determine if someone picked up the Blind
+    for (let i = 0; i < numPlayers; i++) {
+        const bidChoice = document.getElementById(`player${i}-bid`).value;
+        if (bidChoice === 'pick') {
+            picker = i; // Set the picker to the player who picked up the Blind
+            pickerFound = true;
+            alert(`Player ${i + 1} picked up the Blind.`);
+            // For simplicity, we'll assume the Blind is empty
+            break; // Exit the loop after finding the picker
+        }
+    }
+
+    if (!pickerFound) {
         picker = null;
         alert('No one picked up the Blind.');
     }
+
     moveToNextPhase('biddingPhase', 'trickTakingPhase');
 }
 
@@ -507,14 +544,31 @@ function generateBattleInputs() {
 function endBattlePhase() {
     // For simplicity, we'll just display a message
     document.getElementById('battleResults').innerHTML = 'Battle Phase ended. Proceeding to End Phase.';
+
+    // Replenish summoning points in two-player game
+    if (numPlayers === 2) {
+        if (gameVariant === 'yugioh') {
+            summoningPoints = new Array(numPlayers).fill(5000);
+        } else {
+            summoningPoints = new Array(numPlayers).fill(1000);
+        }
+    }
+
+    updatePlayerStats();
     moveToNextPhase('battlePhase', 'endPhase');
 }
 
 function startNextRound() {
     // Reset necessary variables or proceed as per game rules
     playersMonsters = new Array(numPlayers).fill(null).map(() => []);
-    moveToNextPhase('endPhase', 'biddingPhase');
-    generateBiddingOptions();
+
+    if (numPlayers === 2) {
+        moveToNextPhase('endPhase', 'summoningPhase');
+        generateSummoningInputs();
+    } else {
+        moveToNextPhase('endPhase', 'biddingPhase');
+        generateBiddingOptions();
+    }
 }
 
 function moveToNextPhase(currentPhase, nextPhase) {
@@ -524,7 +578,13 @@ function moveToNextPhase(currentPhase, nextPhase) {
     // Initialize the next phase if needed
     switch (nextPhase) {
         case 'biddingPhase':
-            generateBiddingOptions();
+            if (numPlayers === 2) {
+                // Skip Bidding Phase in two-player game
+                alert('Skipping Bidding Phase in two-player game.');
+                moveToNextPhase('biddingPhase', 'summoningPhase');
+            } else {
+                generateBiddingOptions();
+            }
             break;
         case 'summoningPhase':
             generateSummoningInputs();
@@ -533,7 +593,13 @@ function moveToNextPhase(currentPhase, nextPhase) {
             generateBattleInputs();
             break;
         case 'trickTakingPhase':
-            generateTrickTakingInputs();
+            if (numPlayers === 2) {
+                // Skip Trick-Taking Phase in two-player game
+                alert('Skipping Trick-Taking Phase in two-player game.');
+                moveToNextPhase('trickTakingPhase', 'summoningPhase');
+            } else {
+                generateTrickTakingInputs();
+            }
             break;
         default:
             break;
