@@ -16,7 +16,10 @@ let playerHands = [];
 let discardPiles = [];
 let cardsData = [];
 let trickCount = 0;
-let maxTricks = 3; // Number of tricks to play in the Trick-Taking Phase
+let maxTricks = 1; // Set to 1 trick per Trick-Taking Phase
+
+// Variables to store played cards in the Trick-Taking Phase
+let playedCardsThisTrick = [];
 
 // Load card data from JSON (load this at the beginning)
 fetch('cards.json')
@@ -37,12 +40,7 @@ function init() {
     document.getElementById('startGame').addEventListener('click', initializeGame);
     document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
     document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
-    // The "End Summoning Phase" button is dynamically added, so we'll attach its event listener within the function that creates it.
-    // The "End Battle Phase" button is also dynamically added.
     document.getElementById('nextRound').addEventListener('click', startNextRound);
-
-    // Event listener for the bidding phase (if applicable)
-    // document.getElementById('endBiddingPhase').addEventListener('click', endBiddingPhase);
 
     // Add event listeners to the toggle buttons
     document.getElementById('toggleToPlayZone').addEventListener('click', toggleToPlayZone);
@@ -123,7 +121,29 @@ function updatePlayZone(playerIndex = userPlayerIndex) {
         handCardsContainer.appendChild(cardElement);
     });
 
+    // Update AI players' played cards
+    updateAIPlayedCards();
+
     setupDragAndDrop(playerIndex);
+}
+
+// Function to update AI players' played cards in the Play Zone
+function updateAIPlayedCards() {
+    for (let i = 0; i < numPlayers; i++) {
+        if (i !== userPlayerIndex) {
+            let aiPlayArea = document.getElementById(`ai-player-${i}-cards`);
+            aiPlayArea.innerHTML = '';
+
+            // Display the last card played by the AI player
+            if (playedCardsThisTrick.length > 0) {
+                let aiPlayedCard = playedCardsThisTrick.find(play => play.playerIndex === i);
+                if (aiPlayedCard) {
+                    let cardElement = createCardElement(aiPlayedCard.card);
+                    aiPlayArea.appendChild(cardElement);
+                }
+            }
+        }
+    }
 }
 
 // Create a card element
@@ -293,6 +313,9 @@ function generateTrickTakingInputs() {
     document.getElementById('calculateTrickResults').disabled = false;
     document.getElementById('endTrickTakingPhase').disabled = true;
 
+    // Clear previous played cards
+    playedCardsThisTrick = [];
+
     updatePlayZone(userPlayerIndex);
 }
 
@@ -326,6 +349,12 @@ function calculateTrickResults() {
         }
     }
 
+    // Store the played cards for display
+    playedCardsThisTrick = playedCards;
+
+    // Update the Play Zone to show AI opponents' played cards
+    updatePlayZone(userPlayerIndex);
+
     // Determine the winner
     let winningPlayerIndex = determineTrickWinner(playedCards);
 
@@ -344,7 +373,6 @@ function calculateTrickResults() {
     document.getElementById('trickResult').innerHTML = resultMessage;
 
     updatePlayerStats();
-    updatePlayZone(userPlayerIndex);
 
     trickCount++;
     if (trickCount >= maxTricks) {
@@ -524,7 +552,6 @@ function endSummoningPhase() {
             if (cardIndex !== -1) {
                 playerHands[userPlayerIndex].splice(cardIndex, 1);
                 playersMonsters[userPlayerIndex].push(card);
-                updatePlayZone(userPlayerIndex);
             }
         });
 
