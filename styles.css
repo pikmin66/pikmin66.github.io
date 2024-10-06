@@ -231,7 +231,9 @@ button:hover {
     margin: 10px;
 }
 
-#toggleView {
+#toggleView,
+#toggleToPlayZone,
+#toggleToGameCompanion {
     background-color: #0073aa;
     color: #fff;
     padding: 10px 20px;
@@ -241,7 +243,9 @@ button:hover {
     border-radius: 5px;
 }
 
-#toggleView:hover {
+#toggleView:hover,
+#toggleToPlayZone:hover,
+#toggleToGameCompanion:hover {
     background-color: #005f8c;
 }
 
@@ -269,4 +273,30 @@ button:hover {
 /* Hide the Game Companion by default */
 #gameCompanion.hidden {
     display: none;
+}
+
+/* Styles for AI Opponents' Played Cards */
+.ai-opponents {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ai-player-zone {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+    flex: 1 1 300px;
+    background-color: #fff;
+    position: relative;
+}
+
+.ai-player-zone h2 {
+    text-align: center;
+}
+
+.ai-player-zone .card-container {
+    display: flex;
+    justify-content: center;
 }
