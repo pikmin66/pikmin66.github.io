@@ -39,17 +39,19 @@ input[type="number"], select, input[type="text"] {
     padding: 8px;
     box-sizing: border-box;
     margin-bottom: 10px;
+    font-size: 16px;
 }
 
 button {
     background-color: #0073aa;
     color: #fff;
-    padding: 12px 20px;
-    font-size: 16px;
+    padding: 15px;
+    font-size: 18px;
     border: none;
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
+    width: 100%;
 }
 
 button:hover {
@@ -116,6 +118,8 @@ button:hover {
 
 .summon-entry button {
     background-color: #d9534f;
+    width: auto;
+    padding: 10px;
 }
 
 .summon-entry button:hover {
@@ -157,6 +161,11 @@ button:hover {
 .close:focus {
     color: black;
     text-decoration: none;
+}
+
+/* Show the modal when it's not hidden */
+.modal:not(.hidden) {
+    display: block;
 }
 
 /* Styles for the Play Zone */
@@ -241,6 +250,7 @@ button:hover {
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    width: auto;
 }
 
 #toggleView:hover,
@@ -256,12 +266,37 @@ button:hover {
         flex-direction: column;
         align-items: center;
     }
+
+    .card-zone {
+        flex: 1 1 100%;
+    }
+
+    .card {
+        width: 80px;
+        height: 112px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    input[type="number"], select, input[type="text"] {
+        width: 100%;
+    }
 }
 
 @media (max-width: 600px) {
     .card {
-        width: 80px;
-        height: 112px;
+        width: 60px;
+        height: 84px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.2em;
     }
 }
 

@@ -32,9 +32,10 @@
         <!-- Trick Taking Phase -->
         <div id="trickTakingPhase" class="phase hidden">
             <h2>Trick Taking Phase</h2>
+            <button id="toggleHierarchy">Show Card Hierarchy</button>
             <div id="trickTakingInputs"></div>
+            <!-- The 'calculateTrickResults' button will transform into 'endTrickTakingPhase' -->
             <button id="calculateTrickResults">Calculate Trick Results</button>
-            <button id="endTrickTakingPhase" disabled>End Trick Taking Phase</button>
             <div id="trickResult"></div>
         </div>
 
@@ -68,6 +69,21 @@
             <div class="modal-content">
                 <span id="closeModal" class="close">&times;</span>
                 <div id="modalBody"></div>
+            </div>
+        </div>
+
+        <!-- Card Hierarchy Modal -->
+        <div id="hierarchyModal" class="modal hidden">
+            <div class="modal-content">
+                <span id="closeHierarchyModal" class="close">&times;</span>
+                <h2>Card Strength Hierarchy</h2>
+                <ul>
+                    <!-- Add the traditional Sheepshead card strength hierarchy here -->
+                    <li>1. Ace of Diamonds</li>
+                    <li>2. Ten of Hearts</li>
+                    <li>3. King of Clubs</li>
+                    <!-- Continue with the hierarchy -->
+                </ul>
             </div>
         </div>
 

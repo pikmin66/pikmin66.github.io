@@ -38,13 +38,23 @@ fetch('cards.json')
 function init() {
     // Attach event listeners to the buttons in the Game Companion
     document.getElementById('startGame').addEventListener('click', initializeGame);
+    // Note: 'calculateTrickResults' button will be transformed into 'endTrickTakingPhase'
     document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
-    document.getElementById('endTrickTakingPhase').addEventListener('click', endTrickTakingPhase);
     document.getElementById('nextRound').addEventListener('click', startNextRound);
 
     // Add event listeners to the toggle buttons
     document.getElementById('toggleToPlayZone').addEventListener('click', toggleToPlayZone);
     document.getElementById('toggleToGameCompanion').addEventListener('click', toggleToGameCompanion);
+
+    // Event listener for the Card Hierarchy button
+    document.getElementById('toggleHierarchy').addEventListener('click', () => {
+        document.getElementById('hierarchyModal').classList.remove('hidden');
+    });
+
+    // Event listener for closing the hierarchy modal
+    document.getElementById('closeHierarchyModal').addEventListener('click', () => {
+        document.getElementById('hierarchyModal').classList.add('hidden');
+    });
 
     // Initialize the Play Zone
     initPlayZone();
@@ -77,12 +87,12 @@ function initializeGame() {
         playerDecks.push(deck);
 
         // Initialize hands
-        let hand = [];
+        playerHands[i] = []; // Initialize the player's hand
+        let hand = playerHands[i];
         for (let j = 0; j < 5; j++) {
             let card = drawCardFromDeck(i);
             if (card) hand.push(card);
         }
-        playerHands.push(hand);
 
         // Initialize discard piles and monsters
         discardPiles.push([]);
@@ -99,8 +109,15 @@ function initializeGame() {
     document.getElementById('playerStatsOverview').classList.remove('hidden');
 }
 
+
 // Function to draw a card from a player's deck
 function drawCardFromDeck(playerIndex) {
+    if (playerHands[playerIndex].length >= 5) {
+        if (playerIndex === userPlayerIndex) {
+            alert('Your hand is full!');
+        }
+        return null;
+    }
     if (playerDecks[playerIndex].length > 0) {
         return playerDecks[playerIndex].shift();
     } else {
@@ -256,7 +273,13 @@ function playCard(cardId, playerIndex) {
         let playedCard = playerHand.splice(cardIndex, 1)[0];
         discardPiles[playerIndex].push(playedCard);
         updatePlayZone(playerIndex);
-        document.getElementById('play-area-cards').appendChild(createCardElement(playedCard));
+
+        // If it's the user, display the played card
+        if (playerIndex === userPlayerIndex) {
+            let playArea = document.getElementById('play-area-cards');
+            playArea.innerHTML = ''; // Clear previous cards
+            playArea.appendChild(createCardElement(playedCard));
+        }
     }
 }
 
@@ -286,12 +309,11 @@ function generateTrickTakingInputs() {
     const trickTakingDiv = document.getElementById('trickTakingInputs');
     trickTakingDiv.innerHTML = `<h3>Trick ${trickCount + 1}</h3>`;
 
-    // Draw two cards at the start of the Trick-Taking Phase
+    // Draw one card at the start of the Trick-Taking Phase if hand size is less than 5
     if (trickCount === 0 && currentPhase !== 'trickTakingPhaseStarted') {
         currentPhase = 'trickTakingPhaseStarted';
         for (let i = 0; i < numPlayers; i++) {
-            // Each player draws 2 cards at the start of the Trick-Taking Phase
-            for (let j = 0; j < 2; j++) {
+            if (playerHands[i].length < 5) {
                 let card = drawCardFromDeck(i);
                 if (card) playerHands[i].push(card);
             }
@@ -311,7 +333,6 @@ function generateTrickTakingInputs() {
 
     // Enable the calculate button
     document.getElementById('calculateTrickResults').disabled = false;
-    document.getElementById('endTrickTakingPhase').disabled = true;
 
     // Clear previous played cards
     playedCardsThisTrick = [];
@@ -331,6 +352,11 @@ function calculateTrickResults() {
         const selectedCard = userHand.splice(cardIndex, 1)[0];
         playedCards.push({ playerIndex: userPlayerIndex, card: selectedCard });
         discardPiles[userPlayerIndex].push(selectedCard);
+
+        // Display the user's played card
+        let playArea = document.getElementById('play-area-cards');
+        playArea.innerHTML = ''; // Clear previous cards
+        playArea.appendChild(createCardElement(selectedCard));
     } else {
         document.getElementById('trickResult').innerHTML = 'Invalid card selection.';
         return;
@@ -375,12 +401,17 @@ function calculateTrickResults() {
     updatePlayerStats();
 
     trickCount++;
-    if (trickCount >= maxTricks) {
-        document.getElementById('calculateTrickResults').disabled = true;
-        document.getElementById('endTrickTakingPhase').disabled = false;
-    } else {
-        generateTrickTakingInputs();
-    }
+
+    // Disable the calculate button
+    let calculateButton = document.getElementById('calculateTrickResults');
+    calculateButton.disabled = false; // Enable the button for the next action
+
+    // Change the button's text to 'End Trick Taking Phase'
+    calculateButton.textContent = 'End Trick Taking Phase';
+
+    // Update the event listener
+    calculateButton.removeEventListener('click', calculateTrickResults);
+    calculateButton.addEventListener('click', endTrickTakingPhase);
 }
 
 // Function to determine the winner of the trick
@@ -404,12 +435,32 @@ function endTrickTakingPhase() {
     trickCount = 0; // Reset for next round
     currentPhase = ''; // Reset currentPhase flag
 
+    // Clear AI played cards
+    for (let i = 0; i < numPlayers; i++) {
+        if (i !== userPlayerIndex) {
+            let aiPlayArea = document.getElementById(`ai-player-${i}-cards`);
+            aiPlayArea.innerHTML = '';
+        }
+    }
+
+    // Clear user's played cards
+    let playArea = document.getElementById('play-area-cards');
+    playArea.innerHTML = '';
+
     // Display total summoning points for each player
     let summary = '<h3>Trick-Taking Phase Summary:</h3>';
     for (let i = 0; i < numPlayers; i++) {
         summary += `<p>Player ${i + 1} has ${summoningPoints[i]} summoning points.</p>`;
     }
     document.getElementById('trickResult').innerHTML = summary;
+
+
+    // Reset the 'Calculate Trick Results' button for the next trick-taking phase
+    let calculateButton = document.getElementById('calculateTrickResults');
+    calculateButton.textContent = 'Calculate Trick Results';
+    calculateButton.removeEventListener('click', endTrickTakingPhase);
+    calculateButton.addEventListener('click', calculateTrickResults);
+    calculateButton.disabled = false; // Re-enable the button
 
     moveToNextPhase('trickTakingPhase', 'summoningPhase');
 }
@@ -573,11 +624,22 @@ function generateBattleInputs() {
     if (userMonsters.length > 0) {
         battleDiv.innerHTML += `<h3>Your Monsters</h3>`;
         userMonsters.forEach((monster, index) => {
+            // Build attack target options
+            let targetOptions = '';
+            for (let i = 0; i < numPlayers; i++) {
+                if (i !== userPlayerIndex) {
+                    targetOptions += `<option value="Player ${i + 1}">Player ${i + 1}</option>`;
+                    playersMonsters[i].forEach(opponentMonster => {
+                        targetOptions += `<option value="${opponentMonster.id}">${opponentMonster.name} (Player ${i + 1}'s Monster)</option>`;
+                    });
+                }
+            }
+
             battleDiv.innerHTML += `
                 <div class="player-section">
                     <div>Monster ${index + 1}: ${monster.name}, Level ${monster.level}, ATK ${monster.atk}, DEF ${monster.def}</div>
                     <label for="attack${index}-target">Attack Target:</label>
-                    <input type="text" id="attack${index}-target" placeholder="Opponent or Monster">
+                    <select id="attack${index}-target">${targetOptions}</select>
                 </div>
             `;
         });
@@ -619,6 +681,11 @@ function simulateAIBattle() {
                             // AI's monster is destroyed
                             aiMonsters.shift();
                             alert(`Your ${userMonster.name} destroyed AI Player ${i + 1}'s ${monster.name}!`);
+
+                            // Gain summoning points equal to the cost of the defeated monster
+                            let defeatedMonsterCost = (monster.level || 0) * 200;
+                            summoningPoints[userPlayerIndex] += defeatedMonsterCost;
+                            alert(`You gained ${defeatedMonsterCost} summoning points!`);
                         } else {
                             // Both are destroyed
                             playersMonsters[userPlayerIndex].shift();
@@ -636,7 +703,63 @@ function simulateAIBattle() {
     }
 }
 
+function processPlayerBattleActions() {
+    const userMonsters = playersMonsters[userPlayerIndex];
+    for (let i = 0; i < userMonsters.length; i++) {
+        const attackTarget = document.getElementById(`attack${i}-target`).value;
+        const userMonster = userMonsters[i];
+
+        if (attackTarget.startsWith('Player ')) {
+            // Attack player directly
+            let targetPlayerIndex = parseInt(attackTarget.split(' ')[1]) - 1;
+            lifePoints[targetPlayerIndex] -= userMonster.atk;
+            alert(`Your ${userMonster.name} attacked Player ${targetPlayerIndex + 1} directly for ${userMonster.atk} damage!`);
+        } else {
+            // Attack opponent's monster
+            let targetMonster = null;
+            let targetPlayerIndex = -1;
+
+            // Find the target monster
+            for (let j = 0; j < numPlayers; j++) {
+                if (j !== userPlayerIndex) {
+                    let monster = playersMonsters[j].find(m => m.id === attackTarget);
+                    if (monster) {
+                        targetMonster = monster;
+                        targetPlayerIndex = j;
+                        break;
+                    }
+                }
+            }
+
+            if (targetMonster && targetPlayerIndex !== -1) {
+                if (userMonster.atk > targetMonster.def) {
+                    // Target's monster is destroyed
+                    playersMonsters[targetPlayerIndex] = playersMonsters[targetPlayerIndex].filter(m => m.id !== targetMonster.id);
+                    alert(`Your ${userMonster.name} destroyed Player ${targetPlayerIndex + 1}'s ${targetMonster.name}!`);
+
+                    // Gain summoning points equal to the cost of the defeated monster
+                    let defeatedMonsterCost = (targetMonster.level || 0) * 200;
+                    summoningPoints[userPlayerIndex] += defeatedMonsterCost;
+                    alert(`You gained ${defeatedMonsterCost} summoning points!`);
+                } else if (userMonster.atk < targetMonster.def) {
+                    // Your monster is destroyed
+                    userMonsters.splice(i, 1);
+                    alert(`Player ${targetPlayerIndex + 1}'s ${targetMonster.name} destroyed your ${userMonster.name}!`);
+                } else {
+                    // Both are destroyed
+                    playersMonsters[targetPlayerIndex] = playersMonsters[targetPlayerIndex].filter(m => m.id !== targetMonster.id);
+                    userMonsters.splice(i, 1);
+                    alert(`Both your ${userMonster.name} and Player ${targetPlayerIndex + 1}'s ${targetMonster.name} were destroyed!`);
+                }
+            }
+        }
+    }
+}
+
 function endBattlePhase() {
+    // Process player's battle actions
+    processPlayerBattleActions();
+
     // Battle actions have been resolved
     document.getElementById('battleResults').innerHTML = 'Battle Phase ended. Proceeding to End Phase.';
 
