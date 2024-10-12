@@ -1,123 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Card Game Companion</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sheepshead: Trickster Variant</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div id="gameCompanion">
-        <h1>Card Game Companion</h1>
+    <!-- Background Image -->
+    <div id="background"></div>
 
-        <!-- Game Setup -->
-        <div id="gameSetup" class="phase">
-            <h2>Game Setup</h2>
-            <div class="form-group">
-                <label for="numPlayers">Number of Players:</label>
-                <select id="numPlayers">
-                    <option value="2">2</option>
-                    <!-- Add more options if needed -->
-                </select>
+    <!-- Game Container -->
+    <div id="gameContainer">
+        <!-- Game Header -->
+        <header>
+            <h1>Sheepshead: Trickster Variant</h1>
+            <!-- Menu and Settings -->
+            <nav>
+                <button id="menuButton">Menu</button>
+                <!-- Add menu functionality as needed -->
+            </nav>
+        </header>
+
+        <!-- Game Setup Section -->
+        <div id="gameSetup">
+            <!-- Game setup content will go here -->
+        </div>
+
+        <!-- Game Area -->
+        <div id="gameArea" class="hidden">
+            <!-- Player and AI Info -->
+            <div id="infoPanel">
+                <div id="playerInfo">
+                    <h2>Your Info</h2>
+                    <p>Life Points: <span id="playerLifePoints">8000</span></p>
+                    <p>Summoning Points: <span id="playerSummoningPoints">1000</span></p>
+                </div>
+                <div id="aiInfo">
+                    <h2>Opponent Info</h2>
+                    <p>Life Points: <span id="aiLifePoints">8000</span></p>
+                    <p>Summoning Points: <span id="aiSummoningPoints">1000</span></p>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="gameVariant">Game Variant:</label>
-                <select id="gameVariant">
-                    <option value="base">Base</option>
-                    <!-- Add more options if needed -->
-                </select>
+
+            <!-- Game Messages -->
+            <div id="gameMessages"></div>
+
+            <!-- Main Gameplay Area -->
+            <div id="mainGameplayArea">
+                <!-- Field Area -->
+                <div id="fieldArea">
+                    <div id="aiField" class="fieldSection">
+                        <h3>Opponent's Field</h3>
+                        <!-- AI's Batteries will be displayed here -->
+                    </div>
+
+                    <!-- Trick Area -->
+                    <div id="trickArea">
+                        <h2>Current Trick</h2>
+                        <!-- Cards played in the trick will be displayed here -->
+                    </div>
+
+                    <div id="playerField" class="fieldSection">
+                        <h3>Your Field</h3>
+                        <!-- Your Batteries will be displayed here -->
+                    </div>
+                </div>
+
+                <!-- Player Hand -->
+                <div id="playerHand">
+                    <h2>Your Hand</h2>
+                    <!-- Cards will be displayed here -->
+                </div>
             </div>
-            <button id="startGame">Start Game</button>
-        </div>
 
-        <!-- Trick Taking Phase -->
-        <div id="trickTakingPhase" class="phase hidden">
-            <h2>Trick Taking Phase</h2>
-            <button id="toggleHierarchy">Show Card Hierarchy</button>
-            <div id="trickTakingInputs"></div>
-            <!-- The 'calculateTrickResults' button will transform into 'endTrickTakingPhase' -->
-            <button id="calculateTrickResults">Calculate Trick Results</button>
-            <div id="trickResult"></div>
-        </div>
-
-        <!-- Summoning Phase -->
-        <div id="summoningPhase" class="phase hidden">
-            <h2>Summoning Phase</h2>
-            <div id="summoningInputs"></div>
-        </div>
-
-        <!-- Battle Phase -->
-        <div id="battlePhase" class="phase hidden">
-            <h2>Battle Phase</h2>
-            <div id="battleInputs"></div>
-            <div id="battleResults"></div>
-        </div>
-
-        <!-- End Phase -->
-        <div id="endPhase" class="phase hidden">
-            <h2>End Phase</h2>
-            <button id="nextRound">Start Next Round</button>
-        </div>
-
-        <!-- Player Stats -->
-        <div id="playerStatsOverview" class="hidden">
-            <h2>Player Stats</h2>
-            <div id="playerStats"></div>
-        </div>
-
-        <!-- Modal for Game Points and Rules -->
-        <div id="modal" class="modal hidden">
-            <div class="modal-content">
-                <span id="closeModal" class="close">&times;</span>
-                <div id="modalBody"></div>
+            <!-- Controls -->
+            <div id="controls">
+                <!-- Action buttons will be displayed here -->
             </div>
-        </div>
 
-        <!-- Card Hierarchy Modal -->
-        <div id="hierarchyModal" class="modal hidden">
-            <div class="modal-content">
-                <span id="closeHierarchyModal" class="close">&times;</span>
-                <h2>Card Strength Hierarchy</h2>
-                <ul>
-                    <!-- Add the traditional Sheepshead card strength hierarchy here -->
-                    <li>1. Ace of Diamonds</li>
-                    <li>2. Ten of Hearts</li>
-                    <li>3. King of Clubs</li>
-                    <!-- Continue with the hierarchy -->
-                </ul>
+            <!-- Chat Interface -->
+            <div id="chatArea">
+                <h2>Game Chat</h2>
+                <div id="chatMessages">
+                    <!-- Chat messages will appear here -->
+                </div>
             </div>
-        </div>
-
-        <!-- Toggle View Button -->
-        <div id="navigation">
-            <button id="toggleToPlayZone">Switch to Play Zone</button>
         </div>
     </div>
 
-    <!-- Play Zone -->
-    <div id="playZone" class="hidden">
-        <h1>Your Hand</h1>
-        <div id="game-container">
-            <div class="card-zone">
-                <h2>Hand Cards</h2>
-                <div id="hand-cards" class="card-container"></div>
-            </div>
-            <div class="card-zone">
-                <h2>Your Played Cards</h2>
-                <div id="play-area-cards" class="card-container"></div>
-            </div>
-            <!-- AI Opponents' Played Cards -->
-            <div class="ai-opponents">
-                <!-- For AI Player 2 -->
-                <div class="ai-player-zone">
-                    <h2>AI Player 2's Played Cards</h2>
-                    <div id="ai-player-1-cards" class="card-container"></div>
-                </div>
-                <!-- Add more AI player zones if numPlayers > 2 -->
-            </div>
-        </div>
-        <div id="navigation">
-            <button id="toggleToGameCompanion">Switch to Game Companion</button>
-        </div>
+    <!-- Character Overlay -->
+    <div id="characterOverlay" class="hidden">
+        <!-- Character images and animations will appear here -->
     </div>
 
     <script src="script.js"></script>

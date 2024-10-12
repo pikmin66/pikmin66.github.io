@@ -1,337 +1,250 @@
-/* General Styles */
-body {
-    font-family: Helvetica, Arial, sans-serif;
-    background-color: #f7f9fc;
-    color: #333;
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Roboto&display=swap');
+
+/* Reset Styles */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #0D5C2D; /* Deep Green */
+    color: #FFFFF0; /* Ivory */
+}
+
+h1, h2, h3 {
+    font-family: 'Merriweather', serif;
+    color: #DAA520; /* Gold */
+}
+
 h1 {
-    color: #005f8c;
     text-align: center;
-    margin-top: 20px;
-    font-size: 2em;
-}
-
-#gameSetup, .phase, #playerStatsOverview {
-    background: #fff;
-    border: 1px solid #dce1e8;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 20px auto;
     padding: 20px;
+    background-color: #005f8c;
+    color: #FFFFF0;
+    margin: 0;
 }
 
-.form-group {
-    margin-bottom: 15px;
+#gameContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-input[type="number"], select, input[type="text"] {
+#background {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    margin-bottom: 10px;
+    height: 100%;
+    background: url('images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    z-index: -1;
+}
+
+nav {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+#menuButton {
+    padding: 10px 20px;
     font-size: 16px;
 }
 
-button {
-    background-color: #0073aa;
-    color: #fff;
-    padding: 15px;
-    font-size: 18px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 10px;
+#infoPanel {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+#playerInfo, #aiInfo {
+    width: 45%;
+    background-color: rgba(255, 255, 240, 0.1);
+    padding: 10px;
+    border: 1px solid #DAA520;
+}
+
+#gameMessages {
+    background-color: rgba(255, 255, 240, 0.1);
+    padding: 10px;
+    border: 1px solid #DAA520;
+    margin-bottom: 20px;
+    min-height: 50px;
+}
+
+#mainGameplayArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#fieldArea {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
 }
 
-button:hover {
-    background-color: #005f8c;
-}
-
-.phase.hidden {
-    display: none;
-}
-
-#playerStatsOverview h3, .phase h2 {
-    border-bottom: 2px solid #0073aa;
-    margin-bottom: 10px;
-}
-
-#summoningPointsOverview {
-    background-color: #e3e8ee;
+.fieldSection {
+    width: 30%;
+    background-color: rgba(255, 255, 240, 0.1);
     padding: 10px;
-    border-radius: 5px;
-    margin: 20px 0;
+    border: 1px solid #DAA520;
+    min-height: 200px;
 }
 
-#trickResult, #battleResults {
-    color: #0073aa;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.player-section {
-    margin-bottom: 20px;
-    border-bottom: 1px solid #dce1e8;
-    padding-bottom: 10px;
-}
-
-.player-section:last-child {
-    border-bottom: none;
-}
-
-.player-stats {
-    margin-bottom: 10px;
-}
-
-.error-message {
-    color: red;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
-.summon-entry {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #f0f5fa;
-    border-radius: 5px;
-}
-
-.summon-entry label {
-    font-weight: normal;
-}
-
-.summon-entry hr {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.summon-entry button {
-    background-color: #d9534f;
-    width: auto;
-    padding: 10px;
-}
-
-.summon-entry button:hover {
-    background-color: #c9302c;
-}
-
-/* Modal Styles */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 100; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
-}
-
-.modal-content {
-    background-color: #fff;
-    margin: 10% auto; /* 10% from the top and centered */
-    padding: 20px;
-    border: 1px solid #dce1e8;
-    width: 80%; /* Could be more or less, depending on screen size */
-    max-width: 600px;
-    border-radius: 10px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-}
-
-/* Show the modal when it's not hidden */
-.modal:not(.hidden) {
-    display: block;
-}
-
-/* Styles for the Play Zone */
-
-#playZone h1 {
-    color: #005f8c;
+#trickArea {
+    width: 30%;
     text-align: center;
+    background-color: rgba(255, 255, 240, 0.1);
+    padding: 10px;
+    border: 1px solid #DAA520;
+}
+
+#playerHand {
     margin-top: 20px;
-    font-size: 2em;
-}
-
-#game-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
-}
-
-.card-zone {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    margin: 10px;
+    width: 100%;
+    background-color: rgba(255, 255, 240, 0.1);
     padding: 10px;
-    flex: 1 1 300px;
-    background-color: #fff;
-    position: relative;
-}
-
-.card-zone h2 {
-    text-align: center;
-}
-
-.card-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    position: relative;
+    border: 1px solid #DAA520;
 }
 
 .card {
-    width: 100px;
-    height: 140px;
-    border: 1px solid #999;
-    border-radius: 5px;
+    display: inline-block;
+    border: 1px solid #DAA520;
+    padding: 10px;
     margin: 5px;
-    background-color: #fff;
-    position: relative;
-    cursor: move;
-}
-
-.card img {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-}
-
-.dragging {
-    opacity: 0.5;
-}
-
-.drag-over {
-    background-color: #e0e0e0;
-}
-
-.card-details {
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-
-/* Navigation Button */
-#navigation {
+    background-color: #36454F; /* Charcoal Gray */
+    color: #FFFFF0;
+    cursor: pointer;
+    width: 120px;
     text-align: center;
-    margin: 10px;
 }
 
-#toggleView,
-#toggleToPlayZone,
-#toggleToGameCompanion {
-    background-color: #0073aa;
-    color: #fff;
+.card:hover {
+    background-color: #008080; /* Teal */
+}
+
+.battery {
+    display: inline-block;
+    border: 1px solid #DAA520;
+    padding: 5px;
+    margin: 5px;
+    background-color: #800020; /* Rich Burgundy */
+    color: #FFFFF0;
+    width: 130px;
+    text-align: center;
+}
+
+.active-card, .inactive-card {
+    margin-top: 5px;
+    border: 1px solid #DAA520;
+    padding: 5px;
+    background-color: #36454F; /* Charcoal Gray */
+}
+
+#controls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+button {
     padding: 10px 20px;
     font-size: 16px;
-    border: none;
+    margin: 5px;
     cursor: pointer;
+    background-color: #DAA520; /* Gold */
+    color: #000;
+    border: none;
+}
+
+button:hover {
+    background-color: #FFD700; /* Lighter Gold */
+}
+
+#chatArea {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 300px;
+    max-height: 400px;
+    background-color: rgba(54, 69, 79, 0.9); /* Charcoal Gray with transparency */
+    padding: 10px;
+    border: 1px solid #DAA520;
+    overflow-y: auto;
+}
+
+#chatArea h2 {
+    margin-top: 0;
+    color: #DAA520;
+}
+
+.chat-message {
+    margin-bottom: 10px;
+}
+
+.chat-message .avatar {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background-color: #DAA520;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.chat-message .message {
+    display: inline-block;
+    max-width: 220px;
+    background-color: #FFFFF0;
+    color: #000;
+    padding: 5px 10px;
     border-radius: 5px;
-    width: auto;
 }
 
-#toggleView:hover,
-#toggleToPlayZone:hover,
-#toggleToGameCompanion:hover {
-    background-color: #005f8c;
+#characterOverlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 200px;
+    height: 300px;
+    /* Placeholder for character images */
+    background-color: transparent;
 }
 
-/* Media Queries */
+.hidden {
+    display: none;
+}
 
-@media (max-width: 800px) {
-    #game-container {
+/* Mobile Styles */
+@media (max-width: 768px) {
+    #infoPanel {
         flex-direction: column;
         align-items: center;
     }
 
-    .card-zone {
-        flex: 1 1 100%;
+    #playerInfo, #aiInfo {
+        width: 90%;
+        margin-bottom: 10px;
     }
 
-    .card {
-        width: 80px;
-        height: 112px;
+    #fieldArea {
+        flex-direction: column;
+        align-items: center;
     }
 
-    button {
-        width: 100%;
+    .fieldSection, #trickArea {
+        width: 90%;
+        margin-bottom: 10px;
     }
 
-    input[type="number"], select, input[type="text"] {
-        width: 100%;
+    #chatArea {
+        width: 90%;
+        right: 5%;
     }
-}
-
-@media (max-width: 600px) {
-    .card {
-        width: 60px;
-        height: 84px;
-    }
-
-    h1 {
-        font-size: 1.5em;
-    }
-
-    h2 {
-        font-size: 1.2em;
-    }
-}
-
-/* Hide the Play Zone by default */
-#playZone.hidden {
-    display: none;
-}
-
-/* Hide the Game Companion by default */
-#gameCompanion.hidden {
-    display: none;
-}
-
-/* Styles for AI Opponents' Played Cards */
-.ai-opponents {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.ai-player-zone {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    margin: 10px;
-    padding: 10px;
-    flex: 1 1 300px;
-    background-color: #fff;
-    position: relative;
-}
-
-.ai-player-zone h2 {
-    text-align: center;
-}
-
-.ai-player-zone .card-container {
-    display: flex;
-    justify-content: center;
 }

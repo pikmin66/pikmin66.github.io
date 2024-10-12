@@ -1,814 +1,714 @@
-// Variables for the Game Companion
-let numPlayers = 2; // User + AI players
-let userPlayerIndex = 0; // Index of the user player
-let summoningPoints = [];
-let lifePoints = [];
-let gamePoints = [];
-let trickResults = [];
-let trickWinner = -1;
-let currentPhase = 'biddingPhase';
-let playersMonsters = [];
-let playersAlive = [];
-let picker = null;
-let partner = null;
-let playerDecks = [];
-let playerHands = [];
-let discardPiles = [];
-let cardsData = [];
-let trickCount = 0;
-let maxTricks = 1; // Set to 1 trick per Trick-Taking Phase
+// Global Variables
+let gameState = {
+    player: {
+        deck: [],
+        hand: [],
+        field: [],
+        discardPile: [],
+        lifePoints: 8000,
+        summoningPoints: 1000,
+    },
+    ai: {
+        deck: [],
+        hand: [],
+        field: [],
+        discardPile: [],
+        lifePoints: 8000,
+        summoningPoints: 1000,
+    },
+    currentPhase: 'setup',
+    trick: [],
+    turn: 'player', // or 'ai'
+};
 
-// Variables to store played cards in the Trick-Taking Phase
-let playedCardsThisTrick = [];
+// Load card data
+let allCards = [];
 
-// Load card data from JSON (load this at the beginning)
 fetch('cards.json')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        cardsData = data;
-        init();
+        allCards = data;
+        // Initialize the game after loading cards
+        initGame();
     })
     .catch(error => console.error('Error loading card data:', error));
 
-function init() {
-    // Attach event listeners to the buttons in the Game Companion
-    document.getElementById('startGame').addEventListener('click', initializeGame);
-    // Note: 'calculateTrickResults' button will be transformed into 'endTrickTakingPhase'
-    document.getElementById('calculateTrickResults').addEventListener('click', calculateTrickResults);
-    document.getElementById('nextRound').addEventListener('click', startNextRound);
-
-    // Add event listeners to the toggle buttons
-    document.getElementById('toggleToPlayZone').addEventListener('click', toggleToPlayZone);
-    document.getElementById('toggleToGameCompanion').addEventListener('click', toggleToGameCompanion);
-
-    // Event listener for the Card Hierarchy button
-    document.getElementById('toggleHierarchy').addEventListener('click', () => {
-        document.getElementById('hierarchyModal').classList.remove('hidden');
-    });
-
-    // Event listener for closing the hierarchy modal
-    document.getElementById('closeHierarchyModal').addEventListener('click', () => {
-        document.getElementById('hierarchyModal').classList.add('hidden');
-    });
-
-    // Initialize the Play Zone
-    initPlayZone();
+// Initialize the game
+function initGame() {
+    // Show game setup
+    displayGameSetup();
 }
 
-// Game Initialization
-function initializeGame() {
-    numPlayers = parseInt(document.getElementById('numPlayers').value);
-    userPlayerIndex = 0; // Assume user is Player 1
-
-    // Set initial summoning points and life points
-    summoningPoints = new Array(numPlayers).fill(1000);
-    lifePoints = new Array(numPlayers).fill(8000);
-    gamePoints = new Array(numPlayers).fill(0);
-    playersAlive = new Array(numPlayers).fill(true);
-
-    picker = null;
-    partner = null;
-
-    // Initialize players' decks, hands, discard piles, and monsters
-    playerDecks = [];
-    playerHands = [];
-    discardPiles = [];
-    playersMonsters = [];
-
-    for (let i = 0; i < numPlayers; i++) {
-        // Create and shuffle decks
-        let deck = [...cardsData];
-        deck = shuffleArray(deck);
-        playerDecks.push(deck);
-
-        // Initialize hands
-        playerHands[i] = []; // Initialize the player's hand
-        let hand = playerHands[i];
-        for (let j = 0; j < 5; j++) {
-            let card = drawCardFromDeck(i);
-            if (card) hand.push(card);
-        }
-
-        // Initialize discard piles and monsters
-        discardPiles.push([]);
-        playersMonsters.push([]);
-    }
-
-    // Update Play Zone for the user
-    updatePlayZone(userPlayerIndex);
-
-    // Proceed to the Trick-Taking Phase
-    moveToNextPhase('gameSetup', 'trickTakingPhase');
-    generateTrickTakingInputs();
-
-    document.getElementById('playerStatsOverview').classList.remove('hidden');
-}
-
-
-// Function to draw a card from a player's deck
-function drawCardFromDeck(playerIndex) {
-    if (playerHands[playerIndex].length >= 5) {
-        if (playerIndex === userPlayerIndex) {
-            alert('Your hand is full!');
-        }
-        return null;
-    }
-    if (playerDecks[playerIndex].length > 0) {
-        return playerDecks[playerIndex].shift();
-    } else {
-        if (playerIndex === userPlayerIndex) {
-            alert('No more cards in your deck!');
-        }
-        return null;
-    }
-}
-
-// Update the Play Zone display for a specific player
-function updatePlayZone(playerIndex = userPlayerIndex) {
-    let handCardsContainer = document.getElementById('hand-cards');
-    handCardsContainer.innerHTML = '';
-
-    playerHands[playerIndex].forEach(card => {
-        let cardElement = createCardElement(card);
-        handCardsContainer.appendChild(cardElement);
-    });
-
-    // Update AI players' played cards
-    updateAIPlayedCards();
-
-    setupDragAndDrop(playerIndex);
-}
-
-// Function to update AI players' played cards in the Play Zone
-function updateAIPlayedCards() {
-    for (let i = 0; i < numPlayers; i++) {
-        if (i !== userPlayerIndex) {
-            let aiPlayArea = document.getElementById(`ai-player-${i}-cards`);
-            aiPlayArea.innerHTML = '';
-
-            // Display the last card played by the AI player
-            if (playedCardsThisTrick.length > 0) {
-                let aiPlayedCard = playedCardsThisTrick.find(play => play.playerIndex === i);
-                if (aiPlayedCard) {
-                    let cardElement = createCardElement(aiPlayedCard.card);
-                    aiPlayArea.appendChild(cardElement);
-                }
-            }
-        }
-    }
-}
-
-// Create a card element
-function createCardElement(cardData) {
-    let cardDiv = document.createElement('div');
-    cardDiv.classList.add('card');
-    cardDiv.draggable = true;
-    cardDiv.id = cardData.id;
-
-    // Store card data in a dataset
-    cardDiv.dataset.card = JSON.stringify(cardData);
-
-    let img = document.createElement('img');
-    img.src = cardData.image || 'images/placeholder.png';
-    img.alt = cardData.name;
-
-    cardDiv.appendChild(img);
-
-    // Add click event listener to toggle card details
-    cardDiv.addEventListener('click', toggleCardDetails);
-
-    return cardDiv;
-}
-
-// Toggle card details display
-function toggleCardDetails(e) {
-    let existingDetails = this.querySelector('.card-details');
-    if (existingDetails) {
-        // Details are already displayed; remove them
-        this.removeChild(existingDetails);
-    } else {
-        // Details are not displayed; show them
-        let cardData = JSON.parse(this.dataset.card);
-
-        let detailsDiv = document.createElement('div');
-        detailsDiv.classList.add('card-details');
-        detailsDiv.innerHTML = `
-            <h3>${cardData.name}</h3>
-            <p><strong>Suit:</strong> ${cardData.suit || 'N/A'}</p>
-            <p><strong>Rank:</strong> ${cardData.rank || 'N/A'}</p>
-            <p><strong>Stars:</strong> ${'★'.repeat(cardData.stars || 0)}</p>
-            <p><strong>Level:</strong> ${cardData.level || 'N/A'}</p>
-            <p><strong>ATK:</strong> ${cardData.atk || 'N/A'}</p>
-            <p><strong>DEF:</strong> ${cardData.def || 'N/A'}</p>
-            <p><strong>Effect:</strong> ${cardData.effect || 'N/A'}</p>
-        `;
-
-        detailsDiv.style.position = 'absolute';
-        detailsDiv.style.top = '0';
-        detailsDiv.style.left = '110%';
-        detailsDiv.style.backgroundColor = '#fff';
-        detailsDiv.style.border = '1px solid #ccc';
-        detailsDiv.style.padding = '10px';
-        detailsDiv.style.zIndex = '10';
-        detailsDiv.style.width = '200px';
-
-        this.appendChild(detailsDiv);
-    }
-}
-
-// Set up drag-and-drop functionality (for single-player Play Zone)
-function setupDragAndDrop(playerIndex = userPlayerIndex) {
-    let cards = document.querySelectorAll('.card');
-    let handCardsContainer = document.getElementById('hand-cards');
-    let playAreaContainer = document.getElementById('play-area-cards');
-
-    cards.forEach(card => {
-        card.addEventListener('dragstart', dragStart);
-        card.addEventListener('dragend', dragEnd);
-    });
-
-    [handCardsContainer, playAreaContainer].forEach(zone => {
-        zone.addEventListener('dragover', dragOver);
-        zone.addEventListener('drop', (e) => drop(e, playerIndex));
-    });
-}
-
-function dragStart(e) {
-    this.classList.add('dragging');
-    e.dataTransfer.setData('text/plain', this.id);
-}
-
-function dragEnd() {
-    this.classList.remove('dragging');
-}
-
-function dragOver(e) {
-    e.preventDefault();
-}
-
-function drop(e, playerIndex) {
-    e.preventDefault();
-    let cardId = e.dataTransfer.getData('text/plain');
-    let card = document.getElementById(cardId);
-
-    if (this.id === 'play-area-cards') {
-        // Move card from hand to play area
-        playCard(cardId, playerIndex);
-    } else if (this.id === 'hand-cards') {
-        // Move card back to hand
-        returnCardToHand(cardId, playerIndex);
-    }
-}
-
-// Play a card from a player's hand
-function playCard(cardId, playerIndex) {
-    let playerHand = playerHands[playerIndex];
-    let cardIndex = playerHand.findIndex(card => card.id === cardId);
-    if (cardIndex !== -1) {
-        let playedCard = playerHand.splice(cardIndex, 1)[0];
-        discardPiles[playerIndex].push(playedCard);
-        updatePlayZone(playerIndex);
-
-        // If it's the user, display the played card
-        if (playerIndex === userPlayerIndex) {
-            let playArea = document.getElementById('play-area-cards');
-            playArea.innerHTML = ''; // Clear previous cards
-            playArea.appendChild(createCardElement(playedCard));
-        }
-    }
-}
-
-// Return a card to a player's hand
-function returnCardToHand(cardId, playerIndex) {
-    let discardPile = discardPiles[playerIndex];
-    let cardIndex = discardPile.findIndex(card => card.id === cardId);
-    if (cardIndex !== -1) {
-        let returnedCard = discardPile.splice(cardIndex, 1)[0];
-        playerHands[playerIndex].push(returnedCard);
-        updatePlayZone(playerIndex);
-    }
-}
-
-// Update player stats display
-function updatePlayerStats() {
-    let stats = '';
-    for (let i = 0; i < numPlayers; i++) {
-        let status = playersAlive[i] ? '' : ' (Eliminated)';
-        stats += `<div class="player-stats">Player ${i + 1}${status} - Life Points: ${lifePoints[i]}, Summoning Points: ${summoningPoints[i]}</div>`;
-    }
-    document.getElementById('playerStats').innerHTML = stats;
-}
-
-// Trick Taking Phase
-function generateTrickTakingInputs() {
-    const trickTakingDiv = document.getElementById('trickTakingInputs');
-    trickTakingDiv.innerHTML = `<h3>Trick ${trickCount + 1}</h3>`;
-
-    // Draw one card at the start of the Trick-Taking Phase if hand size is less than 5
-    if (trickCount === 0 && currentPhase !== 'trickTakingPhaseStarted') {
-        currentPhase = 'trickTakingPhaseStarted';
-        for (let i = 0; i < numPlayers; i++) {
-            if (playerHands[i].length < 5) {
-                let card = drawCardFromDeck(i);
-                if (card) playerHands[i].push(card);
-            }
-        }
-    }
-
-    // User input
-    trickTakingDiv.innerHTML += `
-        <div class="player-section">
-            <h3>Your Turn</h3>
-            <label for="player${userPlayerIndex}-card-select">Select a card to play:</label>
-            <select id="player${userPlayerIndex}-card-select">
-                ${playerHands[userPlayerIndex].map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
-            </select>
-        </div>
+// Display Game Setup
+function displayGameSetup() {
+    const gameSetupDiv = document.getElementById('gameSetup');
+    gameSetupDiv.innerHTML = `
+        <h2>Choose Your Deck</h2>
+        <select id="deckSelect">
+            <option value="spades">Sovereign Guardians (Spades)</option>
+            <option value="clubs">Alexander's Conquest (Clubs)</option>
+            <option value="hearts">Charlemagne's Empire (Hearts)</option>
+            <option value="diamonds">Caesar's Legions (Diamonds)</option>
+        </select>
+        <button id="startGameButton">Start Game</button>
     `;
 
-    // Enable the calculate button
-    document.getElementById('calculateTrickResults').disabled = false;
-
-    // Clear previous played cards
-    playedCardsThisTrick = [];
-
-    updatePlayZone(userPlayerIndex);
+    document.getElementById('startGameButton').addEventListener('click', startGame);
 }
 
-function calculateTrickResults() {
-    let playedCards = [];
+function startTurn() {
+    gameState.currentPhase = 'drawingPhase';
+    drawingPhase();
+}
 
-    // User's selected card
-    const selectedCardId = document.getElementById(`player${userPlayerIndex}-card-select`).value;
-    const userHand = playerHands[userPlayerIndex];
-    const cardIndex = userHand.findIndex(card => card.id === selectedCardId);
+function drawingPhase() {
+    // Players draw cards at the beginning of each turn
+    drawCardsAtTurnStart(gameState.player);
+    drawCardsAtTurnStart(gameState.ai);
+    updatePlayerInfo();
 
-    if (cardIndex !== -1) {
-        const selectedCard = userHand.splice(cardIndex, 1)[0];
-        playedCards.push({ playerIndex: userPlayerIndex, card: selectedCard });
-        discardPiles[userPlayerIndex].push(selectedCard);
+    displayGameMessage('Starting Drawing Phase');
+    displayPlayerHand();
 
-        // Display the user's played card
-        let playArea = document.getElementById('play-area-cards');
-        playArea.innerHTML = ''; // Clear previous cards
-        playArea.appendChild(createCardElement(selectedCard));
+    // Proceed to Trick-Taking Phase
+    setTimeout(startTrickTakingPhase, 1000);
+}
+
+// Start the Game
+function startGame() {
+    const selectedDeck = document.getElementById('deckSelect').value;
+
+    // Initialize player's deck based on selection
+    gameState.player.deck = allCards.filter(card => card.deck === selectedDeck);
+
+    // Initialize AI deck (choose a different deck)
+    const aiDeckOptions = ['spades', 'clubs', 'hearts', 'diamonds'].filter(deck => deck !== selectedDeck);
+    const aiDeckChoice = aiDeckOptions[Math.floor(Math.random() * aiDeckOptions.length)];
+    gameState.ai.deck = allCards.filter(card => card.deck === aiDeckChoice);
+
+    // Shuffle decks
+    shuffleDeck(gameState.player.deck);
+    shuffleDeck(gameState.ai.deck);
+
+    gameState.player.hand = [];
+    gameState.ai.hand = [];
+
+    // Draw initial hands
+    drawCards(gameState.player, 6);
+    drawCards(gameState.ai, 6);
+
+    // Update Life Points and Summoning Points display
+    updatePlayerInfo();
+
+    // Hide setup and show game area
+    document.getElementById('gameSetup').classList.add('hidden');
+    document.getElementById('gameArea').classList.remove('hidden');
+
+    // Start the first turn
+    gameState.turn = 'player'; // Or decide randomly if needed
+    startTurn();
+}
+
+// Shuffle Deck
+function shuffleDeck(deck) {
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+}
+
+// Draw Cards
+function drawCards(player, number) {
+    for (let i = 0; i < number; i++) {
+        if (player.deck.length > 0) {
+            player.hand.push(player.deck.pop());
+        } else {
+            // If the deck is empty, shuffle the discard pile back into the deck
+            if (player.discardPile.length > 0) {
+                player.deck = [...player.discardPile];
+                player.discardPile = [];
+                shuffleDeck(player.deck);
+                player.hand.push(player.deck.pop());
+            } else {
+                // No cards left to draw
+                break;
+            }
+        }
+    }
+}
+
+
+// Update Player Info Display
+function updatePlayerInfo() {
+    document.getElementById('playerLifePoints').innerText = gameState.player.lifePoints;
+    document.getElementById('playerSummoningPoints').innerText = gameState.player.summoningPoints;
+
+    document.getElementById('aiLifePoints').innerText = gameState.ai.lifePoints;
+    document.getElementById('aiSummoningPoints').innerText = gameState.ai.summoningPoints;
+}
+
+// Start Trick-Taking Phase
+function startTrickTakingPhase() {
+    gameState.currentPhase = 'trickTakingPhase';
+    displayGameMessage('Starting Trick-Taking Phase');
+    displayControlsForTrickTaking();
+}
+
+
+
+// Function to draw cards at the beginning of the turn
+function drawCardsAtTurnStart(player) {
+    let cardsToDraw = 2;
+    if (player.hand.length >= 5) {
+        cardsToDraw = 1;
+    }
+    drawCards(player, cardsToDraw);
+}
+
+// Display Game Message
+function displayGameMessage(message) {
+    const gameMessagesDiv = document.getElementById('gameMessages');
+    gameMessagesDiv.innerText = message;
+}
+
+// Display Player Hand
+function displayPlayerHand() {
+    const playerHandDiv = document.getElementById('playerHand');
+    playerHandDiv.innerHTML = ''; // Clear previous hand
+
+    gameState.player.hand.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.innerText = `${card.name}\n(${card.suit || card.type})`;
+        cardDiv.addEventListener('click', () => selectCardForTrick(card.id));
+        playerHandDiv.appendChild(cardDiv);
+    });
+}
+
+// Display Controls for Trick-Taking
+function displayControlsForTrickTaking() {
+    const controlsDiv = document.getElementById('controls');
+    controlsDiv.innerHTML = '<p>Select a card from your hand to play for the trick.</p>';
+}
+
+// Select Card for Trick
+function selectCardForTrick(cardId) {
+    const card = getCardById(cardId, gameState.player.hand);
+    if (!card) return;
+
+    // Play the card
+    gameState.trick.push({ player: 'player', card: card });
+    removeCardFromHand(cardId, gameState.player.hand);
+    displayGameMessage(`You played ${card.name}`);
+
+    // Update player hand display
+    displayPlayerHand();
+
+    // AI plays a card
+    aiPlayCardForTrick();
+}
+
+// AI Plays a Card for Trick
+function aiPlayCardForTrick() {
+    // Simple AI: plays a random card
+    const aiCard = gameState.ai.hand.pop();
+    gameState.trick.push({ player: 'ai', card: aiCard });
+    displayGameMessage(`AI played ${aiCard.name}`);
+
+    // Display the trick
+    displayTrick();
+
+    // Determine winner
+    setTimeout(determineTrickWinner, 1000); // Delay to show the trick
+}
+
+// Display the Trick
+function displayTrick() {
+    const trickAreaDiv = document.getElementById('trickArea');
+    trickAreaDiv.innerHTML = ''; // Clear previous trick
+
+    gameState.trick.forEach(play => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.innerText = `${play.card.name}\n(${play.card.suit || play.card.type})\nPlayed by: ${play.player}`;
+        trickAreaDiv.appendChild(cardDiv);
+    });
+}
+
+// Determine Trick Winner
+function determineTrickWinner() {
+    const playerCard = gameState.trick.find(play => play.player === 'player').card;
+    const aiCard = gameState.trick.find(play => play.player === 'ai').card;
+
+    let winner = 'player';
+    if (aiCard.level > playerCard.level) {
+        winner = 'ai';
+    } else if (aiCard.level === playerCard.level) {
+        // Tie-breaker: compare stars
+        if (aiCard.stars > playerCard.stars) {
+            winner = 'ai';
+        }
+    }
+
+    // Award Summoning Points
+    const spEarned = (playerCard.stars + aiCard.stars) * 100;
+    gameState[winner].summoningPoints += spEarned;
+
+    displayGameMessage(`${winner.toUpperCase()} wins the trick and earns ${spEarned} Summoning Points!`);
+    updatePlayerInfo();
+
+    // AI Reaction
+    if (winner === 'ai') {
+        aiSendMessage(`I won the trick and gained ${spEarned} SP!`);
     } else {
-        document.getElementById('trickResult').innerHTML = 'Invalid card selection.';
+        aiSendMessage(`You got lucky this time.`);
+    }
+
+    // Clear the trick
+    gameState.trick = [];
+    document.getElementById('trickArea').innerHTML = '';
+
+    // Proceed to Summoning Phase
+    setTimeout(() => {
+        if (winner === 'player') {
+            gameState.turn = 'player';
+        } else {
+            gameState.turn = 'ai';
+        }
+        startSummoningPhase();
+    }, 2000);
+}
+
+// Start Summoning Phase
+function startSummoningPhase() {
+    gameState.currentPhase = 'summoningPhase';
+    displayGameMessage('Starting Summoning Phase');
+
+    if (gameState.turn === 'player') {
+        displayControlsForSummoning();
+    } else {
+        aiSummoningPhase();
+    }
+}
+
+// Display Controls for Summoning
+function displayControlsForSummoning() {
+    const controlsDiv = document.getElementById('controls');
+    controlsDiv.innerHTML = '<p>Select a creature to summon:</p>';
+
+    gameState.player.hand.forEach(card => {
+        if (card.type === 'Trickster' || card.type === 'Taker') {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card';
+            cardDiv.innerText = `${card.name}\nLevel: ${card.level}\nSP Cost: ${card.level * 200}`;
+            cardDiv.addEventListener('click', () => selectInactiveCards(card.id));
+            controlsDiv.appendChild(cardDiv);
+        }
+    });
+
+    // Option to skip summoning
+    const skipButton = document.createElement('button');
+    skipButton.innerText = 'Skip Summoning';
+    skipButton.addEventListener('click', () => {
+        // Proceed to Battle Phase
+        startBattlePhase();
+    });
+    controlsDiv.appendChild(skipButton);
+}
+
+// Select Inactive Cards for Battery
+function selectInactiveCards(activeCardId) {
+    const activeCard = getCardById(activeCardId, gameState.player.hand);
+    if (!activeCard) return;
+
+    const controlsDiv = document.getElementById('controls');
+    controlsDiv.innerHTML = '<p>Select up to 2 Inactive cards (Spells, Traps, or Creatures):</p>';
+
+    const selectedInactiveCards = [];
+    const handCopy = [...gameState.player.hand]; // To prevent mutation during iteration
+
+    handCopy.forEach(card => {
+        if (card.id !== activeCardId) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card';
+            cardDiv.innerText = `${card.name}\nType: ${card.type}`;
+            cardDiv.addEventListener('click', () => {
+                if (!selectedInactiveCards.includes(card) && selectedInactiveCards.length < 2) {
+                    selectedInactiveCards.push(card);
+                    cardDiv.style.backgroundColor = '#008080'; // Teal to indicate selection
+                }
+            });
+            controlsDiv.appendChild(cardDiv);
+        }
+    });
+
+    const confirmButton = document.createElement('button');
+    confirmButton.innerText = 'Confirm Battery';
+    confirmButton.addEventListener('click', () => {
+        summonCreatureWithBattery(activeCardId, selectedInactiveCards);
+    });
+    controlsDiv.appendChild(confirmButton);
+}
+
+// Summon Creature with Battery
+function summonCreatureWithBattery(activeCardId, inactiveCards) {
+    const activeCard = getCardById(activeCardId, gameState.player.hand);
+    if (!activeCard) return;
+
+    const spCost = activeCard.level * 200;
+    if (gameState.player.summoningPoints < spCost) {
+        alert('Not enough Summoning Points!');
         return;
     }
 
-    // AI players' moves
-    for (let i = 0; i < numPlayers; i++) {
-        if (i !== userPlayerIndex) {
-            let aiHand = playerHands[i];
-            if (aiHand.length > 0) {
-                // Simple AI logic: play the first card
-                const aiCard = aiHand.shift();
-                playedCards.push({ playerIndex: i, card: aiCard });
-                discardPiles[i].push(aiCard);
-            }
-        }
-    }
+    // Deduct SP
+    gameState.player.summoningPoints -= spCost;
+    updatePlayerInfo();
 
-    // Store the played cards for display
-    playedCardsThisTrick = playedCards;
+    // Create Battery
+    const battery = {
+        active: activeCard,
+        inactive: inactiveCards,
+    };
+    gameState.player.field.push(battery);
 
-    // Update the Play Zone to show AI opponents' played cards
-    updatePlayZone(userPlayerIndex);
+    // Remove cards from hand
+    removeCardFromHand(activeCardId, gameState.player.hand);
+    inactiveCards.forEach(card => removeCardFromHand(card.id, gameState.player.hand));
 
-    // Determine the winner
-    let winningPlayerIndex = determineTrickWinner(playedCards);
+    displayGameMessage(`You summoned ${activeCard.name} with ${inactiveCards.length} Inactive card(s)`);
+    displayPlayerField();
 
-    // Calculate points
-    let totalPoints = playedCards.reduce((sum, play) => sum + (play.card.stars || 0), 0);
-
-    // Add summoning points
-    summoningPoints[winningPlayerIndex] += totalPoints * 100;
-
-    // Display results
-    let resultMessage = `Player ${winningPlayerIndex + 1} wins the trick and earns ${totalPoints} points (${totalPoints * 100} summoning points)!<br>`;
-    resultMessage += `Cards played:<br>`;
-    playedCards.forEach(play => {
-        resultMessage += `Player ${play.playerIndex + 1}: ${play.card.name}<br>`;
-    });
-    document.getElementById('trickResult').innerHTML = resultMessage;
-
-    updatePlayerStats();
-
-    trickCount++;
-
-    // Disable the calculate button
-    let calculateButton = document.getElementById('calculateTrickResults');
-    calculateButton.disabled = false; // Enable the button for the next action
-
-    // Change the button's text to 'End Trick Taking Phase'
-    calculateButton.textContent = 'End Trick Taking Phase';
-
-    // Update the event listener
-    calculateButton.removeEventListener('click', calculateTrickResults);
-    calculateButton.addEventListener('click', endTrickTakingPhase);
+    // Proceed to Battle Phase
+    startBattlePhase();
 }
 
-// Function to determine the winner of the trick
-function determineTrickWinner(playedCards) {
-    // Simplified logic: highest level card wins
-    let winningPlayerIndex = playedCards[0].playerIndex;
-    let highestLevel = playedCards[0].card.level || 0;
+// AI Summoning Phase
+function aiSummoningPhase() {
+    // Simple AI logic: Summon the strongest creature it can afford
+    const affordableCreatures = gameState.ai.hand.filter(card => (card.type === 'Trickster' || card.type === 'Taker') && gameState.ai.summoningPoints >= card.level * 200);
 
-    for (let i = 1; i < playedCards.length; i++) {
-        let currentLevel = playedCards[i].card.level || 0;
-        if (currentLevel > highestLevel) {
-            highestLevel = currentLevel;
-            winningPlayerIndex = playedCards[i].playerIndex;
-        }
-    }
+    if (affordableCreatures.length > 0) {
+        const activeCard = affordableCreatures.reduce((prev, current) => (prev.atk > current.atk ? prev : current));
+        const spCost = activeCard.level * 200;
+        gameState.ai.summoningPoints -= spCost;
 
-    return winningPlayerIndex;
-}
+        // Select up to 2 Inactive cards randomly
+        const possibleInactiveCards = gameState.ai.hand.filter(card => card.id !== activeCard.id);
+        const inactiveCards = possibleInactiveCards.slice(0, 2);
 
-function endTrickTakingPhase() {
-    trickCount = 0; // Reset for next round
-    currentPhase = ''; // Reset currentPhase flag
+        // Create Battery
+        const battery = {
+            active: activeCard,
+            inactive: inactiveCards,
+        };
+        gameState.ai.field.push(battery);
 
-    // Clear AI played cards
-    for (let i = 0; i < numPlayers; i++) {
-        if (i !== userPlayerIndex) {
-            let aiPlayArea = document.getElementById(`ai-player-${i}-cards`);
-            aiPlayArea.innerHTML = '';
-        }
-    }
+        // Remove cards from hand
+        removeCardFromHand(activeCard.id, gameState.ai.hand);
+        inactiveCards.forEach(card => removeCardFromHand(card.id, gameState.ai.hand));
 
-    // Clear user's played cards
-    let playArea = document.getElementById('play-area-cards');
-    playArea.innerHTML = '';
+        displayGameMessage(`AI summoned ${activeCard.name}`);
+        aiSendMessage(`I summon ${activeCard.name} to the field!`);
+        displayAIField();
 
-    // Display total summoning points for each player
-    let summary = '<h3>Trick-Taking Phase Summary:</h3>';
-    for (let i = 0; i < numPlayers; i++) {
-        summary += `<p>Player ${i + 1} has ${summoningPoints[i]} summoning points.</p>`;
-    }
-    document.getElementById('trickResult').innerHTML = summary;
-
-
-    // Reset the 'Calculate Trick Results' button for the next trick-taking phase
-    let calculateButton = document.getElementById('calculateTrickResults');
-    calculateButton.textContent = 'Calculate Trick Results';
-    calculateButton.removeEventListener('click', endTrickTakingPhase);
-    calculateButton.addEventListener('click', calculateTrickResults);
-    calculateButton.disabled = false; // Re-enable the button
-
-    moveToNextPhase('trickTakingPhase', 'summoningPhase');
-}
-
-function moveToNextPhase(currentPhaseId, nextPhaseId) {
-    document.getElementById(currentPhaseId).classList.add('hidden');
-    document.getElementById(nextPhaseId).classList.remove('hidden');
-
-    // Initialize the next phase if needed
-    switch (nextPhaseId) {
-        case 'biddingPhase':
-            // generateBiddingOptions();
-            break;
-        case 'trickTakingPhase':
-            generateTrickTakingInputs();
-            break;
-        case 'summoningPhase':
-            generateSummoningInputs();
-            break;
-        case 'battlePhase':
-            generateBattleInputs();
-            break;
-        default:
-            break;
-    }
-}
-
-// Summoning Phase
-function generateSummoningInputs() {
-    const summoningDiv = document.getElementById('summoningInputs');
-    summoningDiv.innerHTML = "";
-
-    // User's summoning inputs
-    summoningDiv.innerHTML += `
-        <div class="player-section">
-            <h3>Your Summoning Phase</h3>
-            <button id="addSummonButton">Add Summon</button>
-            <div id="player-summon-container"></div>
-            <div class="error-message" id="player-error"></div>
-            <button id="endSummoningPhase">End Summoning Phase</button>
-        </div>
-    `;
-
-    // Add event listener for the Add Summon button
-    document.getElementById('addSummonButton').addEventListener('click', addSummon);
-
-    // Add event listener for the End Summoning Phase button
-    document.getElementById('endSummoningPhase').addEventListener('click', endSummoningPhase);
-
-    // Simulate AI summoning
-    simulateAISummoning();
-
-    updatePlayZone(userPlayerIndex);
-}
-
-function simulateAISummoning() {
-    for (let i = 0; i < numPlayers; i++) {
-        if (i !== userPlayerIndex) {
-            let aiHand = playerHands[i];
-            let aiSummoningPoints = summoningPoints[i];
-
-            // Simple AI logic: summon monsters until points run out
-            while (aiSummoningPoints > 0 && aiHand.length > 0) {
-                let card = aiHand[0]; // Take the first card
-                let cost = (card.level || 0) * 200;
-                if (cost <= aiSummoningPoints) {
-                    aiHand.shift(); // Remove card from hand
-                    playersMonsters[i].push(card);
-                    aiSummoningPoints -= cost;
-                    summoningPoints[i] -= cost;
-                } else {
-                    break;
-                }
-            }
-        }
-    }
-}
-
-function addSummon() {
-    const summonContainer = document.getElementById(`player-summon-container`);
-    const summonIndex = summonContainer.children.length;
-    const summonDiv = document.createElement('div');
-    summonDiv.classList.add('summon-entry');
-    summonDiv.innerHTML = `
-        <label>Select Card to Summon:
-            <select id="summon${summonIndex}-card-select">
-                ${playerHands[userPlayerIndex].map(card => `<option value="${card.id}">${card.name}</option>`).join('')}
-            </select>
-        </label>
-        Summoning Cost: <span id="summon${summonIndex}-cost">0</span><br>
-        <button onclick="removeSummon(${summonIndex})">Remove</button>
-        <hr>
-    `;
-    summonContainer.appendChild(summonDiv);
-
-    const cardSelect = document.getElementById(`summon${summonIndex}-card-select`);
-    const costSpan = document.getElementById(`summon${summonIndex}-cost`);
-    cardSelect.addEventListener('change', () => {
-        const selectedCard = playerHands[userPlayerIndex].find(card => card.id === cardSelect.value);
-        const cost = (selectedCard.level || 0) * 200;
-        costSpan.innerText = cost;
-    });
-
-    // Trigger change event to set initial cost
-    cardSelect.dispatchEvent(new Event('change'));
-}
-
-function removeSummon(summonIndex) {
-    const summonContainer = document.getElementById(`player-summon-container`);
-    const summonDiv = summonContainer.children[summonIndex];
-    summonContainer.removeChild(summonDiv);
-}
-
-function endSummoningPhase() {
-    const errorDiv = document.getElementById(`player-error`);
-    errorDiv.textContent = ''; // Clear previous error messages
-    let totalCost = 0;
-    const summons = [];
-    const summonContainer = document.getElementById(`player-summon-container`);
-    const summonEntries = summonContainer.getElementsByClassName('summon-entry');
-
-    for (let j = 0; j < summonEntries.length; j++) {
-        const cardSelect = summonEntries[j].querySelector(`select`);
-        const selectedCard = playerHands[userPlayerIndex].find(card => card.id === cardSelect.value);
-        const cost = (selectedCard.level || 0) * 200;
-        totalCost += cost;
-
-        summons.push(selectedCard);
-    }
-
-    let availableSummoningPoints = summoningPoints[userPlayerIndex];
-
-    if (availableSummoningPoints >= totalCost) {
-        // Deduct summoning points
-        summoningPoints[userPlayerIndex] -= totalCost;
-
-        // Remove summoned cards from hand and add to player's monsters
-        summons.forEach(card => {
-            let cardIndex = playerHands[userPlayerIndex].findIndex(c => c.id === card.id);
-            if (cardIndex !== -1) {
-                playerHands[userPlayerIndex].splice(cardIndex, 1);
-                playersMonsters[userPlayerIndex].push(card);
-            }
-        });
-
-        updatePlayerStats();
-        moveToNextPhase('summoningPhase', 'battlePhase');
+        // Proceed to Battle Phase
+        startBattlePhase();
     } else {
-        errorDiv.textContent = `Not enough summoning points! You need ${totalCost}, but have ${availableSummoningPoints}.`;
-        alert('Please adjust your summoning to be within your available summoning points.');
+        // AI skips summoning
+        displayGameMessage('AI skips Summoning Phase');
+        aiSendMessage(`I have nothing to summon this turn.`);
+        startBattlePhase();
     }
 }
 
-// Battle Phase
-function generateBattleInputs() {
-    const battleDiv = document.getElementById('battleInputs');
-    battleDiv.innerHTML = "";
+// Start Battle Phase
+function startBattlePhase() {
+    gameState.currentPhase = 'battlePhase';
+    displayGameMessage('Starting Battle Phase');
 
-    // User's monsters
-    const userMonsters = playersMonsters[userPlayerIndex];
-    if (userMonsters.length > 0) {
-        battleDiv.innerHTML += `<h3>Your Monsters</h3>`;
-        userMonsters.forEach((monster, index) => {
-            // Build attack target options
-            let targetOptions = '';
-            for (let i = 0; i < numPlayers; i++) {
-                if (i !== userPlayerIndex) {
-                    targetOptions += `<option value="Player ${i + 1}">Player ${i + 1}</option>`;
-                    playersMonsters[i].forEach(opponentMonster => {
-                        targetOptions += `<option value="${opponentMonster.id}">${opponentMonster.name} (Player ${i + 1}'s Monster)</option>`;
-                    });
-                }
-            }
-
-            battleDiv.innerHTML += `
-                <div class="player-section">
-                    <div>Monster ${index + 1}: ${monster.name}, Level ${monster.level}, ATK ${monster.atk}, DEF ${monster.def}</div>
-                    <label for="attack${index}-target">Attack Target:</label>
-                    <select id="attack${index}-target">${targetOptions}</select>
-                </div>
-            `;
-        });
-    } else {
-        battleDiv.innerHTML += `
-            <div class="player-section">
-                <div>You have no monsters to attack with.</div>
-            </div>
-        `;
-    }
-
-    // Simulate AI battle actions
-    simulateAIBattle();
-
-    // Add button to end Battle Phase
-    battleDiv.innerHTML += `<button id="endBattlePhase">End Battle Phase</button>`;
-
-    // Add event listener
-    document.getElementById('endBattlePhase').addEventListener('click', endBattlePhase);
-}
-
-function simulateAIBattle() {
-    // Simple AI logic: attack the user if they have monsters
-    for (let i = 0; i < numPlayers; i++) {
-        if (i !== userPlayerIndex) {
-            let aiMonsters = playersMonsters[i];
-            if (aiMonsters.length > 0) {
-                // AI attacks user's monsters
-                aiMonsters.forEach(monster => {
-                    // For simplicity, AI attacks the first user's monster
-                    if (playersMonsters[userPlayerIndex].length > 0) {
-                        // Resolve battle (simplified)
-                        let userMonster = playersMonsters[userPlayerIndex][0];
-                        if (monster.atk > userMonster.def) {
-                            // User's monster is destroyed
-                            playersMonsters[userPlayerIndex].shift();
-                            alert(`AI Player ${i + 1}'s ${monster.name} destroyed your ${userMonster.name}!`);
-                        } else if (monster.atk < userMonster.def) {
-                            // AI's monster is destroyed
-                            aiMonsters.shift();
-                            alert(`Your ${userMonster.name} destroyed AI Player ${i + 1}'s ${monster.name}!`);
-
-                            // Gain summoning points equal to the cost of the defeated monster
-                            let defeatedMonsterCost = (monster.level || 0) * 200;
-                            summoningPoints[userPlayerIndex] += defeatedMonsterCost;
-                            alert(`You gained ${defeatedMonsterCost} summoning points!`);
-                        } else {
-                            // Both are destroyed
-                            playersMonsters[userPlayerIndex].shift();
-                            aiMonsters.shift();
-                            alert(`Both your ${userMonster.name} and AI Player ${i + 1}'s ${monster.name} were destroyed!`);
-                        }
-                    } else {
-                        // User has no monsters; AI attacks directly
-                        lifePoints[userPlayerIndex] -= monster.atk;
-                        alert(`AI Player ${i + 1}'s ${monster.name} attacked you directly for ${monster.atk} damage!`);
-                    }
-                });
-            }
-        }
-    }
-}
-
-function processPlayerBattleActions() {
-    const userMonsters = playersMonsters[userPlayerIndex];
-    for (let i = 0; i < userMonsters.length; i++) {
-        const attackTarget = document.getElementById(`attack${i}-target`).value;
-        const userMonster = userMonsters[i];
-
-        if (attackTarget.startsWith('Player ')) {
-            // Attack player directly
-            let targetPlayerIndex = parseInt(attackTarget.split(' ')[1]) - 1;
-            lifePoints[targetPlayerIndex] -= userMonster.atk;
-            alert(`Your ${userMonster.name} attacked Player ${targetPlayerIndex + 1} directly for ${userMonster.atk} damage!`);
+    if (gameState.turn === 'player') {
+        if (gameState.player.field.length > 0) {
+            displayControlsForBattle();
         } else {
-            // Attack opponent's monster
-            let targetMonster = null;
-            let targetPlayerIndex = -1;
-
-            // Find the target monster
-            for (let j = 0; j < numPlayers; j++) {
-                if (j !== userPlayerIndex) {
-                    let monster = playersMonsters[j].find(m => m.id === attackTarget);
-                    if (monster) {
-                        targetMonster = monster;
-                        targetPlayerIndex = j;
-                        break;
-                    }
-                }
-            }
-
-            if (targetMonster && targetPlayerIndex !== -1) {
-                if (userMonster.atk > targetMonster.def) {
-                    // Target's monster is destroyed
-                    playersMonsters[targetPlayerIndex] = playersMonsters[targetPlayerIndex].filter(m => m.id !== targetMonster.id);
-                    alert(`Your ${userMonster.name} destroyed Player ${targetPlayerIndex + 1}'s ${targetMonster.name}!`);
-
-                    // Gain summoning points equal to the cost of the defeated monster
-                    let defeatedMonsterCost = (targetMonster.level || 0) * 200;
-                    summoningPoints[userPlayerIndex] += defeatedMonsterCost;
-                    alert(`You gained ${defeatedMonsterCost} summoning points!`);
-                } else if (userMonster.atk < targetMonster.def) {
-                    // Your monster is destroyed
-                    userMonsters.splice(i, 1);
-                    alert(`Player ${targetPlayerIndex + 1}'s ${targetMonster.name} destroyed your ${userMonster.name}!`);
-                } else {
-                    // Both are destroyed
-                    playersMonsters[targetPlayerIndex] = playersMonsters[targetPlayerIndex].filter(m => m.id !== targetMonster.id);
-                    userMonsters.splice(i, 1);
-                    alert(`Both your ${userMonster.name} and Player ${targetPlayerIndex + 1}'s ${targetMonster.name} were destroyed!`);
-                }
-            }
+            // Proceed to End Phase
+            startEndPhase();
         }
+    } else {
+        aiBattlePhase();
     }
 }
 
-function endBattlePhase() {
-    // Process player's battle actions
-    processPlayerBattleActions();
+// Display Controls for Battle
+function displayControlsForBattle() {
+    const controlsDiv = document.getElementById('controls');
+    controlsDiv.innerHTML = '<p>Select a creature to attack with:</p>';
 
-    // Battle actions have been resolved
-    document.getElementById('battleResults').innerHTML = 'Battle Phase ended. Proceeding to End Phase.';
+    gameState.player.field.forEach((battery, index) => {
+        const card = battery.active;
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.innerText = `${card.name}\nATK: ${card.atk}\nDEF: ${card.def}`;
+        cardDiv.addEventListener('click', () => attackWithCreature(index));
+        controlsDiv.appendChild(cardDiv);
+    });
 
-    updatePlayerStats();
-    moveToNextPhase('battlePhase', 'endPhase');
+    // Option to skip attacking
+    const skipButton = document.createElement('button');
+    skipButton.innerText = 'Skip Attack';
+    skipButton.addEventListener('click', () => {
+        // Proceed to End Phase
+        startEndPhase();
+    });
+    controlsDiv.appendChild(skipButton);
 }
 
-function startNextRound() {
-    // Reset necessary variables or proceed as per game rules
-    playersMonsters = new Array(numPlayers).fill(null).map(() => []);
-    currentPhase = ''; // Reset currentPhase flag
+// Attack with Creature
+function attackWithCreature(batteryIndex) {
+    const attackerBattery = gameState.player.field[batteryIndex];
+    const attacker = attackerBattery.active;
 
-    moveToNextPhase('endPhase', 'trickTakingPhase');
-    generateTrickTakingInputs();
-}
+    // Check if AI has creatures
+    if (gameState.ai.field.length > 0) {
+        // For simplicity, attack the first AI creature
+        const defenderBattery = gameState.ai.field[0];
+        const defender = defenderBattery.active;
 
-function changeGameVariant() {
-    gameVariant = document.getElementById('gameVariant').value;
-}
-
-// Shuffle an array
-function shuffleArray(array) {
-    let currentIndex = array.length, randomIndex;
-
-    // While there remain elements to shuffle
-    while (currentIndex !== 0) {
-
-        // Pick a remaining element
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-
-        // Swap it with the current element
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex], array[currentIndex]];
+        if (attacker.atk > defender.def) {
+            // Destroy AI's creature
+            destroyBattery(defenderBattery, gameState.ai);
+            displayGameMessage(`You destroyed AI's ${defender.name}!`);
+            aiSendMessage(`No! My ${defender.name} was destroyed!`);
+        } else if (attacker.atk < defender.def) {
+            // Destroy player's creature
+            destroyBattery(attackerBattery, gameState.player);
+            displayGameMessage(`Your ${attacker.name} was destroyed by AI's ${defender.name}!`);
+            aiSendMessage(`Your ${attacker.name} couldn't stand against my ${defender.name}.`);
+        } else {
+            // Both are destroyed
+            destroyBattery(defenderBattery, gameState.ai);
+            destroyBattery(attackerBattery, gameState.player);
+            displayGameMessage(`Both ${attacker.name} and ${defender.name} were destroyed!`);
+            aiSendMessage(`It seems we both lost our creatures.`);
+        }
+    } else {
+        // Direct attack
+        gameState.ai.lifePoints -= attacker.atk;
+        updatePlayerInfo();
+        displayGameMessage(`You attacked AI directly with ${attacker.name} for ${attacker.atk} damage!`);
+        aiSendMessage(`Ouch! That hit me directly.`);
     }
 
-    return array;
+    displayPlayerField();
+    displayAIField();
+
+    // Proceed to End Phase
+    setTimeout(startEndPhase, 2000);
 }
 
-function initPlayZone() {
-    // Play Zone will be updated when the game starts
+// AI Battle Phase
+function aiBattlePhase() {
+    if (gameState.ai.field.length > 0) {
+        const attackerBattery = gameState.ai.field[0];
+        const attacker = attackerBattery.active;
+
+        // Check if player has creatures
+        if (gameState.player.field.length > 0) {
+            const defenderBattery = gameState.player.field[0];
+            const defender = defenderBattery.active;
+
+            if (attacker.atk > defender.def) {
+                // Destroy player's creature
+                destroyBattery(defenderBattery, gameState.player);
+                displayGameMessage(`AI destroyed your ${defender.name}!`);
+                aiSendMessage(`My ${attacker.name} destroys your ${defender.name}!`);
+            } else if (attacker.atk < defender.def) {
+                // Destroy AI's creature
+                destroyBattery(attackerBattery, gameState.ai);
+                displayGameMessage(`Your ${defender.name} destroyed AI's ${attacker.name}!`);
+                aiSendMessage(`Impossible! You defeated my ${attacker.name}!`);
+            } else {
+                // Both are destroyed
+                destroyBattery(defenderBattery, gameState.player);
+                destroyBattery(attackerBattery, gameState.ai);
+                displayGameMessage(`Both ${attacker.name} and ${defender.name} were destroyed!`);
+                aiSendMessage(`A draw... we both lost our creatures.`);
+            }
+        } else {
+            // Direct attack
+            gameState.player.lifePoints -= attacker.atk;
+            updatePlayerInfo();
+            displayGameMessage(`AI attacked you directly with ${attacker.name} for ${attacker.atk} damage!`);
+            aiSendMessage(`I attack you directly with ${attacker.name}!`);
+        }
+
+        displayPlayerField();
+        displayAIField();
+    } else {
+        displayGameMessage('AI skips Battle Phase');
+        aiSendMessage(`I have no creatures to attack with this turn.`);
+    }
+
+    // Proceed to End Phase
+    setTimeout(startEndPhase, 2000);
 }
 
-function toggleToPlayZone() {
-    document.getElementById('gameCompanion').classList.add('hidden');
-    document.getElementById('playZone').classList.remove('hidden');
+// Destroy Battery
+function destroyBattery(battery, player) {
+    // Activate Inactive cards
+    battery.inactive.forEach(card => {
+        activateCardEffect(card, player, getOpponent(player));
+    });
+
+    // Remove battery from field
+    player.field = player.field.filter(b => b !== battery);
+
+    // Send active card to discard pile
+    player.discardPile.push(battery.active);
 }
 
-function toggleToGameCompanion() {
-    document.getElementById('playZone').classList.add('hidden');
-    document.getElementById('gameCompanion').classList.remove('hidden');
+// Activate Card Effect
+function activateCardEffect(card, player, opponent) {
+    displayGameMessage(`${player === gameState.player ? 'You' : 'AI'} activated ${card.name}'s effect!`);
+
+    switch (card.name) {
+        case "Divine Barrier":
+            // Grants temporary DEF boost of +1000 to all creatures for one turn
+            player.field.forEach(battery => {
+                battery.active.def += 1000;
+            });
+            break;
+        case "Overwhelm":
+            // Destroy an opponent's creature with DEF less than 2500
+            const targetBattery = opponent.field.find(battery => battery.active.def < 2500);
+            if (targetBattery) {
+                destroyBattery(targetBattery, opponent);
+                displayGameMessage(`${card.name} destroyed ${opponent === gameState.player ? 'your' : 'AI\'s'} ${targetBattery.active.name}!`);
+                if (opponent === gameState.player) {
+                    aiSendMessage(`My ${card.name} destroyed your ${targetBattery.active.name}!`);
+                } else {
+                    aiSendMessage(`Your ${card.name} destroyed my ${targetBattery.active.name}!`);
+                }
+            }
+            break;
+        // Add cases for other cards
+        default:
+            displayGameMessage(`${card.name} has no effect.`);
+            break;
+    }
+}
+
+// Start End Phase
+function startEndPhase() {
+    gameState.currentPhase = 'endPhase';
+    displayGameMessage('Ending Turn');
+
+    // Check for win conditions
+    if (gameState.ai.lifePoints <= 0) {
+        alert('You win!');
+        resetGame();
+    } else if (gameState.player.lifePoints <= 0) {
+        alert('You lose!');
+        resetGame();
+    } else {
+        // Switch turn
+        gameState.turn = gameState.turn === 'player' ? 'ai' : 'player';
+
+        // Start next turn
+        setTimeout(startTurn, 1000);
+    }
+}
+
+
+// Reset Game
+function resetGame() {
+    location.reload();
+}
+
+// Helper Functions
+function getCardById(cardId, cardArray) {
+    return cardArray.find(card => card.id === cardId);
+}
+
+function removeCardFromHand(cardId, hand) {
+    const index = hand.findIndex(card => card.id === cardId);
+    if (index !== -1) {
+        hand.splice(index, 1);
+    }
+}
+
+function displayPlayerField() {
+    const playerFieldDiv = document.getElementById('playerField');
+    playerFieldDiv.innerHTML = ''; // Clear previous field
+
+    gameState.player.field.forEach(battery => {
+        const batteryDiv = document.createElement('div');
+        batteryDiv.className = 'battery';
+
+        const activeCardDiv = document.createElement('div');
+        activeCardDiv.className = 'active-card';
+        activeCardDiv.innerText = `${battery.active.name}\nATK: ${battery.active.atk}\nDEF: ${battery.active.def}`;
+        batteryDiv.appendChild(activeCardDiv);
+
+        battery.inactive.forEach(card => {
+            const inactiveCardDiv = document.createElement('div');
+            inactiveCardDiv.className = 'inactive-card';
+            inactiveCardDiv.innerText = `${card.name}\nType: ${card.type}`;
+            batteryDiv.appendChild(inactiveCardDiv);
+        });
+
+        playerFieldDiv.appendChild(batteryDiv);
+    });
+}
+
+function displayAIField() {
+    const aiFieldDiv = document.getElementById('aiField');
+    aiFieldDiv.innerHTML = ''; // Clear previous field
+
+    gameState.ai.field.forEach(battery => {
+        const batteryDiv = document.createElement('div');
+        batteryDiv.className = 'battery';
+
+        const activeCardDiv = document.createElement('div');
+        activeCardDiv.className = 'active-card';
+        activeCardDiv.innerText = `${battery.active.name}\nATK: ${battery.active.atk}\nDEF: ${battery.active.def}`;
+        batteryDiv.appendChild(activeCardDiv);
+
+        battery.inactive.forEach(card => {
+            const inactiveCardDiv = document.createElement('div');
+            inactiveCardDiv.className = 'inactive-card';
+            inactiveCardDiv.innerText = `${card.name}\nType: ${card.type}`;
+            batteryDiv.appendChild(inactiveCardDiv);
+        });
+
+        aiFieldDiv.appendChild(batteryDiv);
+    });
+}
+
+function getOpponent(player) {
+    return player === gameState.player ? gameState.ai : gameState.player;
+}
+
+// AI Chat Messages
+function aiSendMessage(message) {
+    const chatMessagesDiv = document.getElementById('chatMessages');
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message';
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = 'avatar';
+    // You can set background image or avatar image here
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message';
+    textDiv.innerText = message;
+
+    messageDiv.appendChild(avatarDiv);
+    messageDiv.appendChild(textDiv);
+
+    chatMessagesDiv.appendChild(messageDiv);
+
+    // Scroll to the bottom
+    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
 }
