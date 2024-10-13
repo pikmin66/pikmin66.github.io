@@ -1,90 +1,1227 @@
 [
     {
-        "id": "card001",
-        "name": "Guardian Aegis",
-        "type": "Trickster",
+        "name": "Amara, Queen of Serenity",
+        "type": "Creature",
+        "suit": "Spades",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 18,
+        "def": 2400,
+        "abilities": {
+            "weak": {
+                "power": 800,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "NegateAttack",
+                    "target": "AnotherCreature",
+                    "description": "Negates one attack targeting another creature."
+                }
+            },
+            "middle": {
+                "power": 1600,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "IncreaseDEF",
+                    "target": "AllYourCreatures",
+                    "amount": 500,
+                    "duration": "EndOfTurn",
+                    "description": "Increases DEF of all your creatures by 500 until end of turn."
+                }
+            },
+            "strong": {
+                "power": 2400,
+                "sp_cost": 100,
+                "effect": {
+                    "type": "NegateSpellTrap",
+                    "description": "Negates one spell or trap effect."
+                }
+            }
+        },
+        "image": "images/amara_queen_of_serenity.png",
+        "flavor_text": "Her calm presence shields her allies from the storms of battle."
+    },
+    {
+        "name": "Elias, Jack of Valor",
+        "type": "Creature",
+        "suit": "Diamonds",
+        "rank": "Jack",
+        "stars": 2,
+        "level": 16,
+        "def": 2200,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 500,
+                    "description": "Gain 500 Life Points."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 300,
+                    "description": "Heal 300 Life Points."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": 100,
+                    "description": "Deal 100 damage directly to opponent."
+                }
+            }
+        },
+        "image": "images/elias_jack_of_valor.png",
+        "flavor_text": "With unwavering courage, Elias inspires his comrades to fight bravely."
+    },
+    {
+        "name": "Seraphina, Queen of Healing",
+        "type": "Creature",
+        "suit": "Hearts",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 18,
+        "def": 2300,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "RestoreOnDestroy",
+                    "amount": 500,
+                    "description": "Restore 500 Life Points when a creature is destroyed."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 300,
+                    "description": "Heal 300 Life Points."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 1000,
+                    "description": "Heal 1000 Life Points."
+                }
+            }
+        },
+        "image": "images/seraphina_queen_of_healing.png",
+        "flavor_text": "Her touch mends the deepest wounds, restoring hope to her allies."
+    },
+    {
+        "name": "Gideon, Jack of Shields",
+        "type": "Creature",
+        "suit": "Clubs",
+        "rank": "Jack",
+        "stars": 2,
+        "level": 16,
+        "def": 2100,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "Sacrifice",
+                    "description": "Sacrifice this creature."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "IncreaseDEF",
+                    "target": "Self",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Increase DEF by 500 for one turn."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "NegateSpellTrap",
+                    "description": "Negate a spell or trap effect."
+                }
+            }
+        },
+        "image": "images/gideon_jack_of_shields.png",
+        "flavor_text": "Gideon's unbreakable shield stands as a barrier against dark magic."
+    },
+    {
+        "name": "Graveyard Wraith",
+        "type": "Creature",
         "suit": "Spades",
         "rank": "Ace",
-        "level": 3,
         "stars": 11,
-        "atk": 3000,
-        "def": 3500,
-        "effect": "When summoned, gains +500 DEF until end of turn.",
-        "flavorText": "A stalwart guardian standing against all odds.",
-        "deck": "spades"
+        "level": 14,
+        "def": 3000,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "SwitchToDefense",
+                    "description": "Switch to defense position."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "IncreaseDEF",
+                    "target": "Self",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Increase DEF by 500 for one turn."
+                }
+            },
+            "strong": {
+                "power": 1800,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "NegateAttack",
+                    "description": "Negate an incoming attack."
+                }
+            }
+        },
+        "image": "images/graveyard_wraith.png",
+        "flavor_text": "Emerging from the shadows, the Wraith guards the secrets of the fallen."
     },
     {
-        "id": "card002",
-        "name": "Divine Barrier",
+        "name": "Cave Troll",
+        "type": "Creature",
+        "suit": "Hearts",
+        "rank": "10",
+        "stars": 10,
+        "level": 12,
+        "def": 2500,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "GainDEFWhenAttacked",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Gain 500 DEF when attacked."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "DrawCard",
+                    "description": "Draw one card."
+                }
+            },
+            "strong": {
+                "power": 1800,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "DestroyAttacker",
+                    "description": "Destroy an attacking creature."
+                }
+            }
+        },
+        "image": "images/cave_troll.png",
+        "flavor_text": "Dwelling deep within the caves, the Troll waits patiently for its prey."
+    },
+    {
+        "name": "Forest Ent",
+        "type": "Creature",
+        "suit": "Clubs",
+        "rank": "King",
+        "stars": 4,
+        "level": 12,
+        "def": 2000,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "BoostAdjacentDEF",
+                    "amount": 200,
+                    "description": "Boost DEF of adjacent creatures by 200."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "IncreaseDEF",
+                    "target": "AllYourCreatures",
+                    "amount": 200,
+                    "duration": "OneTurn",
+                    "description": "Boost DEF of all your creatures by 200."
+                }
+            },
+            "strong": {
+                "power": 1800,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "ShieldAdjacent",
+                    "description": "Shield all adjacent creatures from the next attack."
+                }
+            }
+        },
+        "image": "images/forest_ent.png",
+        "flavor_text": "Ancient and wise, the Ents fortify their brethren against any threat."
+    },
+    {
+        "name": "Swamp Specter",
+        "type": "Creature",
+        "suit": "Diamonds",
+        "rank": "9",
+        "stars": 0,
+        "level": 10,
+        "def": 1800,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 5,
+                "effect": {
+                    "type": "SacrificeToDraw",
+                    "description": "Sacrifice this creature to draw one card."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 15,
+                "effect": {
+                    "type": "GainSP",
+                    "amount": 300,
+                    "description": "Gain 300 SP."
+                }
+            },
+            "strong": {
+                "power": 1800,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "NegateSpellTrapActivation",
+                    "description": "Negate an opponent's spell or trap activation."
+                }
+            }
+        },
+        "image": "images/swamp_specter.png",
+        "flavor_text": "A spectral presence that fades with a whisper, leaving behind secrets."
+    },
+    {
+        "name": "Shadow Lynx",
+        "type": "Creature",
+        "suit": "Spades",
+        "rank": "8",
+        "stars": 0,
+        "level": 10,
+        "def": 1900,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 5,
+                "effect": {
+                    "type": "BlockAttack",
+                    "description": "Block one attack."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 15,
+                "effect": {
+                    "type": "Stealth",
+                    "description": "Avoid the next attack."
+                }
+            },
+            "strong": {
+                "power": 1800,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "ReflectAttack",
+                    "description": "Reflect one attack back to the opponent."
+                }
+            }
+        },
+        "image": "images/shadow_lynx.png",
+        "flavor_text": "Silent and swift, the Lynx watches over the night's endeavors."
+    },
+    {
+        "name": "Whispering Will-o'-Wisp",
+        "type": "Creature",
+        "suit": "Hearts",
+        "rank": "7",
+        "stars": 0,
+        "level": 10,
+        "def": 1600,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 5,
+                "effect": {
+                    "type": "ScryDeck",
+                    "description": "Look at the top card of your deck and place it at the bottom."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 15,
+                "effect": {
+                    "type": "RevealTopCard",
+                    "description": "Reveal the next card in your deck."
+                }
+            },
+            "strong": {
+                "power": 1800,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "RearrangeTopCards",
+                    "amount": 3,
+                    "description": "Rearrange the top three cards of your deck."
+                }
+            }
+        },
+        "image": "images/whispering_will_o_wisp.png",
+        "flavor_text": "Flickering lights dance on the horizon, guiding or misleading travelers."
+    },
+    {
+        "name": "Divine Shield",
         "type": "Spell",
-        "effect": "Grants temporary DEF boost of +1000 to all creatures for one turn.",
-        "flavorText": "A divine barrier protects all who stand firm.",
-        "deck": "spades"
+        "subtype": "Normal",
+        "effect": {
+            "type": "IncreaseDEF",
+            "target": "AllYourCreatures",
+            "amount": 500,
+            "duration": "EndOfTurn",
+            "description": "Increase DEF of all your creatures by 500 until end of turn."
+        },
+        "image": "images/divine_shield.png",
+        "flavor_text": "A radiant barrier envelops your forces, making them impervious to harm."
     },
     {
-        "id": "card003",
-        "name": "Crimson Marauder",
-        "type": "Trickster",
+        "name": "Guardian's Blessing",
+        "type": "Spell",
+        "subtype": "Continuous",
+        "effect": {
+            "type": "PreventDestruction",
+            "target": "YourCreatures",
+            "duration": "OneTurn",
+            "description": "Your creatures cannot be destroyed by card effects."
+        },
+        "image": "images/guardians_blessing.png",
+        "flavor_text": "Blessings bestowed by guardians ensure your warriors stand unyielding."
+    },
+    {
+        "name": "Wisdom's Insight",
+        "type": "Spell",
+        "subtype": "Quick-Play",
+        "effect": {
+            "type": "DrawCards",
+            "amount": 2,
+            "description": "Draw two cards."
+        },
+        "image": "images/wisdoms_insight.png",
+        "flavor_text": "Clarity descends, revealing hidden knowledge to the wise."
+    },
+    {
+        "name": "Fortress Wall",
+        "type": "Spell",
+        "subtype": "Continuous",
+        "effect": {
+            "type": "ReduceBattleDamage",
+            "amount": 500,
+            "duration": "Continuous",
+            "description": "Reduce all battle damage to your Life Points by 500."
+        },
+        "image": "images/fortress_wall.png",
+        "flavor_text": "An unbreachable wall stands firm, absorbing the brunt of enemy assaults."
+    },
+    {
+        "name": "Healing Prayer",
+        "type": "Spell",
+        "subtype": "Normal",
+        "effect": {
+            "type": "GainLP",
+            "amount": 1000,
+            "description": "Restore 1000 Life Points."
+        },
+        "image": "images/healing_prayer.png",
+        "flavor_text": "A solemn prayer calls upon divine forces to mend the wounded."
+    },
+    {
+        "name": "Counterattack",
+        "type": "Trap",
+        "subtype": "Normal",
+        "effect": {
+            "type": "DestroyOpponentCreature",
+            "condition": "YourCreatureDestroyed",
+            "description": "When a creature is destroyed, destroy one opponent's creature."
+        },
+        "image": "images/counterattack.png",
+        "flavor_text": "The fury of a fallen ally ignites a retaliatory blaze against foes."
+    },
+    {
+        "name": "Sacred Barrier",
+        "type": "Trap",
+        "subtype": "Continuous",
+        "effect": {
+            "type": "PreventDirectAttacks",
+            "duration": "OneTurn",
+            "description": "Opponent cannot attack your Life Points directly."
+        },
+        "image": "images/sacred_barrier.png",
+        "flavor_text": "A holy shield repels direct assaults, safeguarding your essence."
+    },
+    {
+        "name": "Trap Hole",
+        "type": "Trap",
+        "subtype": "Normal",
+        "effect": {
+            "type": "DestroyNewlySummoned",
+            "description": "Destroy an opponent's creature that was summoned this turn."
+        },
+        "image": "images/trap_hole.png",
+        "flavor_text": "An unseen pit awaits those who dare to breach your defenses."
+    },
+    {
+        "name": "Mirror Force",
+        "type": "Trap",
+        "subtype": "Normal",
+        "effect": {
+            "type": "DestroyAttackingCreatures",
+            "description": "When an opponent's creature attacks, destroy all attack position creatures they control."
+        },
+        "image": "images/mirror_force.png",
+        "flavor_text": "Reflective barriers turn an enemy's strength against themselves."
+    },
+    {
+        "name": "Alexandra, Queen of Conquest",
+        "type": "Creature",
+        "suit": "Clubs",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 20,
+        "def": 2500,
+        "abilities": {
+            "weak": {
+                "power": 800,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "BoostATK",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Boost ATK by 500 for one turn."
+                }
+            },
+            "middle": {
+                "power": 1600,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "DestroyOpponentCreature",
+                    "description": "Destroy one opponent's creature."
+                }
+            },
+            "strong": {
+                "power": 2400,
+                "sp_cost": 120,
+                "effect": {
+                    "type": "Blitz",
+                    "description": "Perform a Blitz to destroy all opponent's active creatures."
+                }
+            }
+        },
+        "image": "images/alexandra_queen_of_conquest.png",
+        "flavor_text": "With relentless ambition, Alexandra sweeps through the battlefield, leaving no enemy unchallenged."
+    },
+    {
+        "name": "Leonidas, Jack of Triumph",
+        "type": "Creature",
+        "suit": "Hearts",
+        "rank": "Jack",
+        "stars": 2,
+        "level": 18,
+        "def": 2000,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "GainATKPerCreature",
+                    "amount": 500,
+                    "description": "Gain 500 ATK for each creature you control."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "IncreaseATK",
+                    "target": "AllYourCreatures",
+                    "amount": 200,
+                    "description": "Increase ATK of all creatures by 200."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "PermanentBoostATK",
+                    "amount": 500,
+                    "description": "Gain 500 ATK permanently."
+                }
+            }
+        },
+        "image": "images/leonidas_jack_of_triumph.png",
+        "flavor_text": "Leonidas stands as a pillar of strength, inspiring his legion with unwavering resolve."
+    },
+    {
+        "name": "Valeria, Queen of Might",
+        "type": "Creature",
+        "suit": "Diamonds",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 20,
+        "def": 2400,
+        "abilities": {
+            "weak": {
+                "power": 800,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "GainATK",
+                    "amount": 300,
+                    "duration": "EndOfTurn",
+                    "description": "Gain 300 ATK until end of turn."
+                }
+            },
+            "middle": {
+                "power": 1600,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "AttackAll",
+                    "description": "Attack all opponent's creatures once each."
+                }
+            },
+            "strong": {
+                "power": 2400,
+                "sp_cost": 120,
+                "effect": {
+                    "type": "Blitz",
+                    "description": "Perform a Blitz to destroy all opponent's active creatures."
+                }
+            }
+        },
+        "image": "images/valeria_queen_of_might.png",
+        "flavor_text": "Valeria's might knows no bounds, as she unleashes her fury upon all who oppose her."
+    },
+    {
+        "name": "Maximus, Jack of Blades",
+        "type": "Creature",
+        "suit": "Spades",
+        "rank": "Jack",
+        "stars": 2,
+        "level": 18,
+        "def": 2100,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "ProtectCreature",
+                    "description": "Protect one creature from being targeted."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "ShieldAll",
+                    "description": "Shield all your creatures from the next attack."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "NegateSpellTrap",
+                    "description": "Negate one spell or trap effect."
+                }
+            }
+        },
+        "image": "images/maximus_jack_of_blades.png",
+        "flavor_text": "Maximus wields his blades with precision, ensuring his allies remain untouched by harm."
+    },
+    {
+        "name": "Cyclops Behemoth",
+        "type": "Creature",
         "suit": "Clubs",
         "rank": "Ace",
-        "level": 4,
         "stars": 11,
-        "atk": 4000,
+        "level": 14,
         "def": 1500,
-        "effect": "When played, summons an additional creature from your hand.",
-        "flavorText": "A marauder charging into the fray without fear.",
-        "deck": "clubs"
+        "abilities": {
+            "weak": {
+                "power": 1200,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "GainATK",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Gain 500 ATK for this turn."
+                }
+            },
+            "middle": {
+                "power": 2400,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "IncreaseATKWhenAttacking",
+                    "amount": 500,
+                    "description": "Increase ATK by 500 when attacking."
+                }
+            },
+            "strong": {
+                "power": 3600,
+                "sp_cost": 100,
+                "effect": {
+                    "type": "DoubleDamage",
+                    "description": "Deal double damage for this attack."
+                }
+            }
+        },
+        "image": "images/cyclops_behemoth.png",
+        "flavor_text": "A colossal guardian, the Cyclops charges into battle, its single eye blazing with fury."
     },
     {
-        "id": "card004",
-        "name": "Overwhelm",
-        "type": "Spell",
-        "effect": "Destroy an opponent's creature with DEF less than 2500.",
-        "flavorText": "Overwhelming force crushes weaker defenses.",
-        "deck": "clubs"
+        "name": "Amara, Queen of Serenity",
+        "type": "Creature",
+        "suit": "Spades",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 18,
+        "def": 2400,
+        "abilities": {
+            "weak": {
+                "power": 800,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "NegateAttack",
+                    "target": "AnotherCreature",
+                    "description": "Negates one attack targeting another creature."
+                }
+            },
+            "middle": {
+                "power": 1600,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "IncreaseDEF",
+                    "target": "AllYourCreatures",
+                    "amount": 500,
+                    "duration": "EndOfTurn",
+                    "description": "Increases DEF of all your creatures by 500 until end of turn."
+                }
+            },
+            "strong": {
+                "power": 2400,
+                "sp_cost": 100,
+                "effect": {
+                    "type": "NegateSpellTrap",
+                    "description": "Negates one spell or trap effect."
+                }
+            }
+        },
+        "image": "images/amara_queen_of_serenity.png",
+        "flavor_text": "Her calm presence shields her allies from the storms of battle."
     },
     {
-        "id": "card005",
-        "name": "Heartlight Paladin",
-        "type": "Trickster",
+        "name": "Seraphina, Queen of Healing",
+        "type": "Creature",
         "suit": "Hearts",
-        "rank": "Ace",
-        "level": 4,
-        "stars": 11,
-        "atk": 3000,
-        "def": 3000,
-        "effect": "Can switch DEF and ATK once per turn.",
-        "flavorText": "A paladin whose heart shines with pure light.",
-        "deck": "hearts"
+        "rank": "Queen",
+        "stars": 3,
+        "level": 18,
+        "def": 2300,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "RestoreOnDestroy",
+                    "amount": 500,
+                    "description": "Restore 500 Life Points when a creature is destroyed."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 300,
+                    "description": "Heal 300 Life Points."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 1000,
+                    "description": "Heal 1000 Life Points."
+                }
+            }
+        },
+        "image": "images/seraphina_queen_of_healing.png",
+        "flavor_text": "Her touch mends the deepest wounds, restoring hope to her allies."
     },
     {
-        "id": "card006",
-        "name": "Balanced Strike",
-        "type": "Spell",
-        "effect": "Increase ATK of a creature by 1000 and DEF by 500 for one turn.",
-        "flavorText": "Striking with balanced force to maximize impact.",
-        "deck": "hearts"
-    },
-    {
-        "id": "card007",
-        "name": "Diamond Marauder",
-        "type": "Trickster",
+        "name": "Elias, Jack of Valor",
+        "type": "Creature",
         "suit": "Diamonds",
-        "rank": "Ace",
-        "level": 4,
-        "stars": 11,
-        "atk": 4000,
-        "def": 1500,
-        "effect": "When summoned, steals 1000 SP from the opponent.",
-        "flavorText": "A marauder striking swiftly to steal resources.",
-        "deck": "diamonds"
+        "rank": "Jack",
+        "stars": 2,
+        "level": 16,
+        "def": 2200,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 500,
+                    "description": "Gain 500 Life Points."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "GainLP",
+                    "amount": 300,
+                    "description": "Heal 300 Life Points."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": 100,
+                    "description": "Deal 100 damage directly to opponent."
+                }
+            }
+        },
+        "image": "images/elias_jack_of_valor.png",
+        "flavor_text": "With unwavering courage, Elias inspires his comrades to fight bravely."
     },
     {
-        "id": "card008",
-        "name": "Empire's Interference",
+        "name": "Gideon, Jack of Shields",
+        "type": "Creature",
+        "suit": "Clubs",
+        "rank": "Jack",
+        "stars": 2,
+        "level": 16,
+        "def": 2100,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "Sacrifice",
+                    "description": "Sacrifice this creature."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "IncreaseDEF",
+                    "target": "Self",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Increase DEF by 500 for one turn."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "NegateSpellTrap",
+                    "description": "Negate a spell or trap effect."
+                }
+            }
+        },
+        "image": "images/gideon_jack_of_shields.png",
+        "flavor_text": "Gideon's unbreakable shield stands as a barrier against dark magic."
+    },
+    {
+        "name": "Graveyard Wraith",
+        "type": "Creature",
+        "suit": "Spades",
+        "rank": "Ace",
+        "stars": 11,
+        "level": 14,
+        "def": 3000,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "SwitchToDefense",
+                    "description": "Switch to defense position."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "IncreaseDEF",
+                    "target": "Self",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Increase DEF by 500 for one turn."
+                }
+            },
+            "strong": {
+                "power": 1800,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "NegateAttack",
+                    "description": "Negate an incoming attack."
+                }
+            }
+        },
+        "image": "images/graveyard_wraith.png",
+        "flavor_text": "Emerging from the shadows, the Wraith guards the secrets of the fallen."
+    },
+    {
+        "name": "Alexandra, Queen of Conquest",
+        "type": "Creature",
+        "suit": "Clubs",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 20,
+        "def": 2500,
+        "abilities": {
+            "weak": {
+                "power": 800,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "BoostATK",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Boost ATK by 500 for one turn."
+                }
+            },
+            "middle": {
+                "power": 1600,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "DestroyOpponentCreature",
+                    "description": "Destroy one opponent's creature."
+                }
+            },
+            "strong": {
+                "power": 2400,
+                "sp_cost": 120,
+                "effect": {
+                    "type": "Blitz",
+                    "description": "Perform a Blitz to destroy all opponent's active creatures."
+                }
+            }
+        },
+        "image": "images/alexandra_queen_of_conquest.png",
+        "flavor_text": "With relentless ambition, Alexandra sweeps through the battlefield, leaving no enemy unchallenged."
+    },
+    {
+        "name": "Valeria, Queen of Might",
+        "type": "Creature",
+        "suit": "Diamonds",
+        "rank": "Queen",
+        "stars": 3,
+        "level": 20,
+        "def": 2400,
+        "abilities": {
+            "weak": {
+                "power": 800,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "GainATK",
+                    "amount": 300,
+                    "duration": "EndOfTurn",
+                    "description": "Gain 300 ATK until end of turn."
+                }
+            },
+            "middle": {
+                "power": 1600,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "AttackAll",
+                    "description": "Attack all opponent's creatures once each."
+                }
+            },
+            "strong": {
+                "power": 2400,
+                "sp_cost": 120,
+                "effect": {
+                    "type": "Blitz",
+                    "description": "Perform a Blitz to destroy all opponent's active creatures."
+                }
+            }
+        },
+        "image": "images/valeria_queen_of_might.png",
+        "flavor_text": "Valeria's might knows no bounds, as she unleashes her fury upon all who oppose her."
+    },
+    {
+        "name": "Leonidas, Jack of Triumph",
+        "type": "Creature",
+        "suit": "Hearts",
+        "rank": "Jack",
+        "stars": 2,
+        "level": 18,
+        "def": 2000,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "GainATKPerCreature",
+                    "amount": 500,
+                    "description": "Gain 500 ATK for each creature you control."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "IncreaseATK",
+                    "target": "AllYourCreatures",
+                    "amount": 200,
+                    "description": "Increase ATK of all creatures by 200."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "PermanentBoostATK",
+                    "amount": 500,
+                    "description": "Gain 500 ATK permanently."
+                }
+            }
+        },
+        "image": "images/leonidas_jack_of_triumph.png",
+        "flavor_text": "Leonidas stands as a pillar of strength, inspiring his legion with unwavering resolve."
+    },
+    {
+        "name": "Maximus, Jack of Blades",
+        "type": "Creature",
+        "suit": "Spades",
+        "rank": "Jack",
+        "stars": 2,
+        "level": 18,
+        "def": 2100,
+        "abilities": {
+            "weak": {
+                "power": 600,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "ProtectCreature",
+                    "description": "Protect one creature from being targeted."
+                }
+            },
+            "middle": {
+                "power": 1200,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "ShieldAll",
+                    "description": "Shield all your creatures from the next attack."
+                }
+            },
+            "strong": {
+                "power": 2200,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "NegateSpellTrap",
+                    "description": "Negate one spell or trap effect."
+                }
+            }
+        },
+        "image": "images/maximus_jack_of_blades.png",
+        "flavor_text": "Maximus wields his blades with precision, ensuring his allies remain untouched by harm."
+    },
+    {
+        "name": "Cyclops Behemoth",
+        "type": "Creature",
+        "suit": "Clubs",
+        "rank": "Ace",
+        "stars": 11,
+        "level": 14,
+        "def": 1500,
+        "abilities": {
+            "weak": {
+                "power": 1200,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "GainATK",
+                    "amount": 500,
+                    "duration": "OneTurn",
+                    "description": "Gain 500 ATK for this turn."
+                }
+            },
+            "middle": {
+                "power": 2400,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "IncreaseATKWhenAttacking",
+                    "amount": 500,
+                    "description": "Increase ATK by 500 when attacking."
+                }
+            },
+            "strong": {
+                "power": 3600,
+                "sp_cost": 100,
+                "effect": {
+                    "type": "DoubleDamage",
+                    "description": "Deal double damage for this attack."
+                }
+            }
+        },
+        "image": "images/cyclops_behemoth.png",
+        "flavor_text": "A colossal guardian, the Cyclops charges into battle, its single eye blazing with fury."
+    },
+    {
+        "name": "Harpy Huntress",
+        "type": "Creature",
+        "suit": "Spades",
+        "rank": "10",
+        "stars": 10,
+        "level": 12,
+        "def": 1200,
+        "abilities": {
+            "weak": {
+                "power": 1000,
+                "sp_cost": 10,
+                "effect": {
+                    "type": "AttackTwice",
+                    "description": "Attack twice this turn."
+                }
+            },
+            "middle": {
+                "power": 2000,
+                "sp_cost": 30,
+                "effect": {
+                    "type": "ExtraDamagePerAttack",
+                    "amount": 200,
+                    "description": "Each attack deals an additional 200 damage."
+                }
+            },
+            "strong": {
+                "power": 3000,
+                "sp_cost": 80,
+                "effect": {
+                    "type": "Blitz",
+                    "description": "Perform a Blitz to destroy all opponent's active creatures."
+                }
+            }
+        },
+        "image": "images/harpy_huntress.png",
+        "flavor_text": "Swift and cunning, the Harpy swoops down to claim victory from above."
+    },
+    {
+        "name": "Minotaur Champion",
+        "type": "Creature",
+        "suit": "Hearts",
+        "rank": "King",
+        "stars": 4,
+        "level": 12,
+        "def": 1800,
+        "abilities": {
+            "weak": {
+                "power": 1200,
+                "sp_cost": 20,
+                "effect": {
+                    "type": "BoostAllATK",
+                    "amount": 200,
+                    "duration": "EndOfTurn",
+                    "description": "Boost ATK of all your creatures by 200 until end of turn."
+                }
+            },
+            "middle": {
+                "power": 2400,
+                "sp_cost": 50,
+                "effect": {
+                    "type": "PermanentIncreaseATK",
+                    "amount": 200,
+                    "description": "Increase ATK of all creatures by 200 permanently."
+                }
+            },
+            "strong": {
+                "power": 3600,
+                "sp_cost": 100,
+                "effect": {
+                    "type": "DoubleAllATK",
+                    "description": "Double the ATK of all creatures for this turn."
+                }
+            }
+        },
+        "image": "images/minotaur_champion.png",
+        "flavor_text": "The Minotaur roars, emboldening its allies to strike with enhanced might."
+    },
+    {
+        "name": "March of Conquest",
+        "type": "Spell",
+        "subtype": "Normal",
+        "effect": {
+            "type": "SummonCreatures",
+            "level": 2,
+            "quantity": 2,
+            "description": "Summon up to two level 2 or lower creatures from your hand."
+        },
+        "image": "images/march_of_conquest.png",
+        "flavor_text": "With relentless determination, your forces surge forward, claiming every victory."
+    },
+    {
+        "name": "Battle Cry",
+        "type": "Spell",
+        "subtype": "Quick-Play",
+        "effect": {
+            "type": "IncreaseATK",
+            "target": "AllYourCreatures",
+            "amount": 500,
+            "duration": "EndOfTurn",
+            "description": "All creatures you control gain 500 ATK until end of turn."
+        },
+        "image": "images/battle_cry.png",
+        "flavor_text": "A fierce battle cry echoes, emboldening your warriors to greater heights."
+    },
+    {
+        "name": "Ambush Tactics",
         "type": "Trap",
-        "effect": "Negate an opponent's Summoning Phase.",
-        "flavorText": "Interfering with enemy summoning disrupts their plans.",
-        "deck": "diamonds"
+        "subtype": "Normal",
+        "effect": {
+            "type": "DestroyAttackingCreature",
+            "description": "When an opponent declares an attack, destroy the attacking creature."
+        },
+        "image": "images/ambush_tactics.png",
+        "flavor_text": "A sudden strike from the shadows turns the tide of battle in an instant."
+    },
+    {
+        "name": "Battlefield Maneuver",
+        "type": "Trap",
+        "subtype": "Continuous",
+        "effect": {
+            "type": "SwitchPositions",
+            "quantity": 2,
+            "description": "Once per turn, switch the positions of two of your creatures."
+        },
+        "image": "images/battlefield_maneuver.png",
+        "flavor_text": "Strategic repositioning confuses your enemies and strengthens your formation."
     }
 ]

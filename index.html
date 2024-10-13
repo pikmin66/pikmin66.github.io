@@ -1,97 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
     <title>Sheepshead: Trickster Variant</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Background Image -->
     <div id="background"></div>
+    <div id="game-container">
+        <h1>Sheepshead: Trickster Variant – Two-Player Edition</h1>
 
-    <!-- Game Container -->
-    <div id="gameContainer">
-        <!-- Game Header -->
-        <header>
-            <h1>Sheepshead: Trickster Variant</h1>
-            <!-- Menu and Settings -->
-            <nav>
-                <button id="menuButton">Menu</button>
-                <!-- Add menu functionality as needed -->
-            </nav>
-        </header>
-
-        <!-- Game Setup Section -->
-        <div id="gameSetup">
-            <!-- Game setup content will go here -->
-        </div>
-
-        <!-- Game Area -->
-        <div id="gameArea" class="hidden">
-            <!-- Player and AI Info -->
-            <div id="infoPanel">
-                <div id="playerInfo">
-                    <h2>Your Info</h2>
-                    <p>Life Points: <span id="playerLifePoints">8000</span></p>
-                    <p>Summoning Points: <span id="playerSummoningPoints">1000</span></p>
-                </div>
-                <div id="aiInfo">
-                    <h2>Opponent Info</h2>
-                    <p>Life Points: <span id="aiLifePoints">8000</span></p>
-                    <p>Summoning Points: <span id="aiSummoningPoints">1000</span></p>
-                </div>
+        <!-- Game Info -->
+        <div id="game-info">
+            <div id="player-info" class="player-info">
+                <h2>Your Info</h2>
+                <p>Life Points (LP): <span id="player-lp">8000</span></p>
+                <p>Star Points (SP): <span id="player-sp">100</span></p>
             </div>
-
-            <!-- Game Messages -->
-            <div id="gameMessages"></div>
-
-            <!-- Main Gameplay Area -->
-            <div id="mainGameplayArea">
-                <!-- Field Area -->
-                <div id="fieldArea">
-                    <div id="aiField" class="fieldSection">
-                        <h3>Opponent's Field</h3>
-                        <!-- AI's Batteries will be displayed here -->
-                    </div>
-
-                    <!-- Trick Area -->
-                    <div id="trickArea">
-                        <h2>Current Trick</h2>
-                        <!-- Cards played in the trick will be displayed here -->
-                    </div>
-
-                    <div id="playerField" class="fieldSection">
-                        <h3>Your Field</h3>
-                        <!-- Your Batteries will be displayed here -->
-                    </div>
-                </div>
-
-                <!-- Player Hand -->
-                <div id="playerHand">
-                    <h2>Your Hand</h2>
-                    <!-- Cards will be displayed here -->
-                </div>
+            <div id="phase-indicator">
+                <h2>Current Phase: <span id="current-phase">Draw Phase</span></h2>
+                <p>Turn: <span id="turn-player">Player</span></p>
             </div>
-
-            <!-- Controls -->
-            <div id="controls">
-                <!-- Action buttons will be displayed here -->
-            </div>
-
-            <!-- Chat Interface -->
-            <div id="chatArea">
-                <h2>Game Chat</h2>
-                <div id="chatMessages">
-                    <!-- Chat messages will appear here -->
-                </div>
+            <div id="opponent-info" class="player-info">
+                <h2>Opponent's Info</h2>
+                <p>Life Points (LP): <span id="opponent-lp">8000</span></p>
+                <p>Star Points (SP): <span id="opponent-sp">100</span></p>
             </div>
         </div>
-    </div>
 
-    <!-- Character Overlay -->
-    <div id="characterOverlay" class="hidden">
-        <!-- Character images and animations will appear here -->
+        <!-- Battlefield -->
+        <div id="battlefield">
+            <div id="opponent-field" class="field">
+                <h2>Opponent's Field</h2>
+                <div id="opponent-batteries" class="batteries"></div>
+            </div>
+            <div id="player-field" class="field">
+                <h2>Your Field</h2>
+                <div id="player-batteries" class="batteries"></div>
+            </div>
+        </div>
+
+        <!-- Play Area -->
+        <div id="play-area">
+            <h2>Play Area</h2>
+            <div id="player-played-cards" class="played-cards">
+                <h3>Your Played Card</h3>
+                <div id="player-trick-cards" class="drop-zone"></div>
+            </div>
+            <div id="opponent-played-cards" class="played-cards">
+                <h3>Opponent's Played Card</h3>
+                <div id="opponent-trick-cards"></div>
+            </div>
+        </div>
+
+        <!-- Game Messages -->
+        <div id="game-messages"></div>
+
+        <!-- Chat Interface -->
+        <div id="chat-interface">
+            <div id="chat-messages"></div>
+        </div>
+
+        <!-- Opponent Hand (Hidden in UI but accessible in code) -->
+        <div id="opponent-hand" class="card-container" style="display: none;">
+            <h2>Opponent's Hand</h2>
+            <div id="opponent-cards"></div>
+        </div>
+
+        <!-- Player Hand -->
+        <div id="player-hand" class="card-container">
+            <h2>Your Hand</h2>
+            <div id="player-cards"></div>
+        </div>
+
+        <!-- Game Controls -->
+        <div id="game-controls">
+            <button id="start-game">Start Game</button>
+            <button id="show-hierarchy">Show Card Hierarchy</button>
+            <button id="end-phase" style="display: none;">End Phase</button>
+        </div>
+
+        <!-- Modal for Card Hierarchy -->
+        <div id="hierarchy-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Card Hierarchy and Points</h2>
+                <div id="hierarchy-content"></div>
+            </div>
+        </div>
+
+        <!-- Floating Card Info -->
+        <div id="card-info-modal" class="modal">
+            <div class="modal-content card-info-content">
+                <span class="close-card-info-button">&times;</span>
+                <div id="card-info-details"></div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

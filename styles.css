@@ -1,37 +1,11 @@
-/* Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Roboto&display=swap');
-
-/* Reset Styles */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-/* General Styles */
+/* Base styles */
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #0D5C2D; /* Deep Green */
-    color: #FFFFF0; /* Ivory */
-}
-
-h1, h2, h3 {
-    font-family: 'Merriweather', serif;
-    color: #DAA520; /* Gold */
-}
-
-h1 {
-    text-align: center;
-    padding: 20px;
-    background-color: #005f8c;
-    color: #FFFFF0;
     margin: 0;
-}
-
-#gameContainer {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+    padding: 0;
+    color: #FFFFF0; /* Ivory */
+    overflow: hidden;
     position: relative;
 }
 
@@ -41,210 +15,344 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('images/background.jpg') no-repeat center center fixed;
+    background-image: url('images/background.jpg'); /* Use an appropriate background image */
     background-size: cover;
+    background-position: center;
+    opacity: 0.3;
     z-index: -1;
 }
 
-nav {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+#game-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-#menuButton {
-    padding: 10px 20px;
-    font-size: 16px;
+h1, h2, h3 {
+    text-align: center;
+    color: #DAA520; /* Gold */
 }
 
-#infoPanel {
+#game-info {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
-#playerInfo, #aiInfo {
-    width: 45%;
-    background-color: rgba(255, 255, 240, 0.1);
-    padding: 10px;
-    border: 1px solid #DAA520;
-}
-
-#gameMessages {
-    background-color: rgba(255, 255, 240, 0.1);
-    padding: 10px;
-    border: 1px solid #DAA520;
-    margin-bottom: 20px;
-    min-height: 50px;
-}
-
-#mainGameplayArea {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#fieldArea {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.fieldSection {
+.player-info {
     width: 30%;
-    background-color: rgba(255, 255, 240, 0.1);
+    background-color: #228B22; /* Forest Green */
     padding: 10px;
-    border: 1px solid #DAA520;
-    min-height: 200px;
-}
-
-#trickArea {
-    width: 30%;
-    text-align: center;
-    background-color: rgba(255, 255, 240, 0.1);
-    padding: 10px;
-    border: 1px solid #DAA520;
-}
-
-#playerHand {
-    margin-top: 20px;
-    width: 100%;
-    background-color: rgba(255, 255, 240, 0.1);
-    padding: 10px;
-    border: 1px solid #DAA520;
-}
-
-.card {
-    display: inline-block;
-    border: 1px solid #DAA520;
-    padding: 10px;
-    margin: 5px;
-    background-color: #36454F; /* Charcoal Gray */
+    border-radius: 5px;
     color: #FFFFF0;
-    cursor: pointer;
-    width: 120px;
-    text-align: center;
-}
-
-.card:hover {
-    background-color: #008080; /* Teal */
-}
-
-.battery {
-    display: inline-block;
-    border: 1px solid #DAA520;
-    padding: 5px;
-    margin: 5px;
-    background-color: #800020; /* Rich Burgundy */
-    color: #FFFFF0;
-    width: 130px;
-    text-align: center;
-}
-
-.active-card, .inactive-card {
-    margin-top: 5px;
-    border: 1px solid #DAA520;
-    padding: 5px;
-    background-color: #36454F; /* Charcoal Gray */
-}
-
-#controls {
-    margin-top: 20px;
-    text-align: center;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin: 5px;
-    cursor: pointer;
-    background-color: #DAA520; /* Gold */
-    color: #000;
-    border: none;
-}
-
-button:hover {
-    background-color: #FFD700; /* Lighter Gold */
-}
-
-#chatArea {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    width: 300px;
-    max-height: 400px;
-    background-color: rgba(54, 69, 79, 0.9); /* Charcoal Gray with transparency */
-    padding: 10px;
-    border: 1px solid #DAA520;
-    overflow-y: auto;
-}
-
-#chatArea h2 {
-    margin-top: 0;
-    color: #DAA520;
-}
-
-.chat-message {
     margin-bottom: 10px;
 }
 
-.chat-message .avatar {
+#phase-indicator {
+    width: 30%;
+    background-color: #800020; /* Rich Burgundy */
+    padding: 10px;
+    border-radius: 5px;
+    color: #FFFFF0;
+    margin-bottom: 10px;
+}
+
+#battlefield {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.field {
+    width: 45%;
+    background-color: #36454F; /* Charcoal Gray */
+    padding: 10px;
+    border-radius: 5px;
+    color: #FFFFF0;
+    margin-bottom: 10px;
+}
+
+.batteries {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.battery {
+    position: relative;
+    margin: 5px;
+    border: 2px solid transparent;
+}
+
+.battery.flashing {
+    border: 2px solid #FFD700; /* Brighter Gold */
+    animation: flashing 1s infinite;
+}
+
+@keyframes flashing {
+    0% { border-color: #FFD700; }
+    50% { border-color: #DAA520; }
+    100% { border-color: #FFD700; }
+}
+
+#play-area {
+    background-color: #36454F; /* Charcoal Gray */
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    color: #FFFFF0;
+}
+
+.played-cards {
     display: inline-block;
+    vertical-align: top;
+    width: 45%;
+}
+
+.played-cards h3 {
+    text-align: center;
+}
+
+#game-messages {
+    background-color: #36454F; /* Charcoal Gray */
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    min-height: 50px;
+    color: #FFFFF0;
+}
+
+#chat-interface {
+    background-color: #36454F; /* Charcoal Gray */
+    padding: 10px;
+    border-radius: 5px;
+    color: #FFFFF0;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+#chat-messages {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-message {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.chat-avatar {
     width: 40px;
     height: 40px;
-    background-color: #DAA520;
-    border-radius: 50%;
-    vertical-align: middle;
     margin-right: 10px;
 }
 
-.chat-message .message {
-    display: inline-block;
-    max-width: 220px;
-    background-color: #FFFFF0;
-    color: #000;
+.chat-text {
+    max-width: 80%;
+    background-color: rgba(255, 255, 240, 0.1);
     padding: 5px 10px;
     border-radius: 5px;
 }
 
-#characterOverlay {
-    position: fixed;
+.card-container {
+    background-color: #36454F; /* Charcoal Gray */
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    color: #FFFFF0;
+}
+
+#player-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    position: relative;
+    width: 100px;
+    height: 150px;
+    border: 1px solid #000;
+    background-color: #FFFFF0; /* Ivory */
+    margin: 5px;
+    text-align: center;
+    cursor: pointer;
+    color: #000;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+}
+
+.card-rank {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.card-suit {
+    font-size: 36px;
+}
+
+.card-info {
+    position: absolute;
     bottom: 0;
     left: 0;
-    width: 200px;
-    height: 300px;
-    /* Placeholder for character images */
-    background-color: transparent;
+    right: 0;
+    background-color: rgba(255,255,255,0.8);
+    font-size: 12px;
 }
 
-.hidden {
+#game-controls {
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#game-controls button {
+    margin: 5px 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #DAA520; /* Gold */
+    color: #000;
+    border: none;
+    border-radius: 5px;
+}
+
+#game-controls button:hover {
+    background-color: #FFD700; /* Brighter Gold */
+}
+
+.modal {
     display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
 }
 
-/* Mobile Styles */
-@media (max-width: 768px) {
-    #infoPanel {
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    position: relative;
+    color: #000;
+}
+
+.close-button, .close-card-info-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.card-info-content {
+    width: 400px;
+    margin-top: 15%;
+}
+
+#card-info-details {
+    text-align: left;
+}
+
+.draggable {
+    position: relative;
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.drop-zone {
+    border: 2px dashed #DAA520;
+    min-height: 160px;
+}
+
+.drop-zone.flashing {
+    animation: flashing 1s infinite;
+}
+
+.creature-card.flashing {
+    animation: flashing 1s infinite;
+}
+
+.ability-list {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    background-color: #FFFFF0;
+    border: 1px solid #000;
+    padding: 5px;
+}
+
+.ability-list button {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* Responsive Design */
+@media only screen and (max-width: 768px) {
+    #game-info, #battlefield {
         flex-direction: column;
         align-items: center;
     }
-
-    #playerInfo, #aiInfo {
+    .player-info, #phase-indicator, .field {
         width: 90%;
-        margin-bottom: 10px;
     }
-
-    #fieldArea {
+    .card {
+        width: 70px;
+        height: 105px;
+    }
+    .card-rank {
+        font-size: 18px;
+    }
+    .card-suit {
+        font-size: 24px;
+    }
+    #game-controls {
         flex-direction: column;
-        align-items: center;
     }
-
-    .fieldSection, #trickArea {
-        width: 90%;
-        margin-bottom: 10px;
+    #game-controls button {
+        width: 100%;
+        margin: 5px 0;
     }
-
-    #chatArea {
-        width: 90%;
-        right: 5%;
+    .modal-content {
+        width: 95%;
+        margin-top: 20%;
+    }
+    .card-info-content {
+        width: 95%;
+        margin-top: 20%;
+    }
+    .ability-list {
+        position: static;
+        width: 100%;
+        margin-top: 5px;
+    }
+    .ability-list button {
+        font-size: 14px;
+        padding: 5px;
     }
 }
