@@ -6,10 +6,8 @@ let playerHand = [];
 let opponentHand = [];
 let playerTricks = [];
 let opponentTricks = [];
-let playerGraveyard = [];
-let opponentGraveyard = [];
-let playerSP = 50;
-let opponentSP = 50;
+let playerSP = 100;
+let opponentSP = 100;
 let playerLP = 8000;
 let opponentLP = 8000;
 let currentPhase = 'Draw';
@@ -111,10 +109,8 @@ function resetGame() {
     opponentHand = [];
     playerTricks = [];
     opponentTricks = [];
-    playerGraveyard = [];
-    opponentGraveyard = [];
-    playerSP = 50;
-    opponentSP = 50;
+    playerSP = 100;
+    opponentSP = 100;
     playerLP = 8000;
     opponentLP = 8000;
     currentPhase = 'Draw';
@@ -135,10 +131,9 @@ function resetGame() {
     draggedCardIndex = null;
     actionsThisPhase = 0;
     document.getElementById('player-cards').innerHTML = '';
-    document.getElementById('player-graveyard-cards').innerHTML = '';
-    document.getElementById('opponent-graveyard-cards').innerHTML = '';
-    document.getElementById('player-played-card').innerHTML = '';
-    document.getElementById('opponent-played-card').innerHTML = '';
+    document.getElementById('opponent-cards').innerHTML = '';
+    document.getElementById('player-trick-cards').innerHTML = '';
+    document.getElementById('opponent-trick-cards').innerHTML = '';
     document.getElementById('player-batteries').innerHTML = '';
     document.getElementById('opponent-batteries').innerHTML = '';
     document.getElementById('game-messages').innerHTML = '';
@@ -190,74 +185,22 @@ function renderHands() {
     playerCardsDiv.innerHTML = '';
     playerHand.forEach((card, index) => {
         const cardDiv = createCardElement(card);
-        cardDiv.dataset.index = index;
+        cardDiv.draggable = true;
+        cardDiv.addEventListener('dragstart', (e) => {
+            draggedCardIndex = index;
+            e.dataTransfer.setData('text/plain', '');
+            setTimeout(() => {
+                cardDiv.classList.add('dragging');
+            }, 0);
+        });
+        cardDiv.addEventListener('dragend', () => {
+            cardDiv.classList.remove('dragging');
+        });
         cardDiv.addEventListener('click', () => {
             showCardInfo(card);
         });
-        if (currentPhase === 'Trick-Taking') {
-            if (card.type === 'Spell' || card.type === 'Trap') {
-                cardDiv.classList.add('grayed-out');
-            } else {
-                makeCardDraggable(cardDiv, index);
-            }
-        } else if (currentPhase === 'Summoning') {
-            if (card.type === 'Creature') {
-                makeCardDraggable(cardDiv, index);
-            }
-        }
         playerCardsDiv.appendChild(cardDiv);
     });
-}
-
-// Make Card Draggable (Touch-Friendly)
-function makeCardDraggable(cardDiv, index) {
-    cardDiv.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        onCardPointerDown(e, index, cardDiv);
-    });
-}
-
-function onCardPointerDown(e, cardIndex, cardElement) {
-    e.preventDefault();
-    draggedCardIndex = cardIndex;
-    let initialX = e.clientX || e.touches[0].clientX;
-    let initialY = e.clientY || e.touches[0].clientY;
-    let moved = false;
-
-    const onPointerMove = (e) => {
-        moved = true;
-        let currentX = e.clientX || e.touches[0].clientX;
-        let currentY = e.clientY || e.touches[0].clientY;
-        let dx = currentX - initialX;
-        let dy = currentY - initialY;
-        cardElement.style.transform = `translate(${dx}px, ${dy}px)`;
-        cardElement.style.zIndex = 1000;
-    };
-
-    const onPointerUp = (e) => {
-        document.removeEventListener('pointermove', onPointerMove);
-        document.removeEventListener('pointerup', onPointerUp);
-
-        cardElement.style.transform = '';
-        cardElement.style.zIndex = '';
-
-        if (moved) {
-            let dropTarget = document.elementFromPoint(e.clientX, e.clientY);
-            if (dropTarget && dropTarget.classList.contains('drop-zone')) {
-                if (currentPhase === 'Trick-Taking' && turnPlayer === 'Player') {
-                    playCard(draggedCardIndex);
-                } else if (currentPhase === 'Summoning') {
-                    handleSummoningDrop(draggedCardIndex, dropTarget);
-                }
-            }
-        } else {
-            // Treat as a click/tap
-            showCardInfo(playerHand[cardIndex]);
-        }
-    };
-
-    document.addEventListener('pointermove', onPointerMove);
-    document.addEventListener('pointerup', onPointerUp);
 }
 
 // Create Card Element
@@ -265,37 +208,34 @@ function createCardElement(card) {
     const cardDiv = document.createElement('div');
     cardDiv.classList.add('card');
 
-    // Display based on phase
-    if (currentPhase === 'Trick-Taking') {
-        if (card.type === 'Creature' || card.type === 'Spell' || card.type === 'Trap') {
-            // Display Suit/Rank and SP
-            const suitSymbols = {
-                'Hearts': '♥',
-                'Diamonds': '♦',
-                'Clubs': '♣',
-                'Spades': '♠'
-            };
-            cardDiv.innerHTML = `
-                <div class="card-rank">${card.rank || ''}</div>
-                <div class="card-suit">${suitSymbols[card.suit] || ''}</div>
-            `;
-            const infoDiv = document.createElement('div');
-            infoDiv.classList.add('card-info');
-            infoDiv.innerHTML = `
-                <p>${card.name}</p>
-                <p>SP: ${getCardStars(card)}</p>
-            `;
-            cardDiv.appendChild(infoDiv);
-        }
+    // Add card image if available
+    if (card.image) {
+        const img = document.createElement('img');
+        img.src = card.image;
+        cardDiv.appendChild(img);
     } else {
-        if (card.type === 'Creature') {
-            // Display Level and DEF
-            cardDiv.innerHTML = `
-                <div class="card-rank">Level: ${card.level || '-'}</div>
-                <div class="card-suit">DEF: ${card.def || '-'}</div>
-            `;
-        }
+        // If no image, display suit and rank
+        const suitSymbols = {
+            'Hearts': '♥',
+            'Diamonds': '♦',
+            'Clubs': '♣',
+            'Spades': '♠'
+        };
+        cardDiv.innerHTML = `
+            <div class="card-rank">${card.rank || ''}</div>
+            <div class="card-suit">${suitSymbols[card.suit] || ''}</div>
+        `;
     }
+
+    // Add card info overlay
+    const infoDiv = document.createElement('div');
+    infoDiv.classList.add('card-info');
+    infoDiv.innerHTML = `
+        <p>${card.name}</p>
+        <p>Level: ${card.level || '-'}</p>
+        <p>DEF: ${card.def || '-'}</p>
+    `;
+    cardDiv.appendChild(infoDiv);
 
     return cardDiv;
 }
@@ -315,7 +255,6 @@ function gameLoop() {
     updatePhaseDisplay();
     renderHands();
     renderBattlefield();
-    renderGraveyards();
     endPhaseButton.style.display = 'block';
     actionsThisPhase = 0;
 
@@ -415,11 +354,22 @@ function opponentDrawPhase() {
 // TRICK-TAKING PHASE
 function playerTrickTakingPhase() {
     renderHands();
-    showMessage('Drag a valid card to the play area to play it for the trick.');
+    showMessage('Drag a card to the play area to play it for the trick.');
+    // Player will drag a card to the play area to play
 
-    // Highlight drop zone
-    const playerTrickArea = document.getElementById('player-played-card');
+    // Set up drop zone
+    const playerTrickArea = document.getElementById('player-trick-cards');
     playerTrickArea.classList.add('drop-zone', 'flashing');
+    playerTrickArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    playerTrickArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (currentPhase === 'Trick-Taking' && turnPlayer === 'Player') {
+            playCard(draggedCardIndex);
+            playerTrickArea.classList.remove('flashing');
+        }
+    });
 }
 
 function opponentTrickTakingPhase() {
@@ -466,12 +416,13 @@ function playCard(playerCardIndex) {
 function selectOpponentCard(playerCard = null) {
     // Simplified AI logic for selecting a card
     // AI will try to follow suit if possible
-    let validCards = opponentHand.filter(card => !(card.type === 'Spell' || card.type === 'Trap'));
+    let validCards = opponentHand;
 
     if (playerCard) {
-        let suitCards = validCards.filter(card => card.suit === playerCard.suit);
-        if (suitCards.length > 0) {
-            validCards = suitCards;
+        validCards = opponentHand.filter(card => card.suit === playerCard.suit);
+        if (validCards.length === 0) {
+            // If cannot follow suit, any card can be played
+            validCards = opponentHand;
         }
     }
 
@@ -482,8 +433,8 @@ function selectOpponentCard(playerCard = null) {
 
 // Display Trick
 function displayTrick(playerCard, opponentCard) {
-    const playerTrickArea = document.getElementById('player-played-card');
-    const opponentTrickArea = document.getElementById('opponent-played-card');
+    const playerTrickArea = document.getElementById('player-trick-cards');
+    const opponentTrickArea = document.getElementById('opponent-trick-cards');
     playerTrickArea.innerHTML = '';
     opponentTrickArea.innerHTML = '';
 
@@ -496,9 +447,6 @@ function displayTrick(playerCard, opponentCard) {
         const opponentCardDiv = createCardElement(opponentCard);
         opponentTrickArea.appendChild(opponentCardDiv);
     }
-
-    // Remove drop zone highlight
-    playerTrickArea.classList.remove('flashing', 'drop-zone');
 }
 
 // Determine Trick Winner
@@ -509,7 +457,6 @@ function determineTrickWinner(playerCard, opponentCard) {
 
     if (playerWins) {
         playerTricks.push(playerCard, opponentCard);
-        opponentGraveyard.push(playerCard, opponentCard);
         showMessage('You win the trick!');
         // Player gains SP from stars
         const spGained = (getCardStars(playerCard) + getCardStars(opponentCard)) * stakesMultiplier;
@@ -519,7 +466,6 @@ function determineTrickWinner(playerCard, opponentCard) {
         addChatMessage(opponentCharacter, opponentCharacter.dialogues.loseTrick[Math.floor(Math.random() * opponentCharacter.dialogues.loseTrick.length)]);
     } else {
         opponentTricks.push(playerCard, opponentCard);
-        playerGraveyard.push(playerCard, opponentCard);
         showMessage('Opponent wins the trick!');
         // Opponent gains SP from stars
         const spGained = (getCardStars(playerCard) + getCardStars(opponentCard)) * stakesMultiplier;
@@ -532,7 +478,6 @@ function determineTrickWinner(playerCard, opponentCard) {
     // Switch turn player for next trick
     turnPlayer = playerWins ? 'Player' : 'Opponent';
     opponentPlayedCard = null;
-    renderGraveyards();
 }
 
 // Get Card Stars
@@ -689,39 +634,65 @@ function opponentCanCrack() {
 
 // SUMMONING PHASE
 function playerSummoningPhase() {
-    showMessage('Drag creatures from your hand to your field to summon them.');
+    showMessage('Drag creatures from your hand to the battlefield to summon them.');
     setupSummoning();
 }
 
 function setupSummoning() {
-    const playerFieldDiv = document.getElementById('player-field');
-    playerFieldDiv.classList.add('drop-zone', 'flashing');
+    const playerBatteriesDiv = document.getElementById('player-batteries');
+    playerBatteriesDiv.classList.add('drop-zone', 'flashing');
+
+    playerBatteriesDiv.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    playerBatteriesDiv.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const card = playerHand[draggedCardIndex];
+        if (card.level && playerSP >= card.level) {
+            playerSP -= card.level;
+            updateSPDisplay();
+            playerHand.splice(draggedCardIndex, 1);
+
+            // Create a new Battery with the summoned creature
+            const battery = {
+                active: card,
+                inactives: []
+            };
+            playerField.push(battery);
+
+            showMessage(`You summoned ${card.name}!`);
+            renderHands();
+            renderBattlefield();
+            actionsThisPhase++;
+        } else {
+            showMessage('Not enough SP to summon this creature.');
+        }
+    });
+
+    // Allow setting inactives by dragging onto existing batteries
+    playerField.forEach((battery, index) => {
+        const batteryDiv = document.getElementById(`player-battery-${index}`);
+        batteryDiv.classList.add('drop-zone', 'flashing');
+        batteryDiv.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        batteryDiv.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const card = playerHand[draggedCardIndex];
+            if (battery.inactives.length < 2) {
+                battery.inactives.push(card);
+                playerHand.splice(draggedCardIndex, 1);
+                showMessage(`You set ${card.name} under ${battery.active.name}.`);
+                renderHands();
+                renderBattlefield();
+                actionsThisPhase++;
+            } else {
+                showMessage('This Battery already has two inactives.');
+            }
+        });
+    });
 }
 
-function handleSummoningDrop(cardIndex, dropZone) {
-    const card = playerHand[cardIndex];
-    if (card.level && playerSP >= card.level) {
-        playerSP -= card.level;
-        updateSPDisplay();
-        playerHand.splice(cardIndex, 1);
-
-        // Create a new Battery with the summoned creature
-        const battery = {
-            active: card,
-            inactives: []
-        };
-        playerField.push(battery);
-
-        showMessage(`You summoned ${card.name}!`);
-        renderHands();
-        renderBattlefield();
-        actionsThisPhase++;
-    } else {
-        showMessage('Not enough SP to summon this creature.');
-    }
-}
-
-// Opponent Summoning Phase
 function opponentSummoningPhase() {
     // AI summoning logic
     opponentSummonCreatures();
@@ -731,7 +702,7 @@ function opponentSummoningPhase() {
 
 // Opponent Summon Creatures
 function opponentSummonCreatures() {
-    let summonableCards = opponentHand.filter(card => card.type === 'Creature' && card.level && card.level <= opponentSP);
+    let summonableCards = opponentHand.filter(card => card.level && card.level <= opponentSP);
     if (summonableCards.length > 0) {
         let card = selectOptimalCreature(summonableCards);
         if (card) {
@@ -825,10 +796,6 @@ function showAbilityOptions(battery, index) {
         });
         abilitiesDiv.appendChild(button);
     });
-
-    // Remove any existing ability list
-    const existingAbilitiesDiv = batteryDiv.querySelector('.ability-list');
-    if (existingAbilitiesDiv) existingAbilitiesDiv.remove();
 
     // Append abilitiesDiv to the batteryDiv
     const batteryDiv = document.getElementById(`player-battery-${index}`);
@@ -1088,12 +1055,7 @@ function createBatteryElement(battery, owner, index) {
     batteryDiv.classList.add('battery');
 
     // Active Card
-    const activeCardDiv = document.createElement('div');
-    activeCardDiv.classList.add('card');
-    activeCardDiv.innerHTML = `
-        <div class="card-rank">Level: ${battery.active.level}</div>
-        <div class="card-suit">DEF: ${battery.active.def}</div>
-    `;
+    const activeCardDiv = createCardElement(battery.active);
     batteryDiv.appendChild(activeCardDiv);
 
     // Inactive Cards (face-down)
@@ -1270,7 +1232,6 @@ function showCardInfo(card) {
     const cardInfoDiv = document.getElementById('card-info-details');
     cardInfoDiv.innerHTML = `
         <h3>${card.name}</h3>
-        <img src="${card.image || 'images/card_placeholder.png'}" alt="${card.name}" style="width:100%;">
         <p>Type: ${card.type}</p>
         <p>Suit: ${card.suit}</p>
         <p>Rank: ${card.rank}</p>
@@ -1324,23 +1285,4 @@ function addChatMessage(character, message) {
 
     chatMessagesDiv.appendChild(messageDiv);
     chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-}
-
-function renderGraveyards() {
-    const playerGraveyardDiv = document.getElementById('player-graveyard-cards');
-    playerGraveyardDiv.innerHTML = '';
-    playerGraveyard.forEach(card => {
-        const cardDiv = createCardElement(card);
-        cardDiv.addEventListener('click', () => {
-            showCardInfo(card);
-        });
-        playerGraveyardDiv.appendChild(cardDiv);
-    });
-
-    const opponentGraveyardDiv = document.getElementById('opponent-graveyard-cards');
-    opponentGraveyardDiv.innerHTML = '';
-    opponentGraveyard.forEach(card => {
-        const cardDiv = createCardBackElement();
-        opponentGraveyardDiv.appendChild(cardDiv);
-    });
 }
