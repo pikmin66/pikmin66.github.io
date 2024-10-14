@@ -12,7 +12,7 @@ let playerSP = 50;
 let opponentSP = 50;
 let playerLP = 8000;
 let opponentLP = 8000;
-let currentPhase = 'Draw';
+let currentPhase = 'Not Started';
 let turnPlayer = 'Player'; // 'Player' or 'Opponent'
 let trumpSuit = 'Diamonds'; // As per Sheepshead rules
 let stakesMultiplier = 1;
@@ -100,6 +100,7 @@ function startGame() {
     drawStartingHands();
     renderHands();
     document.getElementById('start-game').disabled = true;
+    currentPhase = 'Draw';
     gameLoop();
 }
 
@@ -117,7 +118,7 @@ function resetGame() {
     opponentSP = 50;
     playerLP = 8000;
     opponentLP = 8000;
-    currentPhase = 'Draw';
+    currentPhase = 'Not Started';
     turnPlayer = 'Player';
     stakesMultiplier = 1;
     playerField = [];
@@ -1072,7 +1073,7 @@ function opponentEndPhase() {
     // AI discards down to six cards if necessary
     while (opponentHand.length > 6) {
         let discardedCard = opponentHand.pop();
-        opponentDeck.unshift(opponentCard);
+        opponentDeck.unshift(discardedCard);
     }
     endTurnEffects('Opponent');
     // Prepare for player's turn

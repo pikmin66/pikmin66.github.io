@@ -16,7 +16,7 @@
                 <p>Star Points (SP): <span id="player-sp">50</span></p>
             </div>
             <div id="phase-indicator">
-                <h2>Current Phase: <span id="current-phase">Draw Phase</span></h2>
+                <h2>Current Phase: <span id="current-phase">Not Started</span></h2>
                 <p>Turn: <span id="turn-player">Player</span></p>
             </div>
             <div id="opponent-info" class="player-info">
@@ -52,6 +52,18 @@
             <div id="player-cards"></div>
         </div>
 
+        <!-- Graveyards -->
+        <div id="graveyards">
+            <div id="player-graveyard">
+                <h3>Your Graveyard</h3>
+                <div id="player-graveyard-cards"></div>
+            </div>
+            <div id="opponent-graveyard">
+                <h3>Opponent's Graveyard</h3>
+                <div id="opponent-graveyard-cards"></div>
+            </div>
+        </div>
+
         <!-- Game Controls -->
         <div id="game-controls">
             <button id="start-game">Start Game</button>
@@ -77,6 +89,7 @@
         </div>
     </div>
 
+    <!-- Include your JavaScript file -->
     <script src="script.js"></script>
 </body>
 </html>

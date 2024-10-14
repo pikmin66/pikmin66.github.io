@@ -8,8 +8,6 @@
 <body>
     <div id="background"></div>
     <div id="game-container">
-        <h1>Sheepshead: Trickster Variant – Two-Player Edition</h1>
-
         <!-- Game Info -->
         <div id="game-info">
             <div id="player-info" class="player-info">
@@ -28,38 +26,15 @@
             </div>
         </div>
 
-        <!-- Battlefield -->
-        <div id="battlefield">
-            <!-- Play Area -->
+        <!-- Main Play Area -->
+        <div id="main-play-area">
             <div id="play-area">
+                <div id="opponent-batteries" class="batteries"></div>
                 <div id="play-table">
                     <div id="opponent-played-card" class="played-card-slot"></div>
                     <div id="player-played-card" class="played-card-slot drop-zone"></div>
                 </div>
-            </div>
-
-            <!-- Graveyards -->
-            <div id="graveyards">
-                <div id="opponent-graveyard" class="graveyard">
-                    <h3>Opponent's Graveyard</h3>
-                    <div id="opponent-graveyard-cards"></div>
-                </div>
-                <div id="player-graveyard" class="graveyard">
-                    <h3>Your Graveyard</h3>
-                    <div id="player-graveyard-cards"></div>
-                </div>
-            </div>
-
-            <!-- Player and Opponent Fields -->
-            <div id="fields">
-                <div id="opponent-field" class="field">
-                    <h2>Opponent's Field</h2>
-                    <div id="opponent-batteries" class="batteries"></div>
-                </div>
-                <div id="player-field" class="field">
-                    <h2>Your Field</h2>
-                    <div id="player-batteries" class="batteries"></div>
-                </div>
+                <div id="player-batteries" class="batteries"></div>
             </div>
         </div>
 
