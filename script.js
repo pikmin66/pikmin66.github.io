@@ -211,6 +211,7 @@ function renderHands() {
 
 // Make Card Draggable (Touch-Friendly)
 function makeCardDraggable(cardDiv, index) {
+    cardDiv.classList.add('draggable');
     cardDiv.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         onCardPointerDown(e, index, cardDiv);
@@ -218,16 +219,16 @@ function makeCardDraggable(cardDiv, index) {
 }
 
 function onCardPointerDown(e, cardIndex, cardElement) {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default touch actions
     draggedCardIndex = cardIndex;
-    let initialX = e.clientX || e.touches[0].clientX;
-    let initialY = e.clientY || e.touches[0].clientY;
+    let initialX = e.clientX || e.touches?.[0]?.clientX || e.pageX;
+    let initialY = e.clientY || e.touches?.[0]?.clientY || e.pageY;
     let moved = false;
 
     const onPointerMove = (e) => {
         moved = true;
-        let currentX = e.clientX || e.touches[0].clientX;
-        let currentY = e.clientY || e.touches[0].clientY;
+        let currentX = e.clientX || e.touches?.[0]?.clientX || e.pageX;
+        let currentY = e.clientY || e.touches?.[0]?.clientY || e.pageY;
         let dx = currentX - initialX;
         let dy = currentY - initialY;
         cardElement.style.transform = `translate(${dx}px, ${dy}px)`;
@@ -265,6 +266,19 @@ function createCardElement(card) {
     const cardDiv = document.createElement('div');
     cardDiv.classList.add('card');
 
+    // Apply border color based on card type
+    if (card.type === 'Creature') {
+        if (isTrump(card)) {
+            cardDiv.classList.add('taker-card');
+        } else {
+            cardDiv.classList.add('trickster-card');
+        }
+    } else if (card.type === 'Spell') {
+        cardDiv.classList.add('spell-card');
+    } else if (card.type === 'Trap') {
+        cardDiv.classList.add('trap-card');
+    }
+
     // Display based on phase
     if (currentPhase === 'Trick-Taking') {
         if (card.type === 'Creature' || card.type === 'Spell' || card.type === 'Trap') {
@@ -293,6 +307,10 @@ function createCardElement(card) {
             cardDiv.innerHTML = `
                 <div class="card-rank">Level: ${card.level || '-'}</div>
                 <div class="card-suit">DEF: ${card.def || '-'}</div>
+            `;
+        } else if (card.type === 'Spell' || card.type === 'Trap') {
+            cardDiv.innerHTML = `
+                <div class="card-rank">${card.name}</div>
             `;
         }
     }
@@ -694,8 +712,8 @@ function playerSummoningPhase() {
 }
 
 function setupSummoning() {
-    const playerFieldDiv = document.getElementById('player-field');
-    playerFieldDiv.classList.add('drop-zone', 'flashing');
+    const playerBatteriesDiv = document.getElementById('player-batteries');
+    playerBatteriesDiv.classList.add('drop-zone', 'flashing');
 }
 
 function handleSummoningDrop(cardIndex, dropZone) {
@@ -827,11 +845,11 @@ function showAbilityOptions(battery, index) {
     });
 
     // Remove any existing ability list
+    const batteryDiv = document.getElementById(`player-battery-${index}`);
     const existingAbilitiesDiv = batteryDiv.querySelector('.ability-list');
     if (existingAbilitiesDiv) existingAbilitiesDiv.remove();
 
     // Append abilitiesDiv to the batteryDiv
-    const batteryDiv = document.getElementById(`player-battery-${index}`);
     batteryDiv.appendChild(abilitiesDiv);
 }
 
@@ -848,7 +866,7 @@ function enableAttackTargets(attackerIndex) {
     // If no opponent creatures, allow direct attack
     if (opponentField.length === 0) {
         showMessage('No opponent creatures. Click on the opponent\'s field to attack directly.');
-        const opponentFieldDiv = document.getElementById('opponent-field');
+        const opponentFieldDiv = document.getElementById('play-area');
         opponentFieldDiv.classList.add('flashing');
         opponentFieldDiv.addEventListener('click', () => {
             executeAttack(attackerIndex, null);
@@ -872,7 +890,7 @@ function executeAttack(attackerIndex, targetIndex) {
         batteryDiv.classList.remove('flashing');
         batteryDiv.replaceWith(batteryDiv.cloneNode(true)); // Remove event listeners
     });
-    const opponentFieldDiv = document.getElementById('opponent-field');
+    const opponentFieldDiv = document.getElementById('play-area');
     opponentFieldDiv.classList.remove('flashing');
     opponentFieldDiv.replaceWith(opponentFieldDiv.cloneNode(true));
 
@@ -1054,7 +1072,7 @@ function opponentEndPhase() {
     // AI discards down to six cards if necessary
     while (opponentHand.length > 6) {
         let discardedCard = opponentHand.pop();
-        opponentDeck.unshift(discardedCard);
+        opponentDeck.unshift(opponentCard);
     }
     endTurnEffects('Opponent');
     // Prepare for player's turn
@@ -1090,6 +1108,14 @@ function createBatteryElement(battery, owner, index) {
     // Active Card
     const activeCardDiv = document.createElement('div');
     activeCardDiv.classList.add('card');
+
+    // Apply border color based on card type
+    if (isTrump(battery.active)) {
+        activeCardDiv.classList.add('taker-card');
+    } else {
+        activeCardDiv.classList.add('trickster-card');
+    }
+
     activeCardDiv.innerHTML = `
         <div class="card-rank">Level: ${battery.active.level}</div>
         <div class="card-suit">DEF: ${battery.active.def}</div>

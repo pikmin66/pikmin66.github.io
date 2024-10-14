@@ -15,7 +15,7 @@
             <div id="player-info" class="player-info">
                 <h2>Your Info</h2>
                 <p>Life Points (LP): <span id="player-lp">8000</span></p>
-                <p>Star Points (SP): <span id="player-sp">100</span></p>
+                <p>Star Points (SP): <span id="player-sp">50</span></p>
             </div>
             <div id="phase-indicator">
                 <h2>Current Phase: <span id="current-phase">Draw Phase</span></h2>
@@ -24,32 +24,42 @@
             <div id="opponent-info" class="player-info">
                 <h2>Opponent's Info</h2>
                 <p>Life Points (LP): <span id="opponent-lp">8000</span></p>
-                <p>Star Points (SP): <span id="opponent-sp">100</span></p>
+                <p>Star Points (SP): <span id="opponent-sp">50</span></p>
             </div>
         </div>
 
         <!-- Battlefield -->
         <div id="battlefield">
-            <div id="opponent-field" class="field">
-                <h2>Opponent's Field</h2>
-                <div id="opponent-batteries" class="batteries"></div>
+            <!-- Play Area -->
+            <div id="play-area">
+                <div id="play-table">
+                    <div id="opponent-played-card" class="played-card-slot"></div>
+                    <div id="player-played-card" class="played-card-slot drop-zone"></div>
+                </div>
             </div>
-            <div id="player-field" class="field">
-                <h2>Your Field</h2>
-                <div id="player-batteries" class="batteries"></div>
-            </div>
-        </div>
 
-        <!-- Play Area -->
-        <div id="play-area">
-            <h2>Play Area</h2>
-            <div id="player-played-cards" class="played-cards">
-                <h3>Your Played Card</h3>
-                <div id="player-trick-cards" class="drop-zone"></div>
+            <!-- Graveyards -->
+            <div id="graveyards">
+                <div id="opponent-graveyard" class="graveyard">
+                    <h3>Opponent's Graveyard</h3>
+                    <div id="opponent-graveyard-cards"></div>
+                </div>
+                <div id="player-graveyard" class="graveyard">
+                    <h3>Your Graveyard</h3>
+                    <div id="player-graveyard-cards"></div>
+                </div>
             </div>
-            <div id="opponent-played-cards" class="played-cards">
-                <h3>Opponent's Played Card</h3>
-                <div id="opponent-trick-cards"></div>
+
+            <!-- Player and Opponent Fields -->
+            <div id="fields">
+                <div id="opponent-field" class="field">
+                    <h2>Opponent's Field</h2>
+                    <div id="opponent-batteries" class="batteries"></div>
+                </div>
+                <div id="player-field" class="field">
+                    <h2>Your Field</h2>
+                    <div id="player-batteries" class="batteries"></div>
+                </div>
             </div>
         </div>
 
@@ -59,12 +69,6 @@
         <!-- Chat Interface -->
         <div id="chat-interface">
             <div id="chat-messages"></div>
-        </div>
-
-        <!-- Opponent Hand (Hidden in UI but accessible in code) -->
-        <div id="opponent-hand" class="card-container" style="display: none;">
-            <h2>Opponent's Hand</h2>
-            <div id="opponent-cards"></div>
         </div>
 
         <!-- Player Hand -->
