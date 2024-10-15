@@ -117,16 +117,36 @@ function initializeGame() {
 
 // Start Game
 function startGame() {
+    console.log('Start Game button clicked.');
+    
+    // Reset game state if necessary
     resetGame();
+    
+    // Shuffle and deal cards
     createPlayerDecks();
     shuffleDeck(playerDeck);
     shuffleDeck(opponentDeck);
     drawStartingHands();
+    
+    // Render hands on the UI
     renderHands();
-    document.getElementById('start-game').disabled = true;
+    
+    // Disable Start Game button to prevent multiple initializations
+    const startGameButton = document.getElementById('start-game');
+    if (startGameButton) {
+        startGameButton.disabled = true;
+    }
+    
+    // Update game phases and UI elements as needed
     currentPhase = 'Draw';
+    updatePhaseDisplay();
+    
+    console.log('Game started.');
+    
+    // Begin the game loop or other game functionalities
     gameLoop();
 }
+
 
 // Reset Game State
 function resetGame() {
