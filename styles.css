@@ -15,7 +15,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('images/background.jpg'); /* Use an appropriate background image */
+    background-image: url('images/background.jpg');
     background-size: cover;
     background-position: center;
     opacity: 0.3;
@@ -32,11 +32,11 @@ html, body {
     display: flex;
     justify-content: space-around;
     padding: 10px;
-    background-color: rgba(54, 69, 79, 0.8); /* Charcoal Gray with transparency */
+    background-color: rgba(54, 69, 79, 0.8);
 }
 
 .player-info, #phase-indicator {
-    background-color: #36454F; /* Charcoal Gray */
+    background-color: #36454F;
     padding: 10px;
     border-radius: 5px;
     color: #FFFFF0;
@@ -48,12 +48,12 @@ html, body {
 #main-play-area {
     position: relative;
     width: 100%;
-    height: calc(100% - 150px); /* Adjusted to account for the hand and headers */
+    height: calc(100% - 150px);
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    margin-top: 50px; /* Adjust as needed */
+    margin-top: 50px;
 }
 
 #play-area {
@@ -83,14 +83,12 @@ html, body {
     margin: 10px 0;
 }
 
-/* Battery Grid */
 .battery-grid {
     display: grid;
     grid-template-columns: repeat(4, 80px);
     grid-gap: 10px;
 }
 
-/* Battery Slots */
 .battery-slot {
     width: 80px;
     height: 120px;
@@ -104,7 +102,6 @@ html, body {
     border-color: #FFD700;
 }
 
-/* Graveyard */
 .graveyard {
     position: absolute;
     top: 50%;
@@ -120,13 +117,12 @@ html, body {
     height: 90px;
 }
 
-/* Adjusted Play Area */
 #play-table {
     position: relative;
-    width: 80%; /* Increased width */
-    height: 60vh; /* Increased height */
+    width: 80%;
+    height: 60vh;
     background-color: #228B22;
-    border-radius: 50% / 30%; /* Oval shape */
+    border-radius: 50% / 30%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -161,14 +157,13 @@ html, body {
     bottom: 220px;
     left: 0;
     width: 100%;
-    background-color: rgba(54, 69, 79, 0.8); /* Charcoal Gray with transparency */
+    background-color: rgba(54, 69, 79, 0.8);
     padding: 10px;
     color: #FFFFF0;
     text-align: center;
     font-size: 18px;
 }
 
-/* Chat Interface */
 #chat-interface {
     position: absolute;
     top: 0;
@@ -182,7 +177,6 @@ html, body {
     z-index: 2;
 }
 
-/* Player Hand */
 #player-hand {
     position: fixed;
     bottom: 0;
@@ -204,7 +198,6 @@ html, body {
     padding: 0;
 }
 
-/* Card Sizes */
 .card {
     position: relative;
     height: 25vh;
@@ -221,14 +214,13 @@ html, body {
     z-index: 2;
 }
 
-/* Dragging */
 .card.dragging {
     z-index: 1000;
 }
 
 .card.selected {
-    transform: translateY(-20vh); /* Slide up when selected */
-    z-index: 1000; /* Bring to front */
+    transform: translateY(-20vh);
+    z-index: 1000;
 }
 
 .card img {
@@ -261,23 +253,27 @@ html, body {
 
 #game-controls {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 10px;
+    z-index: 3;
+    background-color: rgba(54, 69, 79, 0.8);
+    border-radius: 5px;
 }
 
 #game-controls button {
     margin: 5px;
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #DAA520; /* Gold */
+    background-color: #DAA520;
     color: #000;
     border: none;
     border-radius: 5px;
 }
 
 #game-controls button:hover {
-    background-color: #FFD700; /* Brighter Gold */
+    background-color: #FFD700;
 }
 
 .modal {
@@ -311,7 +307,7 @@ html, body {
 }
 
 .draggable {
-    touch-action: none; /* Prevent scrolling on touch devices during drag */
+    touch-action: none; /* Prevent scrolling during drag */
 }
 
 .dragging {
@@ -405,10 +401,10 @@ html, body {
     #chat-interface {
         font-size: 14px;
     }
-	#main-play-area {
+    #main-play-area {
         margin-top: 20px;
     }
-	button, .chat-text, #game-messages {
+    button, .chat-text, #game-messages {
         font-size: 22px;
     }
 }
@@ -442,7 +438,7 @@ html, body {
     #chat-interface {
         font-size: 12px;
     }
-	button, .chat-text, #game-messages {
+    button, .chat-text, #game-messages {
         font-size: 24px;
     }
 }
@@ -477,25 +473,20 @@ html, body {
     font-size: 24px;
     padding: 15px 30px;
     margin: 10px;
-    background-color: #DAA520; /* Gold */
+    background-color: #DAA520;
     color: #000;
     border: none;
     border-radius: 5px;
 }
 
 .crack-buttons button:hover {
-    background-color: #FFD700; /* Brighter Gold */
+    background-color: #FFD700;
 }
 
 /* Cracking Highlights */
 .cracking-highlight {
     border: 4px solid red;
     animation: crackingGlow 1s infinite alternate;
-}
-
-/* Font Sizes */
-button, .chat-text, #game-messages {
-    font-size: 20px;
 }
 
 @keyframes crackingGlow {
@@ -505,4 +496,9 @@ button, .chat-text, #game-messages {
     to {
         box-shadow: 0 0 20px red;
     }
+}
+
+/* Font Sizes */
+button, .chat-text, #game-messages {
+    font-size: 20px;
 }
