@@ -810,7 +810,7 @@ function highlightBatterySlots() {
 }
 
 function removeBatterySlotHighlights() {
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 16; i++) {
         const slot = document.getElementById(`battery-slot-${i}`);
         slot.classList.remove('highlight', 'drop-zone');
     }
@@ -1412,7 +1412,7 @@ function hideHierarchyModal() {
     modal.style.display = 'none';
 }
 
-function showCardInfo(card) {
+function showCardInfo(card, index) {
     const modal = document.getElementById('card-info-modal');
     modal.style.display = 'block';
     const cardInfoDiv = document.getElementById('card-info-details');

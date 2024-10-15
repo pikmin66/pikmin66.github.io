@@ -308,43 +308,37 @@ function createCardElement(card) {
         cardDiv.classList.add('trap-card');
     }
 
-    // Display based on phase
-    if (currentPhase === 'Trick-Taking') {
-        if (card.type === 'Creature') {
-            // Display Suit/Rank and SP
-            const suitSymbols = {
-                'Hearts': '♥',
-                'Diamonds': '♦',
-                'Clubs': '♣',
-                'Spades': '♠'
-            };
-            cardDiv.innerHTML = `
-                <div class="card-rank">${card.rank || ''}</div>
-                <div class="card-suit">${suitSymbols[card.suit] || ''}</div>
-                <div class="card-info">SP: ${getCardStars(card)}</div>
-            `;
-        }
-    } else if (currentPhase === 'Summoning') {
-        if (card.type === 'Creature') {
-            // Display Level and SP Cost
-            cardDiv.innerHTML = `
-                <div class="card-rank">Level: ${card.level || '-'}</div>
-                <div class="card-suit">SP Cost: ${card.level || '-'}</div>
-            `;
-        } else if (card.type === 'Spell' || card.type === 'Trap') {
-            cardDiv.innerHTML = `
-                <div class="card-rank">${card.name}</div>
-            `;
-        }
-    } else {
-        // Other phases
+    // Display based on card type
+    if (card.type === 'Creature') {
+        // Display Suit/Rank and SP
+        const suitSymbols = {
+            'Hearts': '♥',
+            'Diamonds': '♦',
+            'Clubs': '♣',
+            'Spades': '♠'
+        };
         cardDiv.innerHTML = `
-            <div class="card-rank">${card.name}</div>
+            <div class="card-rank">${card.rank || ''}</div>
+            <div class="card-suit">${suitSymbols[card.suit] || ''}</div>
+            <div class="card-info">SP: ${card.stars || 0}</div>
+        `;
+    } else if (card.type === 'Spell' || card.type === 'Trap') {
+        // Display Spell/Trap name and subtype
+        cardDiv.innerHTML = `
+            <div class="card-name">${card.name}</div>
+            <div class="card-subtype">${card.subtype}</div>
+            <div class="card-info">${card.effect.description}</div>
+        `;
+    } else {
+        // Handle other card types if any
+        cardDiv.innerHTML = `
+            <div class="card-name">${card.name}</div>
         `;
     }
 
     return cardDiv;
 }
+
 
 // Create Card Back Element
 function createCardBackElement() {
