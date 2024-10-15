@@ -193,6 +193,7 @@ function renderHands() {
         const cardDiv = createCardElement(card);
         cardDiv.dataset.index = index;
         cardDiv.addEventListener('click', () => {
+            cardDiv.classList.toggle('selected');
             showCardInfo(card);
         });
         if (currentPhase === 'Trick-Taking') {
@@ -282,7 +283,7 @@ function createCardElement(card) {
 
     // Display based on phase
     if (currentPhase === 'Trick-Taking') {
-        if (card.type === 'Creature' || card.type === 'Spell' || card.type === 'Trap') {
+        if (card.type === 'Creature') {
             // Display Suit/Rank and SP
             const suitSymbols = {
                 'Hearts': '♥',
@@ -293,27 +294,26 @@ function createCardElement(card) {
             cardDiv.innerHTML = `
                 <div class="card-rank">${card.rank || ''}</div>
                 <div class="card-suit">${suitSymbols[card.suit] || ''}</div>
+                <div class="card-info">SP: ${getCardStars(card)}</div>
             `;
-            const infoDiv = document.createElement('div');
-            infoDiv.classList.add('card-info');
-            infoDiv.innerHTML = `
-                <p>${card.name}</p>
-                <p>SP: ${getCardStars(card)}</p>
-            `;
-            cardDiv.appendChild(infoDiv);
         }
-    } else {
+    } else if (currentPhase === 'Summoning') {
         if (card.type === 'Creature') {
-            // Display Level and DEF
+            // Display Level and SP Cost
             cardDiv.innerHTML = `
                 <div class="card-rank">Level: ${card.level || '-'}</div>
-                <div class="card-suit">DEF: ${card.def || '-'}</div>
+                <div class="card-suit">SP Cost: ${card.level || '-'}</div>
             `;
         } else if (card.type === 'Spell' || card.type === 'Trap') {
             cardDiv.innerHTML = `
                 <div class="card-rank">${card.name}</div>
             `;
         }
+    } else {
+        // Other phases
+        cardDiv.innerHTML = `
+            <div class="card-rank">${card.name}</div>
+        `;
     }
 
     return cardDiv;
@@ -407,8 +407,8 @@ function opponentTurn() {
 
 // DRAW PHASE
 function playerDrawPhase() {
-    // Player draws up to 2 cards
-    let cardsToDraw = playerHand.length <= 5 ? 2 : 1;
+    // Player draws up to 2 cards if hand size is less than 6
+    let cardsToDraw = playerHand.length < 6 ? Math.min(6 - playerHand.length, 2) : 0;
     for (let i = 0; i < cardsToDraw; i++) {
         if (playerDeck.length > 0) {
             playerHand.push(playerDeck.pop());
@@ -420,8 +420,8 @@ function playerDrawPhase() {
 }
 
 function opponentDrawPhase() {
-    // Opponent draws up to 2 cards
-    let cardsToDraw = opponentHand.length <= 5 ? 2 : 1;
+    // Opponent draws up to 2 cards if hand size is less than 6
+    let cardsToDraw = opponentHand.length < 6 ? Math.min(6 - opponentHand.length, 2) : 0;
     for (let i = 0; i < cardsToDraw; i++) {
         if (opponentDeck.length > 0) {
             opponentHand.push(opponentDeck.pop());
@@ -528,7 +528,8 @@ function determineTrickWinner(playerCard, opponentCard) {
 
     if (playerWins) {
         playerTricks.push(playerCard, opponentCard);
-        opponentGraveyard.push(playerCard, opponentCard);
+        // Send cards to player's graveyard
+        playerGraveyard.push(playerCard, opponentCard);
         showMessage('You win the trick!');
         // Player gains SP from stars
         const spGained = (getCardStars(playerCard) + getCardStars(opponentCard)) * stakesMultiplier;
@@ -538,7 +539,8 @@ function determineTrickWinner(playerCard, opponentCard) {
         addChatMessage(opponentCharacter, opponentCharacter.dialogues.loseTrick[Math.floor(Math.random() * opponentCharacter.dialogues.loseTrick.length)]);
     } else {
         opponentTricks.push(playerCard, opponentCard);
-        playerGraveyard.push(playerCard, opponentCard);
+        // Send cards to opponent's graveyard
+        opponentGraveyard.push(playerCard, opponentCard);
         showMessage('Opponent wins the trick!');
         // Opponent gains SP from stars
         const spGained = (getCardStars(playerCard) + getCardStars(opponentCard)) * stakesMultiplier;
@@ -547,6 +549,10 @@ function determineTrickWinner(playerCard, opponentCard) {
         // AI chat reaction
         addChatMessage(opponentCharacter, opponentCharacter.dialogues.winTrick[Math.floor(Math.random() * opponentCharacter.dialogues.winTrick.length)]);
     }
+
+    // Remove played cards from the play area
+    document.getElementById('player-played-card').innerHTML = '';
+    document.getElementById('opponent-played-card').innerHTML = '';
 
     // Switch turn player for next trick
     turnPlayer = playerWins ? 'Player' : 'Opponent';
@@ -810,13 +816,13 @@ function playerBattlePhase() {
         showMessage('You have no creatures to attack with.');
         return;
     }
-    showMessage('Click on your creature to select an ability, then click on an opponent\'s creature to attack.');
+    showMessage('Select one of your creatures to attack.');
 
-    // Add click events to player's creatures
+    // Highlight player's active creatures
     playerField.forEach((battery, index) => {
         const batteryDiv = document.getElementById(`player-battery-${index}`);
-        const activeCardDiv = batteryDiv.querySelector('.card');
-        activeCardDiv.addEventListener('click', () => {
+        batteryDiv.classList.add('flashing');
+        batteryDiv.addEventListener('click', () => {
             showAbilityOptions(battery, index);
         });
     });
@@ -840,6 +846,7 @@ function showAbilityOptions(battery, index) {
             battery.selectedAbility = ability;
             battery.selectedAbilityTier = tier;
             showMessage(`You selected ${battery.active.name}'s ${tier} attack. Now select a target.`);
+            removePlayerHighlights();
             enableAttackTargets(index);
         });
         abilitiesDiv.appendChild(button);
@@ -854,22 +861,30 @@ function showAbilityOptions(battery, index) {
     batteryDiv.appendChild(abilitiesDiv);
 }
 
+function removePlayerHighlights() {
+    playerField.forEach((battery, index) => {
+        const batteryDiv = document.getElementById(`player-battery-${index}`);
+        batteryDiv.classList.remove('flashing');
+        batteryDiv.replaceWith(batteryDiv.cloneNode(true)); // Remove event listeners
+    });
+}
+
 function enableAttackTargets(attackerIndex) {
     // Add click events to opponent's creatures
-    opponentField.forEach((battery, index) => {
-        const batteryDiv = document.getElementById(`opponent-battery-${index}`);
-        batteryDiv.classList.add('flashing');
-        batteryDiv.addEventListener('click', () => {
-            executeAttack(attackerIndex, index);
+    if (opponentField.length > 0) {
+        opponentField.forEach((battery, index) => {
+            const batteryDiv = document.getElementById(`opponent-battery-${index}`);
+            batteryDiv.classList.add('flashing');
+            batteryDiv.addEventListener('click', () => {
+                executeAttack(attackerIndex, index);
+            });
         });
-    });
-
-    // If no opponent creatures, allow direct attack
-    if (opponentField.length === 0) {
+    } else {
+        // Direct attack
         showMessage('No opponent creatures. Click on the opponent\'s field to attack directly.');
-        const opponentFieldDiv = document.getElementById('play-area');
-        opponentFieldDiv.classList.add('flashing');
-        opponentFieldDiv.addEventListener('click', () => {
+        const opponentSideDiv = document.getElementById('opponent-side');
+        opponentSideDiv.classList.add('flashing');
+        opponentSideDiv.addEventListener('click', () => {
             executeAttack(attackerIndex, null);
         });
     }
@@ -891,9 +906,9 @@ function executeAttack(attackerIndex, targetIndex) {
         batteryDiv.classList.remove('flashing');
         batteryDiv.replaceWith(batteryDiv.cloneNode(true)); // Remove event listeners
     });
-    const opponentFieldDiv = document.getElementById('play-area');
-    opponentFieldDiv.classList.remove('flashing');
-    opponentFieldDiv.replaceWith(opponentFieldDiv.cloneNode(true));
+    const opponentSideDiv = document.getElementById('opponent-side');
+    opponentSideDiv.classList.remove('flashing');
+    opponentSideDiv.replaceWith(opponentSideDiv.cloneNode(true));
 
     if (targetIndex !== null) {
         // Attacking opponent's creature
@@ -950,6 +965,13 @@ function executeAttack(attackerIndex, targetIndex) {
     }
 
     actionsThisPhase++;
+    // Check if all creatures have acted
+    if (actionsThisPhase >= playerField.length) {
+        currentPhase = 'End';
+        gameLoop();
+    } else {
+        playerBattlePhase();
+    }
 }
 
 function opponentBattlePhase() {
@@ -1098,6 +1120,9 @@ function renderBattlefield() {
     opponentField.forEach((battery, index) => {
         const batteryDiv = createBatteryElement(battery, 'Opponent', index);
         batteryDiv.id = `opponent-battery-${index}`;
+        batteryDiv.addEventListener('click', () => {
+            showCardInfo(battery.active);
+        });
         opponentBatteriesDiv.appendChild(batteryDiv);
     });
 }
@@ -1121,6 +1146,9 @@ function createBatteryElement(battery, owner, index) {
         <div class="card-rank">Level: ${battery.active.level}</div>
         <div class="card-suit">DEF: ${battery.active.def}</div>
     `;
+    activeCardDiv.addEventListener('click', () => {
+        showCardInfo(battery.active);
+    });
     batteryDiv.appendChild(activeCardDiv);
 
     // Inactive Cards (face-down)
@@ -1356,18 +1384,15 @@ function addChatMessage(character, message) {
 function renderGraveyards() {
     const playerGraveyardDiv = document.getElementById('player-graveyard-cards');
     playerGraveyardDiv.innerHTML = '';
-    playerGraveyard.forEach(card => {
-        const cardDiv = createCardElement(card);
-        cardDiv.addEventListener('click', () => {
-            showCardInfo(card);
-        });
+    if (playerGraveyard.length > 0) {
+        const cardDiv = createCardBackElement();
         playerGraveyardDiv.appendChild(cardDiv);
-    });
+    }
 
     const opponentGraveyardDiv = document.getElementById('opponent-graveyard-cards');
     opponentGraveyardDiv.innerHTML = '';
-    opponentGraveyard.forEach(card => {
+    if (opponentGraveyard.length > 0) {
         const cardDiv = createCardBackElement();
         opponentGraveyardDiv.appendChild(cardDiv);
-    });
+    }
 }

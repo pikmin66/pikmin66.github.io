@@ -29,12 +29,29 @@
         <!-- Main Play Area -->
         <div id="main-play-area">
             <div id="play-area">
-                <div id="opponent-batteries" class="batteries"></div>
+                <!-- Opponent's Side -->
+                <div id="opponent-side">
+                    <div id="opponent-batteries" class="batteries"></div>
+                    <div id="opponent-graveyard" class="graveyard">
+                        <h3>Opponent's Graveyard</h3>
+                        <div id="opponent-graveyard-cards"></div>
+                    </div>
+                </div>
+
+                <!-- Play Table -->
                 <div id="play-table">
                     <div id="opponent-played-card" class="played-card-slot"></div>
-                    <div id="player-played-card" class="played-card-slot drop-zone"></div>
+                    <div id="player-played-card" class="played-card-slot"></div>
                 </div>
-                <div id="player-batteries" class="batteries"></div>
+
+                <!-- Player's Side -->
+                <div id="player-side">
+                    <div id="player-batteries" class="batteries"></div>
+                    <div id="player-graveyard" class="graveyard">
+                        <h3>Your Graveyard</h3>
+                        <div id="player-graveyard-cards"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -48,20 +65,7 @@
 
         <!-- Player Hand -->
         <div id="player-hand" class="card-container">
-            <h2>Your Hand</h2>
             <div id="player-cards"></div>
-        </div>
-
-        <!-- Graveyards -->
-        <div id="graveyards">
-            <div id="player-graveyard">
-                <h3>Your Graveyard</h3>
-                <div id="player-graveyard-cards"></div>
-            </div>
-            <div id="opponent-graveyard">
-                <h3>Opponent's Graveyard</h3>
-                <div id="opponent-graveyard-cards"></div>
-            </div>
         </div>
 
         <!-- Game Controls -->
