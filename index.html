@@ -44,20 +44,16 @@
                     <div id="player-played-card" class="played-card-slot"></div>
                 </div>
 
-                <!-- Player's Side -->
-                <div id="player-side">
-                    <div id="player-batteries" class="batteries">
-                        <!-- Battery Slots -->
-                        <div class="battery-slot" id="battery-slot-1"></div>
-                        <div class="battery-slot" id="battery-slot-2"></div>
-                        <div class="battery-slot" id="battery-slot-3"></div>
-                        <div class="battery-slot" id="battery-slot-4"></div>
-                    </div>
-                    <div id="player-graveyard" class="graveyard">
-                        <h3>Your Graveyard</h3>
-                        <div id="player-graveyard-cards"></div>
-                    </div>
-                </div>
+				<!-- Player's Side -->
+				<div id="player-side">
+					<div id="player-batteries" class="batteries">
+						<!-- Battery Grid (4x4) -->
+						<div class="battery-grid">
+							<!-- Generate 16 battery slots -->
+							${[...Array(16)].map((_, i) => `<div class="battery-slot" id="battery-slot-${i + 1}"></div>`).join('')}
+					</div>
+				</div>
+				<!-- Graveyard moved to the left -->
             </div>
         </div>
 

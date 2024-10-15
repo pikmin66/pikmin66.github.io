@@ -83,33 +83,56 @@ html, body {
     margin: 10px 0;
 }
 
+/* Battery Grid */
+.battery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    grid-gap: 10px;
+}
+
+/* Battery Slots */
 .battery-slot {
-    width: 100px;
-    height: 150px;
+    width: 80px;
+    height: 120px;
     border: 2px dashed transparent;
-    margin: 5px;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .battery-slot.highlight {
-    border-color: #FFD700; /* Gold color to highlight */
+    border-color: #FFD700;
 }
 
+/* Graveyard */
 .graveyard {
-    width: 20%;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 10%;
     text-align: center;
+    z-index: 2;
 }
 
+.graveyard .card {
+    width: 60px;
+    height: 90px;
+}
+
+/* Adjusted Play Area */
 #play-table {
     position: relative;
-    width: 400px;
-    height: 400px;
-    background-color: #228B22; /* Forest Green */
-    border-radius: 50%;
+    width: 80%; /* Increased width */
+    height: 60vh; /* Increased height */
+    background-color: #228B22;
+    border-radius: 50% / 30%; /* Oval shape */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow: visible;
+    z-index: 1;
 }
 
 .played-card-slot {
@@ -145,27 +168,32 @@ html, body {
     font-size: 18px;
 }
 
+/* Chat Interface */
 #chat-interface {
     position: absolute;
-    bottom: 160px;
-    left: 0;
-    width: 100%;
-    background-color: rgba(54, 69, 79, 0.8); /* Charcoal Gray with transparency */
+    top: 0;
+    right: 0;
+    width: 20%;
+    height: 100%;
+    background-color: rgba(54, 69, 79, 0.8);
     padding: 10px;
-    max-height: 150px;
     overflow-y: auto;
-    font-size: 16px;
+    font-size: 20px;
+    z-index: 2;
 }
 
+/* Player Hand */
 #player-hand {
     position: fixed;
-    bottom: -20vh; /* Move it down to partially cut off the cards */
+    bottom: 0;
     left: 0;
     width: 100%;
-    padding: 0;
-    margin: 0;
-    overflow: visible;
-    z-index: 5; /* Adjusted z-index */
+    height: 33vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 5;
+    overflow-x: auto;
 }
 
 #player-cards {
@@ -176,20 +204,26 @@ html, body {
     padding: 0;
 }
 
+/* Card Sizes */
 .card {
     position: relative;
-    height: 33vh; /* Approximately one-third of the viewport height */
-    width: 22vh;  /* Adjust width to maintain aspect ratio */
-    margin: 0 -15vh; /* Adjust overlap between cards */
+    height: 25vh;
+    width: 17vh;
+    margin: 0 -12vh;
     text-align: center;
     cursor: pointer;
     color: #000;
-    background-color: #FFFFF0; /* Ivory */
+    background-color: #FFFFF0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    z-index: 1;
     transition: transform 0.3s;
+    z-index: 2;
+}
+
+/* Dragging */
+.card.dragging {
+    z-index: 1000;
 }
 
 .card.selected {
@@ -345,9 +379,9 @@ html, body {
         height: 150px;
     }
     .card {
-        height: 28vh;
-        width: 19vh;
-        margin: 0 -13vh;
+        height: 20vh;
+        width: 13vh;
+        margin: 0 -9vh;
     }
     .card-rank {
         font-size: 20px;
@@ -371,6 +405,12 @@ html, body {
     #chat-interface {
         font-size: 14px;
     }
+	#main-play-area {
+        margin-top: 20px;
+    }
+	button, .chat-text, #game-messages {
+        font-size: 22px;
+    }
 }
 
 @media only screen and (max-width: 480px) {
@@ -383,9 +423,9 @@ html, body {
         height: 120px;
     }
     .card {
-        height: 24vh;
-        width: 16vh;
-        margin: 0 -11vh;
+        height: 18vh;
+        width: 12vh;
+        margin: 0 -8vh;
     }
     .card-rank {
         font-size: 18px;
@@ -401,6 +441,9 @@ html, body {
     }
     #chat-interface {
         font-size: 12px;
+    }
+	button, .chat-text, #game-messages {
+        font-size: 24px;
     }
 }
 
@@ -448,6 +491,11 @@ html, body {
 .cracking-highlight {
     border: 4px solid red;
     animation: crackingGlow 1s infinite alternate;
+}
+
+/* Font Sizes */
+button, .chat-text, #game-messages {
+    font-size: 20px;
 }
 
 @keyframes crackingGlow {
