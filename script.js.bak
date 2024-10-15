@@ -554,10 +554,6 @@ function determineTrickWinner(playerCard, opponentCard) {
     document.getElementById('player-played-card').innerHTML = '';
     document.getElementById('opponent-played-card').innerHTML = '';
 
-    // Remove trick-taking highlights
-    const playerTrickArea = document.getElementById('player-played-card');
-    playerTrickArea.classList.remove('flashing', 'drop-zone');
-
     // Switch turn player for next trick
     turnPlayer = playerWins ? 'Player' : 'Opponent';
     opponentPlayedCard = null;
@@ -652,7 +648,6 @@ function getSuitValue(card) {
 
 // CRACKING PHASE
 function playerCrackingPhase() {
-    highlightCrackingCards();
     showMessage('Do you want to declare a crack to double the stakes?');
     showOptions([
         {
@@ -660,16 +655,12 @@ function playerCrackingPhase() {
             action: () => {
                 stakesMultiplier *= 2;
                 showMessage(`You declared a crack! Stakes are now multiplied by ${stakesMultiplier}.`);
-                removeCrackButtons();
-                removeCrackingHighlights();
                 opponentCrackingPhase(true);
             }
         },
         {
             label: 'Do Not Crack',
             action: () => {
-                removeCrackButtons();
-                removeCrackingHighlights();
                 currentPhase = 'Summoning';
                 gameLoop();
             }
@@ -721,71 +712,15 @@ function opponentCanCrack() {
     return highTakers.length >= 2 || opponentSP >= 500;
 }
 
-function highlightCrackingCards() {
-    const crackingCards = playerHand.filter(card => (card.rank === 'Queen' || card.rank === 'Jack') && isTrump(card));
-    crackingCards.forEach(card => {
-        const index = playerHand.indexOf(card);
-        const cardElement = document.querySelector(`.card[data-index="${index}"]`);
-        if (cardElement) {
-            cardElement.classList.add('cracking-highlight');
-        }
-    });
-}
-
-function removeCrackingHighlights() {
-    const highlightedCards = document.querySelectorAll('.cracking-highlight');
-    highlightedCards.forEach(cardElement => {
-        cardElement.classList.remove('cracking-highlight');
-    });
-}
-
-function showOptions(options) {
-    const playTable = document.getElementById('play-table');
-    const buttonsDiv = document.createElement('div');
-    buttonsDiv.classList.add('crack-buttons');
-
-    options.forEach(option => {
-        const button = document.createElement('button');
-        button.textContent = option.label;
-        button.addEventListener('click', option.action);
-        buttonsDiv.appendChild(button);
-    });
-
-    playTable.appendChild(buttonsDiv);
-}
-
-function removeCrackButtons() {
-    const buttonsDiv = document.querySelector('.crack-buttons');
-    if (buttonsDiv) {
-        buttonsDiv.remove();
-    }
-}
-
 // SUMMONING PHASE
 function playerSummoningPhase() {
     showMessage('Drag creatures from your hand to your field to summon them.');
     setupSummoning();
-    highlightBatterySlots();
-    // Lower the z-index of the player's hand
-    document.getElementById('player-hand').style.zIndex = '1';
 }
 
 function setupSummoning() {
-    // Summoning setup if needed
-}
-
-function highlightBatterySlots() {
-    for (let i = 1; i <= 4; i++) {
-        const slot = document.getElementById(`battery-slot-${i}`);
-        slot.classList.add('highlight', 'drop-zone');
-    }
-}
-
-function removeBatterySlotHighlights() {
-    for (let i = 1; i <= 4; i++) {
-        const slot = document.getElementById(`battery-slot-${i}`);
-        slot.classList.remove('highlight', 'drop-zone');
-    }
+    const playerBatteriesDiv = document.getElementById('player-batteries');
+    playerBatteriesDiv.classList.add('drop-zone', 'flashing');
 }
 
 function handleSummoningDrop(cardIndex, dropZone) {
@@ -877,9 +812,6 @@ function opponentSetInactives() {
 
 // BATTLE PHASE
 function playerBattlePhase() {
-    // Reset z-index after summoning phase
-    document.getElementById('player-hand').style.zIndex = '5';
-
     if (playerField.length === 0) {
         showMessage('You have no creatures to attack with.');
         return;
@@ -1352,6 +1284,17 @@ function showMessage(message) {
     gameMessagesDiv.innerHTML = `<p>${message}</p>`;
 }
 
+function showOptions(options) {
+    const gameMessagesDiv = document.getElementById('game-messages');
+    gameMessagesDiv.innerHTML = ''; // Clear previous messages
+    options.forEach(option => {
+        const button = document.createElement('button');
+        button.textContent = option.label;
+        button.addEventListener('click', option.action);
+        gameMessagesDiv.appendChild(button);
+    });
+}
+
 function showHierarchyModal() {
     const modal = document.getElementById('hierarchy-modal');
     modal.style.display = 'block';
@@ -1408,7 +1351,6 @@ function endPhase() {
     switch (currentPhase) {
         case 'Summoning':
             currentPhase = 'Battle';
-            removeBatterySlotHighlights();
             gameLoop();
             break;
         case 'Battle':

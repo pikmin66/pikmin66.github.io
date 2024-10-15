@@ -46,13 +46,7 @@
 
                 <!-- Player's Side -->
                 <div id="player-side">
-                    <div id="player-batteries" class="batteries">
-                        <!-- Battery Slots -->
-                        <div class="battery-slot" id="battery-slot-1"></div>
-                        <div class="battery-slot" id="battery-slot-2"></div>
-                        <div class="battery-slot" id="battery-slot-3"></div>
-                        <div class="battery-slot" id="battery-slot-4"></div>
-                    </div>
+                    <div id="player-batteries" class="batteries"></div>
                     <div id="player-graveyard" class="graveyard">
                         <h3>Your Graveyard</h3>
                         <div id="player-graveyard-cards"></div>
@@ -70,7 +64,7 @@
         </div>
 
         <!-- Player Hand -->
-        <div id="player-hand">
+        <div id="player-hand" class="card-container">
             <div id="player-cards"></div>
         </div>
 
