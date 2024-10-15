@@ -64,16 +64,6 @@ const endPhaseButton = document.getElementById('end-phase');
 
 const chatMessagesDiv = document.getElementById('chat-messages');
 
-document.addEventListener('DOMContentLoaded', () => {
-    const startGameButton = document.getElementById('start-game');
-    if (startGameButton) {
-        startGameButton.addEventListener('click', startGame);
-        console.log('Start Game button event listener attached.');
-    } else {
-        console.error('Start Game button not found.');
-    }
-});
-
 
 // Load cards from cards.json
 fetch('cards.json')
@@ -98,7 +88,7 @@ function generateBatterySlots() {
 
 // Initialize Game
 function initializeGame() {
-    document.getElementById('start-game').addEventListener('click', startGame);
+    // Removed redundant Start Game event listener
     document.getElementById('show-hierarchy').addEventListener('click', showHierarchyModal);
     document.querySelector('.close-button').addEventListener('click', hideHierarchyModal);
     document.querySelector('.close-card-info-button').addEventListener('click', hideCardInfoModal);
@@ -114,6 +104,7 @@ function initializeGame() {
         }
     };
 }
+
 
 // Start Game
 function startGame() {
@@ -145,7 +136,17 @@ function startGame() {
     
     // Begin the game loop or other game functionalities
     gameLoop();
-}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const startGameButton = document.getElementById('start-game');
+    if (startGameButton) {
+        startGameButton.addEventListener('click', startGame);
+        console.log('Start Game button event listener attached.');
+    } else {
+        console.error('Start Game button not found.');
+    }
+});
 
 
 // Reset Game State
