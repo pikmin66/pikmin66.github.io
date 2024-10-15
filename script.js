@@ -69,8 +69,21 @@ fetch('cards.json')
     .then(response => response.json())
     .then(data => {
         deck = data;
+        // Initialize game after generating battery slots
+        generateBatterySlots();
         initializeGame();
     });
+
+// Generate Battery Slots
+function generateBatterySlots() {
+    const batteryGrid = document.getElementById('battery-grid');
+    for (let i = 1; i <= 16; i++) {
+        const slotDiv = document.createElement('div');
+        slotDiv.classList.add('battery-slot');
+        slotDiv.id = `battery-slot-${i}`;
+        batteryGrid.appendChild(slotDiv);
+    }
+}
 
 // Initialize Game
 function initializeGame() {
@@ -797,7 +810,7 @@ function highlightBatterySlots() {
 }
 
 function removeBatterySlotHighlights() {
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 16; i++) {
         const slot = document.getElementById(`battery-slot-${i}`);
         slot.classList.remove('highlight', 'drop-zone');
     }
@@ -1399,7 +1412,7 @@ function hideHierarchyModal() {
     modal.style.display = 'none';
 }
 
-function showCardInfo(card) {
+function showCardInfo(card, index) {
     const modal = document.getElementById('card-info-modal');
     modal.style.display = 'block';
     const cardInfoDiv = document.getElementById('card-info-details');

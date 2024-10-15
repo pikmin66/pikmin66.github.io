@@ -69,8 +69,21 @@ fetch('cards.json')
     .then(response => response.json())
     .then(data => {
         deck = data;
+        // Initialize game after generating battery slots
+        generateBatterySlots();
         initializeGame();
     });
+
+// Generate Battery Slots
+function generateBatterySlots() {
+    const batteryGrid = document.getElementById('battery-grid');
+    for (let i = 1; i <= 16; i++) {
+        const slotDiv = document.createElement('div');
+        slotDiv.classList.add('battery-slot');
+        slotDiv.id = `battery-slot-${i}`;
+        batteryGrid.appendChild(slotDiv);
+    }
+}
 
 // Initialize Game
 function initializeGame() {
@@ -192,10 +205,9 @@ function renderHands() {
     playerHand.forEach((card, index) => {
         const cardDiv = createCardElement(card);
         cardDiv.dataset.index = index;
-        cardDiv.addEventListener('click', () => {
-            cardDiv.classList.toggle('selected');
-            showCardInfo(card);
-        });
+		cardDiv.addEventListener('click', () => {
+			showCardInfo(card, index);
+		});
         if (currentPhase === 'Trick-Taking') {
             if (card.type === 'Spell' || card.type === 'Trap') {
                 cardDiv.classList.add('grayed-out');
@@ -220,22 +232,36 @@ function makeCardDraggable(cardDiv, index) {
     });
 }
 
+// Adjusted onCardPointerDown for smoother dragging
 function onCardPointerDown(e, cardIndex, cardElement) {
-    e.preventDefault(); // Prevent default touch actions
+    e.preventDefault();
     draggedCardIndex = cardIndex;
     let initialX = e.clientX || e.touches?.[0]?.clientX || e.pageX;
     let initialY = e.clientY || e.touches?.[0]?.clientY || e.pageY;
     let moved = false;
 
+    let lastX = initialX;
+    let lastY = initialY;
+
     const onPointerMove = (e) => {
         moved = true;
+        cardElement.classList.add('dragging');
         let currentX = e.clientX || e.touches?.[0]?.clientX || e.pageX;
         let currentY = e.clientY || e.touches?.[0]?.clientY || e.pageY;
         let dx = currentX - initialX;
         let dy = currentY - initialY;
-        cardElement.style.transform = `translate(${dx}px, ${dy}px)`;
-        cardElement.style.zIndex = 1000;
+        lastX = dx;
+        lastY = dy;
     };
+
+    const updatePosition = () => {
+        if (moved) {
+            cardElement.style.transform = `translate(${lastX}px, ${lastY}px)`;
+        }
+        requestAnimationFrame(updatePosition);
+    };
+
+    requestAnimationFrame(updatePosition);
 
     const onPointerUp = (e) => {
         document.removeEventListener('pointermove', onPointerMove);
@@ -243,6 +269,7 @@ function onCardPointerDown(e, cardIndex, cardElement) {
 
         cardElement.style.transform = '';
         cardElement.style.zIndex = '';
+        cardElement.classList.remove('dragging');
 
         if (moved) {
             let dropTarget = document.elementFromPoint(e.clientX, e.clientY);
@@ -255,7 +282,7 @@ function onCardPointerDown(e, cardIndex, cardElement) {
             }
         } else {
             // Treat as a click/tap
-            showCardInfo(playerHand[cardIndex]);
+            showCardInfo(playerHand[cardIndex], cardIndex);
         }
     };
 
@@ -774,8 +801,9 @@ function setupSummoning() {
     // Summoning setup if needed
 }
 
+// Highlight 16 battery slots during summoning
 function highlightBatterySlots() {
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 16; i++) {
         const slot = document.getElementById(`battery-slot-${i}`);
         slot.classList.add('highlight', 'drop-zone');
     }
@@ -788,26 +816,34 @@ function removeBatterySlotHighlights() {
     }
 }
 
+// Adjust handleSummoningDrop to place cards into the correct slot
 function handleSummoningDrop(cardIndex, dropZone) {
-    const card = playerHand[cardIndex];
-    if (card.level && playerSP >= card.level) {
-        playerSP -= card.level;
-        updateSPDisplay();
-        playerHand.splice(cardIndex, 1);
+    const slotId = dropZone.id;
+    const slotNumber = parseInt(slotId.split('-')[2]);
+    // Ensure the slot is valid and available
+    if (slotNumber && !playerField[slotNumber - 1]) {
+        const card = playerHand[cardIndex];
+        if (card.level && playerSP >= card.level) {
+            playerSP -= card.level;
+            updateSPDisplay();
+            playerHand.splice(cardIndex, 1);
 
-        // Create a new Battery with the summoned creature
-        const battery = {
-            active: card,
-            inactives: []
-        };
-        playerField.push(battery);
+            // Create a new Battery with the summoned creature
+            const battery = {
+                active: card,
+                inactives: []
+            };
+            playerField[slotNumber - 1] = battery;
 
-        showMessage(`You summoned ${card.name}!`);
-        renderHands();
-        renderBattlefield();
-        actionsThisPhase++;
+            showMessage(`You summoned ${card.name}!`);
+            renderHands();
+            renderBattlefield();
+            actionsThisPhase++;
+        } else {
+            showMessage('Not enough SP to summon this creature.');
+        }
     } else {
-        showMessage('Not enough SP to summon this creature.');
+        showMessage('This slot is already occupied.');
     }
 }
 
@@ -1397,11 +1433,20 @@ function showCardInfo(card) {
         </ul>
         <p>${card.flavor_text || ''}</p>
     `;
+	    const cardElement = document.querySelector(`.card[data-index="${index}"]`);
+    if (cardElement) {
+        cardElement.classList.add('selected');
+    }
 }
 
 function hideCardInfoModal() {
     const modal = document.getElementById('card-info-modal');
     modal.style.display = 'none';
+	// Move the card back down
+    const selectedCard = document.querySelector('.card.selected');
+    if (selectedCard) {
+        selectedCard.classList.remove('selected');
+    }
 }
 
 function endPhase() {
