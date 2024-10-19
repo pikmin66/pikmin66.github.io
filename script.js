@@ -344,8 +344,10 @@ function onCardPointerDown(e, cardIndex, cardElement) {
     let initialY = e.clientY || e.touches?.[0]?.clientY || e.pageY;
     let moved = false;
 
-    let lastX = initialX;
-    let lastY = initialY;
+    let lastX = 0;
+    let lastY = 0;
+
+    let lastDropZone = null; // Initialize lastDropZone
 
     const onPointerMove = (e) => {
         moved = true;
@@ -356,20 +358,35 @@ function onCardPointerDown(e, cardIndex, cardElement) {
         let dy = currentY - initialY;
         lastX = dx;
         lastY = dy;
-    };
 
-    const updatePosition = () => {
-        if (moved) {
-            cardElement.style.transform = `translate(${lastX}px, ${lastY}px)`;
+        // Move the card
+        cardElement.style.transform = `translate(${lastX}px, ${lastY}px)`;
+
+        // Highlight drop zones when dragging over them
+        const elementUnderCursor = document.elementFromPoint(currentX, currentY);
+
+        // Remove highlight from previous drop zone if any
+        if (lastDropZone && lastDropZone !== elementUnderCursor) {
+            lastDropZone.classList.remove('hovered-drop-zone');
         }
-        requestAnimationFrame(updatePosition);
-    };
 
-    requestAnimationFrame(updatePosition);
+        // Highlight new drop zone if applicable
+        if (elementUnderCursor && elementUnderCursor.classList.contains('drop-zone')) {
+            elementUnderCursor.classList.add('hovered-drop-zone');
+            lastDropZone = elementUnderCursor;
+        } else {
+            lastDropZone = null;
+        }
+    };
 
     const onPointerUp = (e) => {
         document.removeEventListener('pointermove', onPointerMove);
         document.removeEventListener('pointerup', onPointerUp);
+
+        // Remove highlight from any drop zone
+        if (lastDropZone) {
+            lastDropZone.classList.remove('hovered-drop-zone');
+        }
 
         cardElement.style.transform = '';
         cardElement.style.zIndex = '';
@@ -393,6 +410,7 @@ function onCardPointerDown(e, cardIndex, cardElement) {
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
 }
+
 
 // Create Card Element
 function createCardElement(card) {
@@ -886,14 +904,26 @@ function removeCrackButtons() {
     }
 }
 
+function removePreviousHighlights() {
+    const highlightedElements = document.querySelectorAll('.highlight, .drop-zone, .flashing');
+    highlightedElements.forEach(element => {
+        element.classList.remove('highlight', 'drop-zone', 'flashing');
+    });
+}
+
+
 // SUMMONING PHASE
 function playerSummoningPhase() {
+    // Remove previous highlights
+    removePreviousHighlights();
+
     showMessage('Drag creatures from your hand to your field to summon them.');
     setupSummoning();
     highlightBatterySlots();
     // Lower the z-index of the player's hand
     document.getElementById('player-hand').style.zIndex = '1';
 }
+
 
 function setupSummoning() {
     // Summoning setup if needed
@@ -903,9 +933,12 @@ function setupSummoning() {
 function highlightBatterySlots() {
     for (let i = 1; i <= 16; i++) {
         const slot = document.getElementById(`battery-slot-${i}`);
-        slot.classList.add('highlight', 'drop-zone');
+        if (!playerField[i - 1]) { // Only highlight empty slots
+            slot.classList.add('highlight', 'drop-zone');
+        }
     }
 }
+
 
 function removeBatterySlotHighlights() {
     for (let i = 1; i <= 16; i++) {

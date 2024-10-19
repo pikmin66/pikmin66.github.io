@@ -3,7 +3,6 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Prevent scrolling */
     font-family: 'Roboto', sans-serif;
     background-color: #0D5C2D; /* Deep Green */
     color: #FFFFF0; /* Ivory */
@@ -90,13 +89,14 @@ html, body {
 }
 
 .battery-slot {
-    width: 80px;
-    height: 120px;
+    width: 17vh; /* Match the card width */
+    height: 25vh; /* Match the card height */
     border: 2px dashed transparent;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 
 .battery-slot.highlight {
     border-color: #FFD700;
@@ -335,10 +335,12 @@ html, body {
 }
 
 .dragging {
-    opacity: 0.5;
+    opacity: 0.8;
     position: absolute;
     z-index: 1000;
+    pointer-events: none;
 }
+
 
 .drop-zone {
     border: 2px dashed #DAA520;
