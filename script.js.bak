@@ -93,7 +93,8 @@ function generateBatterySlots() {
 // Initialize Game
 function initializeGame() {
     console.log('initializeGame() called.');
-	// Assign UI elements
+
+    // Assign UI elements
     playerLPDisplay = document.getElementById('player-lp');
     opponentLPDisplay = document.getElementById('opponent-lp');
     playerSPDisplay = document.getElementById('player-sp');
@@ -107,19 +108,40 @@ function initializeGame() {
     chatMessagesDiv = document.getElementById('chat-messages');
 
     // Add event listeners
-	const startGameButton = document.getElementById('start-game');
-	if (startGameButton) {
-		console.log('Attaching event listener to Start Game button.');
-		startGameButton.addEventListener('click', startGame);
-	} else {
-		console.error('Start Game button not found.');
-	}
+    const startGameButton = document.getElementById('start-game');
+    if (startGameButton) {
+        console.log('Attaching event listener to Start Game button.');
+        startGameButton.addEventListener('click', startGame);
+    } else {
+        console.error('Start Game button not found.');
+    }
 
+    const showHierarchyButton = document.getElementById('show-hierarchy');
+    if (showHierarchyButton) {
+        showHierarchyButton.addEventListener('click', showHierarchyModal);
+    } else {
+        console.error('Show Hierarchy button not found.');
+    }
 
-    document.getElementById('show-hierarchy').addEventListener('click', showHierarchyModal);
-    document.querySelector('.close-button').addEventListener('click', hideHierarchyModal);
-    document.querySelector('.close-card-info-button').addEventListener('click', hideCardInfoModal);
-    endPhaseButton.addEventListener('click', endPhase);
+    const closeHierarchyButton = document.querySelector('.close-button');
+    if (closeHierarchyButton) {
+        closeHierarchyButton.addEventListener('click', hideHierarchyModal);
+    } else {
+        console.error('Close Hierarchy button not found.');
+    }
+
+    const closeCardInfoButton = document.querySelector('.close-card-info-button');
+    if (closeCardInfoButton) {
+        closeCardInfoButton.addEventListener('click', hideCardInfoModal);
+    } else {
+        console.error('Close Card Info button not found.');
+    }
+
+    if (endPhaseButton) {
+        endPhaseButton.addEventListener('click', endPhase);
+    } else {
+        console.error('End Phase button not found.');
+    }
 
     window.onclick = function(event) {
         const hierarchyModal = document.getElementById('hierarchy-modal');
@@ -134,13 +156,14 @@ function initializeGame() {
 }
 
 
+
 // Start Game
 function startGame() {
     console.log('Start Game button clicked.');
 
 
 	//Ensure UI elements are assigned
-	initializeGame();
+	//initializeGame();
     // Reset game state if necessary
     resetGame();
 
