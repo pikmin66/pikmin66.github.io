@@ -131,6 +131,9 @@ function initializeGame() {
 function startGame() {
     console.log('Start Game button clicked.');
 
+
+	//Ensure UI elements are assigned
+	initializeGame();
     // Reset game state if necessary
     resetGame();
 
