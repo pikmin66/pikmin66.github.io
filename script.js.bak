@@ -107,8 +107,14 @@ function initializeGame() {
     chatMessagesDiv = document.getElementById('chat-messages');
 
     // Add event listeners
-    const startGameButton = document.getElementById('start-game');
-    startGameButton.addEventListener('click', startGame);
+	const startGameButton = document.getElementById('start-game');
+	if (startGameButton) {
+		console.log('Attaching event listener to Start Game button.');
+		startGameButton.addEventListener('click', startGame);
+	} else {
+		console.error('Start Game button not found.');
+	}
+
 
     document.getElementById('show-hierarchy').addEventListener('click', showHierarchyModal);
     document.querySelector('.close-button').addEventListener('click', hideHierarchyModal);
