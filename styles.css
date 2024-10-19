@@ -51,9 +51,9 @@ html, body {
     height: calc(100% - 150px);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; /* Vertically center the play area */
     overflow: hidden;
-    margin-top: 50px;
+    /* Remove margin-top to prevent shifting */
 }
 
 #play-area {
@@ -63,7 +63,7 @@ html, body {
     max-width: 1000px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Horizontally center the table */
     justify-content: space-between;
 }
 

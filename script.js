@@ -64,7 +64,6 @@ const endPhaseButton = document.getElementById('end-phase');
 
 const chatMessagesDiv = document.getElementById('chat-messages');
 
-
 // Load cards from cards.json
 fetch('cards.json')
     .then(response => response.json())
@@ -88,7 +87,9 @@ function generateBatterySlots() {
 
 // Initialize Game
 function initializeGame() {
-    // Removed redundant Start Game event listener
+    const startGameButton = document.getElementById('start-game');
+    startGameButton.addEventListener('click', startGame);
+
     document.getElementById('show-hierarchy').addEventListener('click', showHierarchyModal);
     document.querySelector('.close-button').addEventListener('click', hideHierarchyModal);
     document.querySelector('.close-card-info-button').addEventListener('click', hideCardInfoModal);
@@ -105,38 +106,37 @@ function initializeGame() {
     };
 }
 
-
 // Start Game
 function startGame() {
     console.log('Start Game button clicked.');
-    
+
     // Reset game state if necessary
     resetGame();
-    
+
     // Shuffle and deal cards
     createPlayerDecks();
     shuffleDeck(playerDeck);
     shuffleDeck(opponentDeck);
     drawStartingHands();
-    
+
     // Render hands on the UI
     renderHands();
-    
+
     // Disable Start Game button to prevent multiple initializations
     const startGameButton = document.getElementById('start-game');
     if (startGameButton) {
         startGameButton.disabled = true;
     }
-    
+
     // Update game phases and UI elements as needed
     currentPhase = 'Draw';
     updatePhaseDisplay();
-    
+
     console.log('Game started.');
-    
+
     // Begin the game loop or other game functionalities
     gameLoop();
-
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const startGameButton = document.getElementById('start-game');
