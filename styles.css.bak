@@ -197,17 +197,19 @@ html, body {
 }
 
 #player-hand {
+    display: none; /* Hide the player hand initially */
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 33vh;
-    display: flex;
+    display: flex; /* This will be overridden by the 'none' above */
     justify-content: center;
     align-items: flex-end;
     z-index: 5;
     overflow-x: auto;
 }
+
 
 #player-cards {
     display: flex;
@@ -276,7 +278,7 @@ html, body {
     left: 50%;
     transform: translateX(-50%);
     padding: 10px;
-    z-index: 6; /* Increase this value */
+    z-index: 3;
     background-color: rgba(54, 69, 79, 0.8);
     border-radius: 5px;
 }

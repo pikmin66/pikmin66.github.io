@@ -161,8 +161,6 @@ function initializeGame() {
 function startGame() {
     console.log('Start Game button clicked.');
 
-    // Show the player hand
-    document.getElementById('player-hand').style.display = 'flex';
 
 	//Ensure UI elements are assigned
 	//initializeGame();
