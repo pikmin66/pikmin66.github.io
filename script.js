@@ -112,9 +112,11 @@ function initializeGame() {
     if (startGameButton) {
         console.log('Attaching event listener to Start Game button.');
         startGameButton.addEventListener('click', startGame);
+        startGameButton.disabled = false; // Enable the button
     } else {
         console.error('Start Game button not found.');
     }
+
 
     const showHierarchyButton = document.getElementById('show-hierarchy');
     if (showHierarchyButton) {
@@ -160,8 +162,14 @@ function initializeGame() {
 // Start Game
 function startGame() {
     console.log('Start Game button clicked.');
+    console.log('Deck length:', deck.length);
 
-
+    if (deck.length === 0) {
+        console.log('Deck is empty. Cannot start game.');
+        showMessage('The game is still loading. Please wait a moment and try again.');
+        return;
+    }
+	
 	//Ensure UI elements are assigned
 	//initializeGame();
     // Reset game state if necessary

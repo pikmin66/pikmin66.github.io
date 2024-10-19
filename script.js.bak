@@ -112,9 +112,11 @@ function initializeGame() {
     if (startGameButton) {
         console.log('Attaching event listener to Start Game button.');
         startGameButton.addEventListener('click', startGame);
+        startGameButton.disabled = false; // Enable the button
     } else {
         console.error('Start Game button not found.');
     }
+
 
     const showHierarchyButton = document.getElementById('show-hierarchy');
     if (showHierarchyButton) {
@@ -161,8 +163,6 @@ function initializeGame() {
 function startGame() {
     console.log('Start Game button clicked.');
 
-    // Show the player hand
-    document.getElementById('player-hand').style.display = 'flex';
 
 	//Ensure UI elements are assigned
 	//initializeGame();
