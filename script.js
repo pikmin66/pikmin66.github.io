@@ -65,14 +65,19 @@ const endPhaseButton = document.getElementById('end-phase');
 const chatMessagesDiv = document.getElementById('chat-messages');
 
 // Load cards from cards.json
-fetch('cards.json')
-    .then(response => response.json())
-    .then(data => {
-        deck = data;
-        // Initialize game after generating battery slots
-        generateBatterySlots();
-        initializeGame();
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('cards.json')
+        .then(response => response.json())
+        .then(data => {
+            deck = data;
+            // Initialize game after generating battery slots
+            generateBatterySlots();
+            initializeGame();
+        })
+        .catch(error => {
+            console.error('Error fetching cards.json:', error);
+        });
+});
 
 // Generate Battery Slots
 function generateBatterySlots() {
@@ -138,15 +143,16 @@ function startGame() {
     gameLoop();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const startGameButton = document.getElementById('start-game');
-    if (startGameButton) {
-        startGameButton.addEventListener('click', startGame);
-        console.log('Start Game button event listener attached.');
-    } else {
-        console.error('Start Game button not found.');
-    }
-});
+// Remove this redundant event listener
+// document.addEventListener('DOMContentLoaded', () => {
+//     const startGameButton = document.getElementById('start-game');
+//     if (startGameButton) {
+//         startGameButton.addEventListener('click', startGame);
+//         console.log('Start Game button event listener attached.');
+//     } else {
+//         console.error('Start Game button not found.');
+//     }
+// });
 
 
 // Reset Game State
