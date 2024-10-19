@@ -198,7 +198,7 @@ html, body {
 
 /* styles.css */
 #player-hand {
-    display: none; /* Hide the player hand initially */
+    display: flex; /* Hide the player hand initially */
     position: fixed;
     bottom: 0;
     left: 0;
@@ -215,16 +215,18 @@ html, body {
 #player-cards {
     display: flex;
     justify-content: center;
+    align-items: flex-end;
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding: 0;
+    padding: 10px;
 }
+
 
 .card {
     position: relative;
     height: 25vh;
     width: 17vh;
-    margin: 0 -12vh;
+    margin: 0 5px;
     text-align: center;
     cursor: pointer;
     color: #000;
