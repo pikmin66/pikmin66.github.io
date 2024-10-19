@@ -52,17 +52,17 @@ let opponentCharacter = {
 };
 
 // UI Elements
-const playerLPDisplay = document.getElementById('player-lp');
-const opponentLPDisplay = document.getElementById('opponent-lp');
-const playerSPDisplay = document.getElementById('player-sp');
-const opponentSPDisplay = document.getElementById('opponent-sp');
+let playerLPDisplay;
+let opponentLPDisplay;
+let playerSPDisplay;
+let opponentSPDisplay;
 
-const currentPhaseDisplay = document.getElementById('current-phase');
-const turnPlayerDisplay = document.getElementById('turn-player');
+let currentPhaseDisplay;
+let turnPlayerDisplay;
 
-const endPhaseButton = document.getElementById('end-phase');
+let endPhaseButton;
 
-const chatMessagesDiv = document.getElementById('chat-messages');
+let chatMessagesDiv;
 
 // Load cards from cards.json
 document.addEventListener('DOMContentLoaded', () => {
@@ -92,6 +92,20 @@ function generateBatterySlots() {
 
 // Initialize Game
 function initializeGame() {
+    // Assign UI elements
+    playerLPDisplay = document.getElementById('player-lp');
+    opponentLPDisplay = document.getElementById('opponent-lp');
+    playerSPDisplay = document.getElementById('player-sp');
+    opponentSPDisplay = document.getElementById('opponent-sp');
+
+    currentPhaseDisplay = document.getElementById('current-phase');
+    turnPlayerDisplay = document.getElementById('turn-player');
+
+    endPhaseButton = document.getElementById('end-phase');
+
+    chatMessagesDiv = document.getElementById('chat-messages');
+
+    // Add event listeners
     const startGameButton = document.getElementById('start-game');
     startGameButton.addEventListener('click', startGame);
 
@@ -99,6 +113,7 @@ function initializeGame() {
     document.querySelector('.close-button').addEventListener('click', hideHierarchyModal);
     document.querySelector('.close-card-info-button').addEventListener('click', hideCardInfoModal);
     endPhaseButton.addEventListener('click', endPhase);
+
     window.onclick = function(event) {
         const hierarchyModal = document.getElementById('hierarchy-modal');
         const cardInfoModal = document.getElementById('card-info-modal');
@@ -110,6 +125,7 @@ function initializeGame() {
         }
     };
 }
+
 
 // Start Game
 function startGame() {

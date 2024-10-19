@@ -143,15 +143,16 @@ function startGame() {
     gameLoop();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const startGameButton = document.getElementById('start-game');
-    if (startGameButton) {
-        startGameButton.addEventListener('click', startGame);
-        console.log('Start Game button event listener attached.');
-    } else {
-        console.error('Start Game button not found.');
-    }
-});
+// Remove this redundant event listener
+// document.addEventListener('DOMContentLoaded', () => {
+//     const startGameButton = document.getElementById('start-game');
+//     if (startGameButton) {
+//         startGameButton.addEventListener('click', startGame);
+//         console.log('Start Game button event listener attached.');
+//     } else {
+//         console.error('Start Game button not found.');
+//     }
+// });
 
 
 // Reset Game State
