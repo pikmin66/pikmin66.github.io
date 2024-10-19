@@ -164,6 +164,10 @@ function startGame() {
     console.log('Start Game button clicked.');
     console.log('Deck length:', deck.length);
 
+
+	    // Show the player hand
+    document.getElementById('player-hand').style.display = 'flex';
+	
     if (deck.length === 0) {
         console.log('Deck is empty. Cannot start game.');
         showMessage('The game is still loading. Please wait a moment and try again.');
@@ -292,7 +296,10 @@ function drawStartingHands() {
         if (playerDeck.length > 0) playerHand.push(playerDeck.pop());
         if (opponentDeck.length > 0) opponentHand.push(opponentDeck.pop());
     }
+    console.log('Player Hand after drawing:', playerHand);
+    console.log('Opponent Hand after drawing:', opponentHand);
 }
+
 
 // Render Hands
 function renderHands() {

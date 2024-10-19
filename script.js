@@ -296,10 +296,14 @@ function drawStartingHands() {
         if (playerDeck.length > 0) playerHand.push(playerDeck.pop());
         if (opponentDeck.length > 0) opponentHand.push(opponentDeck.pop());
     }
+    console.log('Player Hand after drawing:', playerHand);
+    console.log('Opponent Hand after drawing:', opponentHand);
 }
+
 
 // Render Hands
 function renderHands() {
+	console.log('Rendering player hand:', playerHand);
     const playerCardsDiv = document.getElementById('player-cards');
     playerCardsDiv.innerHTML = '';
     playerHand.forEach((card, index) => {
