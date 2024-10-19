@@ -92,7 +92,8 @@ function generateBatterySlots() {
 
 // Initialize Game
 function initializeGame() {
-    // Assign UI elements
+    console.log('initializeGame() called.');
+	// Assign UI elements
     playerLPDisplay = document.getElementById('player-lp');
     opponentLPDisplay = document.getElementById('opponent-lp');
     playerSPDisplay = document.getElementById('player-sp');
@@ -106,8 +107,14 @@ function initializeGame() {
     chatMessagesDiv = document.getElementById('chat-messages');
 
     // Add event listeners
-    const startGameButton = document.getElementById('start-game');
-    startGameButton.addEventListener('click', startGame);
+	const startGameButton = document.getElementById('start-game');
+	if (startGameButton) {
+		console.log('Attaching event listener to Start Game button.');
+		startGameButton.addEventListener('click', startGame);
+	} else {
+		console.error('Start Game button not found.');
+	}
+
 
     document.getElementById('show-hierarchy').addEventListener('click', showHierarchyModal);
     document.querySelector('.close-button').addEventListener('click', hideHierarchyModal);
@@ -176,6 +183,7 @@ function startGame() {
 
 // Reset Game State
 function resetGame() {
+	console.log('resetGame() called.');
     playerDeck = [];
     opponentDeck = [];
     playerHand = [];

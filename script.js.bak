@@ -92,7 +92,8 @@ function generateBatterySlots() {
 
 // Initialize Game
 function initializeGame() {
-    // Assign UI elements
+    console.log('initializeGame() called.');
+	// Assign UI elements
     playerLPDisplay = document.getElementById('player-lp');
     opponentLPDisplay = document.getElementById('opponent-lp');
     playerSPDisplay = document.getElementById('player-sp');
@@ -131,6 +132,9 @@ function initializeGame() {
 function startGame() {
     console.log('Start Game button clicked.');
 
+
+	//Ensure UI elements are assigned
+	initializeGame();
     // Reset game state if necessary
     resetGame();
 
@@ -173,6 +177,7 @@ function startGame() {
 
 // Reset Game State
 function resetGame() {
+	console.log('resetGame() called.');
     playerDeck = [];
     opponentDeck = [];
     playerHand = [];
