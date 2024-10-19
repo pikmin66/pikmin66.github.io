@@ -164,6 +164,10 @@ function startGame() {
     console.log('Start Game button clicked.');
     console.log('Deck length:', deck.length);
 
+
+	    // Show the player hand
+    document.getElementById('player-hand').style.display = 'flex';
+	
     if (deck.length === 0) {
         console.log('Deck is empty. Cannot start game.');
         showMessage('The game is still loading. Please wait a moment and try again.');
